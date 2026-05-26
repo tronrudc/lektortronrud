@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Klasseromsvisning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --bg:         #eeecea;
+  --slate:      #2d3748;
+  --surface:    #ffffff;
+  --border:     #2d3748;
+
+  --green:      #4caf50;
+  --orange:     #f5a623;
+  --blue:       #00bcd4;
+  --grey-hue:   #78909c;
+
+  --ink:        #1a1a1a;
+  --ink-soft:   #555;
+  --ink-faint:  #999;
+
+  --r: 14px;
+  --r-pill: 50px;
+  --font: 'Atkinson Hyperlegible', Arial, sans-serif;
+
+  --card-shadow:    4px 5px 0px rgba(45,55,72,0.28);
+  --card-shadow-sm: 3px 3px 0px rgba(45,55,72,0.22);
+
+  --gap: 11px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  gap: var(--gap);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#top-bar    { animation: fadeUp 0.35s ease both; }
+#middle-row { animation: fadeUp 0.35s 0.06s ease both; }
+#tasks-row  { animation: fadeUp 0.35s 0.12s ease both; }
+
+/* ================================================================
+   LIBRARY OVERLAY
+   ================================================================ */
+#library-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4); z-index: 100;
+  align-items: center; justify-content: center;
+}
+#library-overlay.open { display: flex; }
+
+#library-panel {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: var(--r); box-shadow: 6px 7px 0 rgba(45,55,72,0.28);
+  padding: 28px 32px; min-width: 500px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+#library-panel h2 { font-size: 1.5rem; font-weight: 700; }
+#library-list { display: flex; flex-direction: column; gap: 9px; }
+
+.library-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 16px; border-radius: var(--r);
+  background: var(--bg); border: 2px solid var(--border);
+  box-shadow: var(--card-shadow-sm); cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease; gap: 14px;
+}
+.library-item:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 rgba(45,55,72,0.28); }
+.library-item.active { background: #e8f5e9; border-color: var(--green); }
+.lib-item-info { flex: 1; }
+.lib-item-tema { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.3px; color: var(--ink-faint); margin-bottom: 3px; }
+.lib-item-title { font-size: 1rem; font-weight: 700; }
+.lib-item-badge {
+  font-size: 0.68rem; font-weight: 700; padding: 5px 13px; border-radius: var(--r-pill);
+  background: var(--slate); color: #fff; white-space: nowrap;
+  border: 2px solid var(--border); box-shadow: 2px 2px 0 rgba(45,55,72,0.22);
+}
+.library-item.active .lib-item-badge { background: var(--green); border-color: var(--green); }
+#library-close {
+  font-family: var(--font); font-size: 0.82rem; font-weight: 700;
+  padding: 9px 24px; border-radius: var(--r-pill); border: 2px solid var(--border);
+  background: var(--bg); color: var(--ink); cursor: pointer;
+  box-shadow: var(--card-shadow-sm); align-self: flex-end;
+  transition: transform 0.1s, background 0.1s, color 0.1s;
+}
+#library-close:hover { background: var(--slate); color: #fff; transform: translate(-1px,-1px); }
+
+/* ================================================================
+   TOP BAR — compact height
+   ================================================================ */
+#top-bar {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto 1fr auto;
+  align-items: center; gap: 14px; flex-shrink: 0;
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: var(--r); box-shadow: var(--card-shadow);
+  /* Reduced padding for a shorter bar */
+  padding: 7px 18px 7px 12px;
+}
+
+#clock-wrap { display: flex; align-items: center; justify-content: center; }
+#analog-clock { display: block; }
+
+#library-btn {
+  font-family: var(--font); font-size: 0.68rem; font-weight: 700;
+  padding: 6px 14px; border-radius: var(--r-pill); border: 2px solid var(--border);
+  background: var(--bg); color: var(--ink); cursor: pointer;
+  box-shadow: var(--card-shadow-sm);
+  transition: transform 0.1s, background 0.1s, color 0.1s; white-space: nowrap;
+}
+#library-btn:hover { background: var(--slate); color: #fff; transform: translate(-1px,-1px); }
+
+/* Timer — slightly smaller than before */
+#timer-block { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+#timer-main  { display: flex; align-items: center; gap: 10px; }
+
+#timer-display {
+  font-size: 3.6rem; font-weight: 700; letter-spacing: -2px;
+  color: var(--ink); line-height: 1; transition: color 0.6s ease;
+  font-variant-numeric: tabular-nums; min-width: 130px; text-align: center;
+}
+#timer-display.expired { color: #e53935; animation: pulseRed 1.2s ease-in-out infinite; }
+@keyframes pulseRed { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.t-adj {
+  font-size: 1.3rem; font-weight: 700; width: 32px; height: 32px;
+  border-radius: 50%; border: 2px solid var(--border);
+  background: var(--bg); color: var(--ink); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--card-shadow-sm); flex-shrink: 0;
+  transition: transform 0.1s, background 0.1s, color 0.1s;
+}
+.t-adj:hover { background: var(--slate); color: #fff; transform: translate(-1px,-1px); }
+
+#timer-actions { display: flex; gap: 6px; }
+.t-act {
+  font-family: var(--font); font-size: 0.62rem; font-weight: 700;
+  padding: 3px 12px; border-radius: var(--r-pill); border: 2px solid var(--border);
+  background: var(--bg); color: var(--ink-soft); cursor: pointer;
+  box-shadow: 2px 2px 0 rgba(45,55,72,0.20);
+  transition: transform 0.1s, background 0.1s, color 0.1s;
+}
+.t-act:hover { background: var(--slate); color: #fff; transform: translate(-1px,-1px); }
+
+/* Mode */
+#mode-block { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; }
+.mode-row   { display: flex; align-items: center; gap: 8px; }
+
+.status-chip {
+  font-family: var(--font); font-size: 0.95rem; font-weight: 700;
+  padding: 7px 18px; border-radius: var(--r-pill); border: 2px solid var(--border);
+  box-shadow: var(--card-shadow-sm); white-space: nowrap;
+  min-width: 160px; text-align: center; transition: background 0.25s, color 0.25s;
+}
+.mode-row-divider { width: 2px; height: 20px; background: var(--border); flex-shrink: 0; }
+.mode-pill-group  { display: flex; gap: 4px; }
+.mode-pill {
+  font-family: var(--font); font-size: 0.6rem; font-weight: 700;
+  padding: 3px 10px; border-radius: var(--r-pill);
+  border: 2px solid transparent; background: transparent; color: var(--ink-faint);
+  cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
+}
+.mode-pill:hover { border-color: var(--border); background: var(--bg); color: var(--ink); box-shadow: 2px 2px 0 rgba(45,55,72,0.20); }
+.mode-pill.active { background: var(--slate); color: #fff; border-color: var(--slate); box-shadow: 2px 2px 0 rgba(45,55,72,0.28); }
+
+/* ================================================================
+   MIDDLE ROW
+   ================================================================ */
+#middle-row {
+  display: grid; grid-template-columns: 2fr 1fr 2fr;
+  gap: var(--gap); flex-shrink: 0;
+}
+.info-card {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: var(--r); box-shadow: var(--card-shadow);
+  padding: 10px 18px; display: flex; align-items: center; gap: 12px;
+}
+.info-label {
+  font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.8px; color: var(--ink-soft); flex-shrink: 0;
+}
+.info-edit {
+  font-family: var(--font); font-size: 1.2rem; font-weight: 700;
+  color: var(--ink); border: none; background: transparent;
+  flex: 1; outline: none; min-width: 0;
+}
+.info-edit::placeholder { color: var(--ink-faint); font-weight: 400; }
+#tema-card {
+  justify-content: center; flex-direction: column;
+  text-align: center; gap: 3px;
+  background: var(--slate); border-color: var(--slate);
+}
+#tema-label-text { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.8px; color: rgba(255,255,255,0.5); }
+#tema-value { font-size: 1.1rem; font-weight: 700; color: #fff; }
+
+#quote-card {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: var(--r); box-shadow: var(--card-shadow);
+  padding: 10px 18px; display: flex; align-items: center; gap: 10px;
+}
+#quote-text {
+  font-size: 1.05rem; font-weight: 400; font-style: italic;
+  color: var(--ink-soft); line-height: 1.35; flex: 1;
+}
+#quote-text span { color: var(--green); font-style: normal; font-weight: 700; }
+#quote-refresh {
+  font-size: 1.1rem; background: none; border: none; cursor: pointer;
+  padding: 4px; border-radius: 8px; transition: transform 0.3s ease;
+  flex-shrink: 0; color: var(--ink-faint); line-height: 1;
+}
+#quote-refresh:hover { transform: rotate(180deg); color: var(--ink); }
+
+/* ================================================================
+   TASK GRID
+   ================================================================ */
+#tasks-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 2fr 1fr;
+  gap: var(--gap);
+  flex: 1; min-height: 0;
+}
+
+#lvl1 { grid-column: 1; grid-row: 1 / 3; }
+#lvl2 { grid-column: 2; grid-row: 1 / 3; }
+#lvl3 { grid-column: 3; grid-row: 1; }
+#lvl4 { grid-column: 3; grid-row: 2; }
+
+.task-card {
+  border: 2px solid var(--border); border-radius: var(--r);
+  box-shadow: var(--card-shadow); background: var(--surface);
+  display: flex; flex-direction: column;
+  overflow: hidden; min-height: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.task-card:hover { transform: translate(-2px,-2px); box-shadow: 6px 7px 0 rgba(45,55,72,0.28); }
+
+.task-header { padding: 11px 20px 9px; display: flex; align-items: center; flex-shrink: 0; }
+.task-level-badge {
+  font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;
+  padding: 5px 16px; border-radius: var(--r-pill);
+  border: 2px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.25); color: #fff;
+}
+.task-divider { height: 2px; margin: 0 0 11px; flex-shrink: 0; }
+.task-body {
+  padding: 0 20px 16px; flex: 1; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 10px;
+  background: var(--surface); color: var(--ink);
+}
+.task-body::-webkit-scrollbar { width: 3px; }
+.task-body::-webkit-scrollbar-thumb { border-radius: 3px; background: rgba(0,0,0,0.15); }
+
+/* Key change: larger task text for back-of-room readability */
+.task-instruction {
+  font-size: 1.25rem; font-weight: 400; font-style: italic; opacity: 0.68;
+  line-height: 1.35;
+}
+.task-item { display: flex; align-items: flex-start; gap: 10px; font-size: 1.25rem; line-height: 1.5; font-weight: 400; }
+.task-letter {
+  font-size: 0.78rem; font-weight: 700; min-width: 24px; height: 24px; border-radius: 6px;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 3px; border: 1.5px solid var(--border); background: var(--bg);
+  vertical-align: middle;
+}
+.frac-table { width: 100%; border-collapse: collapse; font-size: 1.25rem; font-weight: 400; }
+.frac-table th {
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  padding: 8px 10px; text-align: center; background: var(--bg);
+  border-bottom: 2px solid var(--border); color: var(--ink-soft);
+}
+.frac-table td { padding: 10px 10px; text-align: center; border-bottom: 1px solid #e0e0e0; }
+.frac-table td:not(:last-child) { border-right: 1px solid #e0e0e0; }
+.frac-table tr:last-child td { border-bottom: none; }
+
+.frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1.1; margin: 0 2px; }
+.frac .num { font-size: 0.82em; font-weight: 700; border-bottom: 2px solid currentColor; padding: 0 3px 1px; line-height: 1.2; }
+.frac .den { font-size: 0.82em; font-weight: 700; padding: 1px 3px 0; line-height: 1.2; }
+
+.task-section { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink-faint); margin-top: 3px; }
+
+#lvl4 .task-body { justify-content: center; }
+.finish-text { font-size: 1.2rem; font-weight: 400; line-height: 1.6; color: var(--ink); }
+.finish-text .hi { font-weight: 700; }
+
+/* Level header colours */
+#lvl1 .task-header { background: var(--green); }   #lvl1 .task-divider { background: var(--green); }
+#lvl2 .task-header { background: var(--orange); }  #lvl2 .task-divider { background: var(--orange); }
+#lvl3 .task-header { background: var(--blue); }    #lvl3 .task-divider { background: var(--blue); }
+#lvl4 .task-header { background: var(--grey-hue); } #lvl4 .task-divider { background: var(--grey-hue); }
+
+/* ================================================================
+   INLINE-EDITABLE FIELDS
+   ================================================================ */
+[contenteditable="true"] {
+  outline: none;
+  border-radius: 6px;
+  transition: background 0.12s ease, box-shadow 0.12s ease;
+  cursor: text;
+}
+[contenteditable="true"]:hover {
+  background: rgba(0, 0, 0, 0.035);
+  box-shadow: 0 0 0 1px rgba(45, 55, 72, 0.18) inset;
+}
+[contenteditable="true"]:focus {
+  background: #fffceb;
+  box-shadow: 0 0 0 2px var(--orange) inset;
+}
+/* Tema chip sits on dark navy — needs lighter feedback */
+#tema-value[contenteditable="true"]:hover {
+  background: rgba(255, 255, 255, 0.10);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35) inset;
+}
+#tema-value[contenteditable="true"]:focus {
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 0 0 2px var(--orange) inset;
+}
+
+</style>
+</head>
+<body>
+
+<!-- LIBRARY OVERLAY -->
+<div id="library-overlay">
+  <div id="library-panel">
+    <h2>📚 (Opp)gavebibliotek</h2>
+    <div id="library-list"></div>
+    <button id="library-close">Lukk</button>
+  </div>
+</div>
+
+<!-- TOP BAR -->
+<div id="top-bar">
+  <div id="clock-wrap"><canvas id="analog-clock"></canvas></div>
+  <button id="library-btn">📚 (Opp)gaver</button>
+  <div></div>
+  <div id="timer-block">
+    <div id="timer-main">
+      <button class="t-adj" id="btn-minus">−</button>
+      <div id="timer-display">10:00</div>
+      <button class="t-adj" id="btn-plus">+</button>
+    </div>
+    <div id="timer-actions">
+      <button class="t-act" id="btn-start">▶ Start</button>
+      <button class="t-act" id="btn-pause">⏸ Pause</button>
+      <button class="t-act" id="btn-reset">↺ Nullstill</button>
+    </div>
+  </div>
+  <div></div>
+  <div id="mode-block">
+    <div class="mode-row">
+      <div class="status-chip" id="chip-work" style="background:#e8f5e9;color:#1b5540;">👤 Individuelt</div>
+      <div class="mode-row-divider"></div>
+      <div class="mode-pill-group">
+        <button class="mode-pill active" data-work="individuelt">👤 Individuelt</button>
+        <button class="mode-pill" data-work="par">👥 Par</button>
+        <button class="mode-pill" data-work="gruppe">🙌 Gruppe</button>
+      </div>
+    </div>
+    <div class="mode-row">
+      <div class="status-chip" id="chip-noise" style="background:#fce4ec;color:#880e4f;">🔇 Stille</div>
+      <div class="mode-row-divider"></div>
+      <div class="mode-pill-group">
+        <button class="mode-pill active" data-noise="stille">🔇 Stille</button>
+        <button class="mode-pill" data-noise="hviske">🤫 Hviske</button>
+        <button class="mode-pill" data-noise="snakke">💬 Snakke</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MIDDLE ROW -->
+<div id="middle-row">
+  <div class="info-card" id="goal-card">
+    <span class="info-label">Mål</span>
+    <input class="info-edit" id="mal-input" type="text" placeholder="Dagens læringsmål…">
+  </div>
+  <div class="info-card" id="tema-card">
+    <div id="tema-label-text">Tema</div>
+    <div id="tema-value" contenteditable="true" spellcheck="false"></div>
+  </div>
+  <div id="quote-card">
+    <div id="quote-text"></div>
+    <button id="quote-refresh" title="Nytt sitat">↻</button>
+  </div>
+</div>
+
+<!-- OPPGAVEKORT -->
+<div id="tasks-row">
+  <div class="task-card" id="lvl1">
+    <div class="task-header"><span class="task-level-badge">Nivå 1</span></div>
+    <div class="task-divider"></div>
+    <div class="task-body" id="body-lvl1" contenteditable="true" spellcheck="false"></div>
+  </div>
+  <div class="task-card" id="lvl2">
+    <div class="task-header"><span class="task-level-badge">Nivå 2</span></div>
+    <div class="task-divider"></div>
+    <div class="task-body" id="body-lvl2" contenteditable="true" spellcheck="false"></div>
+  </div>
+  <div class="task-card" id="lvl3">
+    <div class="task-header"><span class="task-level-badge">Nivå 3</span></div>
+    <div class="task-divider"></div>
+    <div class="task-body" id="body-lvl3" contenteditable="true" spellcheck="false"></div>
+  </div>
+  <div class="task-card" id="lvl4">
+    <div class="task-header"><span class="task-level-badge">Er du ferdig?</span></div>
+    <div class="task-divider"></div>
+    <div class="task-body">
+      <div class="finish-text" contenteditable="true" spellcheck="false">
+        Rekk opp hånda, så får du en <span class="hi">high-five av Carl August</span> 🙏🏻
+        Nå er du ferdig! Gjør et nivå til eller tegn noe kult!
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+/* ================================================================
+   QUOTE BANK  ✏️ ADD MORE QUOTES HERE
+   ================================================================ */
+const QUOTES = [
+  { text: '«Jeg er ikke ferdig ennå — jeg er på vei.»', hi: 'ennå' },
+  { text: '«Feil er ikke fiasko. Feil er læring.»', hi: null },
+  { text: '«Hjernen din vokser hver gang du øver.»', hi: 'vokser' },
+  { text: '«Det er ikke om du kan — det er om du prøver.»', hi: null },
+  { text: '«Vanskelig betyr ikke umulig. Det betyr at du trenger mer tid.»', hi: null },
+  { text: '«Alle som er gode på matte, ble gode ved å øve.»', hi: 'øve' },
+  { text: '«Matematikk handler ikke om å være rask. Det handler om å tenke.»', hi: 'tenke' },
+  { text: '«Hver feil du gjør, gjør hjernen din sterkere.»', hi: 'sterkere' },
+  { text: '«Du trenger ikke forstå alt med en gang. Det er lov å lure.»', hi: null },
+  { text: '«Spør deg selv: hva kan jeg prøve nå?»', hi: 'prøve' },
+  { text: '«Ingen er født gode på matte. Man blir det.»', hi: 'blir' },
+  { text: '«Det eneste dumme spørsmålet er det du ikke tørr å stille.»', hi: null },
+  { text: '«Troen på at du kan lære noe, hjelper deg å lære det.»', hi: null },
+  { text: '«Matematikk er et språk — og du er i ferd med å lære det.»', hi: null },
+  { text: '«Gi hjernen din tid. Den jobber selv om du ikke ser det.»', hi: null },
+];
+
+let quoteIndex = Math.floor(Math.random() * QUOTES.length);
+function renderQuote() {
+  const q = QUOTES[quoteIndex];
+  const el = document.getElementById('quote-text');
+  el.innerHTML = q.hi ? q.text.replace(q.hi, `<span>${q.hi}</span>`) : q.text;
+}
+document.getElementById('quote-refresh').addEventListener('click', () => {
+  quoteIndex = (quoteIndex + 1) % QUOTES.length;
+  renderQuote();
+});
+renderQuote();
+
+/* ================================================================
+   TASK LIBRARY  ✏️ ADD NEW SETS HERE
+   ================================================================ */
+function f(num, den) {
+  return `<span class="frac"><span class="num">${num}</span><span class="den">${den}</span></span>`;
+}
+
+const TASK_SETS = [
+
+  /* ---- 1: Brøk, desimaltall og prosent ---- */
+  {
+    id: 'brok-des-prosent',
+    tema: 'Brøk, desimaltall og prosent',
+    mal:  'Jeg kan gjøre om mellom brøk, desimaltall og prosent',
+    lvl1: `
+      <div class="task-instruction">Fyll inn tabellen.</div>
+      <table class="frac-table">
+        <thead><tr><th>Brøk</th><th>Desimaltall</th><th>Prosent</th></tr></thead>
+        <tbody>
+          <tr><td>${f(3,10)}</td><td></td><td></td></tr>
+          <tr><td></td><td>0,7</td><td></td></tr>
+          <tr><td></td><td></td><td>20 %</td></tr>
+          <tr><td>${f(6,10)}</td><td></td><td></td></tr>
+          <tr><td></td><td>0,5</td><td></td></tr>
+          <tr><td></td><td></td><td>90 %</td></tr>
+        </tbody>
+      </table>`,
+    lvl2: `
+      <div class="task-instruction">Fyll inn tabellen.</div>
+      <table class="frac-table">
+        <thead><tr><th>Brøk</th><th>Desimaltall</th><th>Prosent</th></tr></thead>
+        <tbody>
+          <tr><td>${f(4,5)}</td><td></td><td></td></tr>
+          <tr><td></td><td>0,65</td><td></td></tr>
+          <tr><td></td><td></td><td>30 %</td></tr>
+          <tr><td>${f(3,4)}</td><td></td><td></td></tr>
+          <tr><td></td><td>0,08</td><td></td></tr>
+        </tbody>
+      </table>
+      <div class="task-item" style="margin-top:2px;">
+        <span class="task-letter">→</span>
+        <span>Sett i rekkefølge fra minst til størst:&nbsp;${f(3,5)},&ensp;0,72,&ensp;65 %,&ensp;${f(7,10)}</span>
+      </div>`,
+    lvl3: `
+      <div class="task-section">Del A – Utvid til hundredeler</div>
+      <div class="task-instruction">Gjør om. Vis mellomregningen.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px 20px;font-size:1.25rem;">
+        <span>a)&thinsp;${f(3,4)}</span><span>b)&thinsp;${f(7,25)}</span>
+        <span>c)&thinsp;${f(9,20)}</span><span>d)&thinsp;${f(11,50)}</span><span>e)&thinsp;${f(3,8)}</span>
+      </div>
+      <div class="task-section">Del B – Tenkeutfordring</div>
+      <div style="font-size:1.2rem;line-height:1.5;">Hvordan finner vi prosent og desimaltall til ${f(5,12)}? Prøv deg frem!</div>`,
+  },
+
+  /* ---- 2: Utviding og forkorting av brøk ---- */
+  {
+    id: 'utvide-forkorte',
+    tema: 'Utviding og forkorting av brøk',
+    mal:  'Jeg kan utvide og forkorte brøker',
+    lvl1: `
+      <div class="task-instruction">Utvid brøkene. Fyll inn det som mangler.</div>
+      <table class="frac-table">
+        <thead><tr><th>Brøk</th><th>Utvid med</th><th>Utvidet brøk</th></tr></thead>
+        <tbody>
+          <tr><td>${f(1,2)}</td><td>× 3</td><td>${f('&nbsp;',6)}</td></tr>
+          <tr><td>${f(1,3)}</td><td>× 4</td><td>${f('&nbsp;',12)}</td></tr>
+          <tr><td>${f(2,5)}</td><td>× 2</td><td>${f('&nbsp;',10)}</td></tr>
+          <tr><td>${f(3,4)}</td><td>× 3</td><td>${f('&nbsp;',12)}</td></tr>
+        </tbody>
+      </table>`,
+    lvl2: `
+      <div class="task-section">Forkorting</div>
+      <div class="task-instruction">Forkort brøken så mye du får til. Vis hva du deler med.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px 20px;font-size:1.25rem;">
+        <span>a)&thinsp;${f(6,8)}</span><span>b)&thinsp;${f(9,12)}</span>
+        <span>c)&thinsp;${f(10,15)}</span><span>d)&thinsp;${f(8,20)}</span>
+      </div>
+      <div class="task-section">Utviding</div>
+      <div class="task-instruction">Utvid slik at nevneren blir 24.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px 20px;font-size:1.25rem;">
+        <span>e)&thinsp;${f(1,4)}</span><span>f)&thinsp;${f(3,8)}</span><span>g)&thinsp;${f(5,6)}</span>
+      </div>`,
+    lvl3: `
+      <div class="task-section">Del A – Felles nevner</div>
+      <div class="task-instruction">Utvid begge til felles nevner.</div>
+      <div style="display:flex;flex-direction:column;gap:9px;font-size:1.25rem;">
+        <span>a)&ensp;${f(1,3)}&ensp;og&ensp;${f(1,4)}</span>
+        <span>b)&ensp;${f(2,5)}&ensp;og&ensp;${f(3,4)}</span>
+        <span>c)&ensp;${f(5,6)}&ensp;og&ensp;${f(3,8)}</span>
+      </div>
+      <div class="task-section">Del B – Tenkeutfordring</div>
+      <div style="font-size:1.2rem;line-height:1.5;">Er&ensp;${f(4,6)}&ensp;og&ensp;${f(6,9)}&ensp;like store? Begrunn svaret.</div>`,
+  },
+
+  /* ---- 3: Brøk og desimaltall større enn en hel ---- */
+  {
+    id: 'storre-enn-hel',
+    tema: 'Brøk og desimaltall > 1',
+    mal:  'Jeg kan skrive og sammenligne brøk og desimaltall større enn 1',
+    lvl1: `
+      <div class="task-instruction">Fyll inn tabellen.</div>
+      <table class="frac-table">
+        <thead><tr><th>Brøk</th><th>Desimaltall</th><th>Prosent</th></tr></thead>
+        <tbody>
+          <tr><td>${f(13,10)}</td><td></td><td></td></tr>
+          <tr><td></td><td>1,7</td><td></td></tr>
+          <tr><td></td><td></td><td>150 %</td></tr>
+          <tr><td>${f(24,10)}</td><td></td><td></td></tr>
+          <tr><td></td><td>2,0</td><td></td></tr>
+          <tr><td></td><td></td><td>130 %</td></tr>
+        </tbody>
+      </table>`,
+    lvl2: `
+      <div class="task-instruction">Fyll inn tabellen.</div>
+      <table class="frac-table">
+        <thead><tr><th>Brøk</th><th>Desimaltall</th><th>Prosent</th></tr></thead>
+        <tbody>
+          <tr><td>${f(7,4)}</td><td></td><td></td></tr>
+          <tr><td></td><td>1,65</td><td></td></tr>
+          <tr><td></td><td></td><td>125 %</td></tr>
+          <tr><td>${f(9,5)}</td><td></td><td></td></tr>
+          <tr><td></td><td>2,08</td><td></td></tr>
+        </tbody>
+      </table>
+      <div class="task-item" style="margin-top:2px;">
+        <span class="task-letter">→</span>
+        <span>Sett i rekkefølge fra minst til størst:&nbsp;${f(7,5)},&ensp;1,6,&ensp;145 %,&ensp;${f(12,10)}</span>
+      </div>`,
+    lvl3: `
+      <div class="task-section">Del A – Gjør om</div>
+      <div class="task-instruction">Gjør om til desimaltall og prosent. Vis mellomregningen.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px 20px;font-size:1.25rem;">
+        <span>a)&thinsp;${f(5,4)}</span>
+        <span>b)&thinsp;${f(11,5)}</span>
+        <span>c)&thinsp;${f(17,10)}</span>
+        <span>d)&thinsp;${f(9,4)}</span>
+      </div>
+      <div class="task-section">Del B – Tenkeutfordring</div>
+      <div style="font-size:1.2rem;line-height:1.5;">Kan en prosent være større enn 100 %? Hva betyr det? Gi et eksempel fra hverdagen.</div>`,
+  },
+
+  /* ---- 4: Dobling av brøk ---- */
+  {
+    id: 'dobling-brok',
+    tema: 'Dobling av brøk',
+    mal:  'Jeg kan doble en brøk og forenkle svaret',
+    lvl1: `
+      <div class="task-instruction">Doble ingrediensen. Skriv brøken så «enkel» som mulig.</div>
+      <div style="display:flex;flex-direction:column;gap:9px;font-size:1.25rem;">
+        <span>a)&ensp;${f(3,8)} dl ormehale</span>
+        <span>b)&ensp;${f(1,4)} dl ørevoks</span>
+        <span>c)&ensp;${f(1,2)} dl enhjørningsblod</span>
+        <span>d)&ensp;${f(2,5)} dl tryllesporer</span>
+        <span>e)&ensp;${f(3,10)} dl dragegift</span>
+      </div>`,
+    lvl2: `
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:1.22rem;">
+        <div><span class="task-letter">a</span>&ensp;Doble ${f(3,4)} L månedugg. Forenkle svaret.</div>
+        <div><span class="task-letter">b</span>&ensp;Doble ${f(5,6)} dl dragegift.</div>
+        <div><span class="task-letter">c</span>&ensp;En elev dobler ${f(2,6)} og får ${f(4,12)}. Har eleven rett? Forklar.</div>
+        <div><span class="task-letter">d</span>&ensp;Doble alle fem ingrediensene fra eliksiren. Forenkle alle svar.</div>
+      </div>`,
+    lvl3: `
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:1.22rem;">
+        <div><span class="task-letter">a</span>&ensp;Doble alle fem ingrediensene fra eliksiren. Husk å forenkle alle svar.</div>
+        <div><span class="task-letter">b</span>&ensp;En elev dobler ${f(3,8)} og får ${f(6,16)}. Hva har eleven gjort feil? Forklar til læringsvennen din.</div>
+        <div><span class="task-letter">c</span>&ensp;Hva skjer hvis du dobler en brøk tre ganger på rad? Prøv med ${f(1,4)} og ${f(3,8)}. Ser du et mønster?</div>
+      </div>`,
+  },
+
+];
+
+let currentSetId = TASK_SETS[3].id; // start on the newest set
+
+function loadSet(id) {
+  const set = TASK_SETS.find(s => s.id === id);
+  if (!set) return;
+  currentSetId = id;
+  document.getElementById('mal-input').value = set.mal;
+  document.getElementById('tema-value').textContent = set.tema;
+  document.getElementById('body-lvl1').innerHTML = set.lvl1;
+  document.getElementById('body-lvl2').innerHTML = set.lvl2;
+  document.getElementById('body-lvl3').innerHTML = set.lvl3;
+  renderLibraryList();
+}
+
+function renderLibraryList() {
+  const list = document.getElementById('library-list');
+  list.innerHTML = '';
+  TASK_SETS.forEach((set, i) => {
+    const item = document.createElement('div');
+    item.className = 'library-item' + (set.id === currentSetId ? ' active' : '');
+    item.innerHTML = `
+      <div class="lib-item-info">
+        <div class="lib-item-tema">Tema ${i+1}</div>
+        <div class="lib-item-title">${set.tema}</div>
+      </div>
+      <div class="lib-item-badge">${set.id === currentSetId ? 'Aktiv' : 'Bruk'}</div>`;
+    item.addEventListener('click', () => { loadSet(set.id); closeLibrary(); });
+    list.appendChild(item);
+  });
+}
+
+function openLibrary()  { renderLibraryList(); document.getElementById('library-overlay').classList.add('open'); }
+function closeLibrary() { document.getElementById('library-overlay').classList.remove('open'); }
+document.getElementById('library-btn').addEventListener('click', openLibrary);
+document.getElementById('library-close').addEventListener('click', closeLibrary);
+document.getElementById('library-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('library-overlay')) closeLibrary();
+});
+
+loadSet(currentSetId);
+
+/* ================================================================
+   CLOCK — sized to top bar height
+   ================================================================ */
+function sizeClockToBar() {
+  const bar = document.getElementById('top-bar');
+  const size = bar.clientHeight - 14; // tighter inset
+  const c = document.getElementById('analog-clock');
+  c.width = size; c.height = size;
+  drawClock();
+}
+window.addEventListener('resize', sizeClockToBar);
+
+const canvas = document.getElementById('analog-clock');
+const ctx = canvas.getContext('2d');
+
+function drawClock() {
+  const W = canvas.width, H = canvas.height;
+  const CX = W/2, CY = H/2, R = W/2 - 3;
+  if (R <= 0) return;
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+  ctx.clearRect(0, 0, W, H);
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(45,55,72,0.28)'; ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 3; ctx.shadowOffsetY = 3;
+  ctx.beginPath(); ctx.arc(CX, CY, R, 0, 2*Math.PI);
+  ctx.fillStyle = '#fff'; ctx.fill();
+  ctx.restore();
+
+  ctx.beginPath(); ctx.arc(CX, CY, R, 0, 2*Math.PI);
+  ctx.strokeStyle = '#2d3748'; ctx.lineWidth = 2; ctx.stroke();
+
+  for (let i = 0; i < 12; i++) {
+    const a = (i/12)*2*Math.PI - Math.PI/2;
+    const isMain = i % 3 === 0;
+    const inner = R - (isMain ? R*0.15 : R*0.09);
+    ctx.beginPath();
+    ctx.moveTo(CX + inner*Math.cos(a), CY + inner*Math.sin(a));
+    ctx.lineTo(CX + (R-2)*Math.cos(a), CY + (R-2)*Math.sin(a));
+    ctx.strokeStyle = isMain ? '#2d3748' : '#90a4ae';
+    ctx.lineWidth = isMain ? 3 : 1.5; ctx.stroke();
+  }
+
+  function hand(angle, length, width, color) {
+    ctx.beginPath(); ctx.moveTo(CX, CY);
+    ctx.lineTo(CX + length*Math.cos(angle), CY + length*Math.sin(angle));
+    ctx.strokeStyle = color; ctx.lineWidth = width; ctx.lineCap = 'round'; ctx.stroke();
+  }
+  hand(((h%12)/12 + m/720)*2*Math.PI - Math.PI/2, R*0.50, R*0.065, '#2d3748');
+  hand((m/60 + s/3600)*2*Math.PI - Math.PI/2,     R*0.72, R*0.045, '#2d3748');
+  hand((s/60)*2*Math.PI - Math.PI/2,               R*0.78, R*0.025, '#f5a623');
+
+  ctx.beginPath(); ctx.arc(CX, CY, R*0.06, 0, 2*Math.PI);
+  ctx.fillStyle = '#2d3748'; ctx.fill();
+}
+
+setInterval(drawClock, 1000);
+requestAnimationFrame(() => { sizeClockToBar(); drawClock(); });
+
+/* ================================================================
+   TIMER
+   ================================================================ */
+let timerSecs = 10*60, timerRunning = false, timerInterval = null;
+const timerDisplay = document.getElementById('timer-display');
+function fmt(s) { return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+function refreshTimer() { timerDisplay.textContent = fmt(timerSecs); timerDisplay.classList.toggle('expired', timerSecs===0); }
+
+document.getElementById('btn-minus').addEventListener('click', () => { if(timerSecs>60){timerSecs-=60;refreshTimer();} });
+document.getElementById('btn-plus').addEventListener('click',  () => { timerSecs+=60;refreshTimer(); });
+document.getElementById('btn-start').addEventListener('click', () => {
+  if(timerRunning||timerSecs===0) return; timerRunning=true;
+  timerInterval=setInterval(()=>{ if(timerSecs>0){timerSecs--;refreshTimer();}else{clearInterval(timerInterval);timerRunning=false;} },1000);
+});
+document.getElementById('btn-pause').addEventListener('click', () => { clearInterval(timerInterval);timerRunning=false; });
+document.getElementById('btn-reset').addEventListener('click', () => { clearInterval(timerInterval);timerRunning=false;timerSecs=10*60;refreshTimer(); });
+
+/* ================================================================
+   MODE
+   ================================================================ */
+const WORK_CONFIG = {
+  individuelt: { label:'👤 Individuelt', bg:'#e8f5e9', color:'#1b5540' },
+  par:         { label:'👥 Par',         bg:'#e3f2fd', color:'#0d47a1' },
+  gruppe:      { label:'🙌 Gruppe',      bg:'#fff8ed', color:'#7a3e00' },
+};
+const NOISE_CONFIG = {
+  stille: { label:'🔇 Stille', bg:'#fce4ec', color:'#880e4f' },
+  hviske: { label:'🤫 Hviske', bg:'#e0f7fa', color:'#006064' },
+  snakke: { label:'💬 Snakke', bg:'#fff9c4', color:'#6d5c00' },
+};
+
+function setWork(key) {
+  const c=WORK_CONFIG[key]; const chip=document.getElementById('chip-work');
+  chip.textContent=c.label; chip.style.background=c.bg; chip.style.color=c.color;
+  document.querySelectorAll('.mode-pill[data-work]').forEach(b=>b.classList.toggle('active',b.dataset.work===key));
+}
+function setNoise(key) {
+  const c=NOISE_CONFIG[key]; const chip=document.getElementById('chip-noise');
+  chip.textContent=c.label; chip.style.background=c.bg; chip.style.color=c.color;
+  document.querySelectorAll('.mode-pill[data-noise]').forEach(b=>b.classList.toggle('active',b.dataset.noise===key));
+}
+document.querySelectorAll('.mode-pill[data-work]').forEach(btn=>btn.addEventListener('click',()=>setWork(btn.dataset.work)));
+document.querySelectorAll('.mode-pill[data-noise]').forEach(btn=>btn.addEventListener('click',()=>setNoise(btn.dataset.noise)));
+setWork('individuelt'); setNoise('stille');
+
+</script>
+</body>
+</html>

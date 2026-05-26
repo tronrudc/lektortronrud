@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Trenger jeg å lære matte? · Lektor Tronrud</title>
+<link rel="icon" type="image/png" href="assets/logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800;900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/tokens.css">
+<style>
+  /* ────────────── Hero ────────────── */
+  .mm-hero {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: var(--s-12) var(--s-6) var(--s-6);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-3);
+  }
+  .mm-hero__eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--slate-500);
+    display: inline-flex; align-items: center; gap: var(--s-2);
+  }
+  .mm-hero__eyebrow .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--nova-yellow);
+    box-shadow: 0 0 0 3px var(--nova-yellow-soft);
+  }
+  .mm-hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 800; line-height: 1.02; letter-spacing: -0.02em;
+    max-width: 22ch;
+  }
+  .mm-hero h1 em {
+    font-style: normal;
+    background: linear-gradient(95deg, var(--nova-yellow) 0%, var(--comet-orange) 50%, var(--planet-teal) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .mm-hero__lede {
+    font-size: 1.05rem; color: var(--slate-500);
+    line-height: 1.6; max-width: 65ch;
+  }
+  .mm-hero__lede strong { color: var(--space-900); font-weight: 700; }
+
+  /* ────────────── Controls bar ────────────── */
+  .mm-controls {
+    max-width: 1100px;
+    margin: var(--s-4) auto 0;
+    padding: 0 var(--s-6);
+    display: flex; flex-wrap: wrap;
+    align-items: center; gap: var(--s-3);
+  }
+  .mm-controls__legend {
+    display: flex; gap: var(--s-4); flex-wrap: wrap;
+    margin-right: auto;
+  }
+  .mm-legend-pill {
+    display: inline-flex; align-items: center; gap: var(--s-2);
+    font-family: var(--font-display);
+    font-size: 0.78rem; font-weight: 700;
+    padding: 6px 12px;
+    border-radius: var(--r-pill);
+    border: 1.5px solid var(--border-ink);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+  }
+  .mm-legend-pill .swatch {
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 1.5px solid var(--space-900);
+  }
+  .mm-legend-pill.is-personal .swatch { background: var(--nova-yellow); }
+  .mm-legend-pill.is-society .swatch { background: var(--planet-teal); }
+  .mm-legend-pill.is-center .swatch { background: var(--space-900); }
+
+  .mm-hint {
+    font-family: var(--font-display);
+    font-size: 0.78rem; color: var(--slate-500);
+    letter-spacing: 0.04em;
+    display: inline-flex; align-items: center; gap: var(--s-2);
+  }
+  .mm-hint kbd {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 2px 7px;
+    border: 1.5px solid var(--slate-200);
+    border-bottom-width: 2.5px;
+    border-radius: 5px;
+    background: var(--surface);
+    color: var(--space-900);
+  }
+
+  /* ────────────── Stage ────────────── */
+  .mm-stage {
+    max-width: 1280px;
+    margin: var(--s-5) auto 0;
+    padding: 0 var(--s-6) var(--s-12);
+  }
+  .mm-canvas {
+    position: relative;
+    width: 100%;
+    height: clamp(620px, 78vh, 880px);
+    background:
+      radial-gradient(circle at 25% 35%, rgba(244, 196, 48, 0.07), transparent 50%),
+      radial-gradient(circle at 75% 65%, rgba(34, 200, 200, 0.07), transparent 50%),
+      var(--paper);
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-2xl);
+    box-shadow: var(--shadow-3);
+    overflow: hidden;
+    cursor: grab;
+    touch-action: none;
+  }
+  .mm-canvas:active { cursor: grabbing; }
+  .mm-canvas.dragging { cursor: grabbing; }
+
+  /* Faint dotted-paper texture */
+  .mm-canvas::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle at center, rgba(14, 26, 56, 0.06) 1px, transparent 1.5px);
+    background-size: 26px 26px;
+    pointer-events: none;
+  }
+
+  .mm-svg {
+    position: absolute; top: 50%; left: 50%;
+    width: 2800px; height: 2400px;
+    margin-left: -1400px; margin-top: -1200px;
+    transform-origin: center;
+    will-change: transform;
+  }
+
+  /* Zoom controls */
+  .mm-zoom {
+    position: absolute;
+    right: var(--s-4); bottom: var(--s-4);
+    display: flex; flex-direction: column;
+    gap: var(--s-1);
+    z-index: 4;
+  }
+  .mm-zoom button {
+    width: 40px; height: 40px;
+    border: 1.5px solid var(--border-ink);
+    border-radius: 10px;
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+    font-family: var(--font-display);
+    font-size: 1.1rem; font-weight: 800;
+    color: var(--space-900);
+    display: grid; place-items: center;
+    transition: transform var(--t-fast), box-shadow var(--t-fast);
+  }
+  .mm-zoom button:hover { transform: translate(-1px,-1px); box-shadow: var(--shadow-2); }
+  .mm-zoom button:active { transform: translate(0,0); box-shadow: var(--shadow-press); }
+
+  /* Counter chip in top-left */
+  .mm-counter {
+    position: absolute;
+    top: var(--s-4); left: var(--s-4);
+    z-index: 3;
+    display: inline-flex; align-items: baseline; gap: var(--s-2);
+    padding: 8px 14px;
+    background: var(--surface);
+    border: 1.5px solid var(--border-ink);
+    border-radius: var(--r-pill);
+    box-shadow: var(--shadow-1);
+    font-family: var(--font-display);
+    font-size: 0.78rem; font-weight: 700;
+  }
+  .mm-counter .num {
+    font-size: 1rem; font-weight: 900;
+    color: var(--space-900);
+  }
+  .mm-counter .lbl {
+    color: var(--slate-500);
+    text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.65rem;
+  }
+
+  /* ────────────── SVG node styles ────────────── */
+  .mm-link {
+    fill: none;
+    stroke-linecap: round;
+    transition: opacity var(--t-base), stroke-width var(--t-base);
+  }
+  .mm-link--personal { stroke: var(--nova-yellow); }
+  .mm-link--society  { stroke: var(--planet-teal); }
+  .mm-link--root     { stroke: var(--space-900); opacity: 0.5; }
+  .mm-link.is-hidden { opacity: 0; pointer-events: none; }
+
+  .mm-node {
+    cursor: pointer;
+  }
+  .mm-node text {
+    font-family: var(--font-display);
+    fill: var(--space-900);
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+    user-select: none;
+  }
+  .mm-node rect {
+    transition: fill var(--t-fast), stroke var(--t-fast), transform var(--t-fast);
+  }
+  .mm-node.is-hidden { display: none; }
+
+  /* Depth-specific node skins */
+  .mm-node--root rect {
+    fill: var(--space-900);
+    stroke: var(--space-900);
+    stroke-width: 2.5;
+  }
+  .mm-node--root text {
+    fill: var(--nova-yellow);
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 0.02em;
+  }
+  .mm-node--root .mm-node__halo {
+    fill: none;
+    stroke: var(--nova-yellow);
+    stroke-width: 2;
+    stroke-dasharray: 4 6;
+    opacity: 0.7;
+  }
+
+  /* Primaries (depth 1) — solid filled, large */
+  .mm-node--primary rect { stroke: var(--space-900); stroke-width: 2.5; }
+  .mm-node--primary text { font-weight: 800; font-size: 20px; }
+  .mm-node--primary.is-personal rect { fill: var(--nova-yellow); }
+  .mm-node--primary.is-society  rect { fill: var(--planet-teal); }
+  .mm-node--primary text { fill: var(--space-900); }
+
+  /* Domains (depth 2) — softer filled, medium */
+  .mm-node--domain rect { stroke: var(--space-900); stroke-width: 2; }
+  .mm-node--domain text { font-weight: 700; font-size: 15px; }
+  .mm-node--domain.is-personal rect { fill: var(--nova-yellow-soft); }
+  .mm-node--domain.is-society  rect { fill: var(--planet-teal-soft); }
+
+  /* Sub-groupings (depth 3) — paper with colored border */
+  .mm-node--subgroup rect { fill: var(--surface); stroke-width: 1.75; }
+  .mm-node--subgroup text { font-weight: 700; font-size: 13px; }
+  .mm-node--subgroup.is-personal rect { stroke: var(--comet-orange); }
+  .mm-node--subgroup.is-society  rect { stroke: var(--planet-teal-deep); }
+
+  /* Leaves (depth 4) — chip with thin tinted background */
+  .mm-node--leaf rect { stroke-width: 1.25; }
+  .mm-node--leaf text { font-weight: 500; font-size: 12px; }
+  .mm-node--leaf.is-personal rect { fill: #FFFBEC; stroke: var(--comet-orange); }
+  .mm-node--leaf.is-society  rect { fill: #ECFAFA; stroke: var(--planet-teal-deep); }
+
+  /* Hover & collapsed states */
+  .mm-node:hover rect {
+    filter: brightness(0.97);
+  }
+  .mm-node.is-hover .mm-node__indicator { opacity: 1; }
+  .mm-node__indicator {
+    fill: var(--space-900);
+    opacity: 0;
+    transition: opacity var(--t-fast);
+  }
+  .mm-node.has-children .mm-node__plus {
+    opacity: 0;
+    transition: opacity var(--t-fast);
+  }
+  .mm-node.is-collapsed .mm-node__plus { opacity: 1; }
+
+  /* Faded / dimmed when other branch focused */
+  .mm-node.is-faded, .mm-link.is-faded { opacity: 0.18; }
+  .mm-node.is-faded rect { transition: opacity var(--t-base); }
+
+  /* ────────────── Tooltip ────────────── */
+  .mm-tooltip {
+    position: absolute;
+    pointer-events: none;
+    z-index: 10;
+    max-width: 280px;
+    padding: var(--s-3) var(--s-4);
+    background: var(--space-900);
+    color: var(--surface);
+    border: 1.5px solid var(--space-900);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-3);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    opacity: 0;
+    transform: translate(-50%, -110%);
+    transition: opacity var(--t-fast);
+  }
+  .mm-tooltip.is-visible { opacity: 1; }
+  .mm-tooltip__label {
+    font-family: var(--font-display);
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.16em;
+    color: var(--nova-yellow);
+    margin-bottom: 4px;
+    display: block;
+  }
+  .mm-tooltip.is-society .mm-tooltip__label { color: var(--planet-teal); }
+  .mm-tooltip__title {
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 0.95rem;
+    margin-bottom: 6px;
+    line-height: 1.25;
+  }
+  .mm-tooltip__body { color: rgba(255,255,255,0.85); }
+  .mm-tooltip::after {
+    content: '';
+    position: absolute;
+    left: 50%; bottom: -7px;
+    transform: translateX(-50%) rotate(45deg);
+    width: 12px; height: 12px;
+    background: var(--space-900);
+    border-right: 1.5px solid var(--space-900);
+    border-bottom: 1.5px solid var(--space-900);
+  }
+
+  /* ────────────── Footnote ────────────── */
+  .mm-footnote {
+    max-width: 900px;
+    margin: var(--s-8) auto 0;
+    padding: var(--s-6);
+    background: var(--surface);
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-2);
+  }
+  .mm-footnote__eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--slate-500); margin-bottom: var(--s-2);
+  }
+  .mm-footnote h3 {
+    font-family: var(--font-display);
+    font-size: 1.3rem; font-weight: 800;
+    margin-bottom: var(--s-2);
+  }
+  .mm-footnote p {
+    color: var(--slate-500);
+    line-height: 1.65;
+    max-width: 60ch;
+  }
+  .mm-footnote p + p { margin-top: var(--s-2); }
+
+  @media (max-width: 720px) {
+    .mm-stage { padding: 0 var(--s-3) var(--s-8); }
+    .mm-canvas { height: 70vh; min-height: 520px; }
+    .mm-counter { padding: 6px 10px; font-size: 0.7rem; }
+  }
+
+  /* ══════════════════ DARK MODE ══════════════════ */
+  body {
+    background: var(--space-900);
+    color: var(--chalk-100);
+  }
+
+  /* Subtle starfield overlay on the page */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      radial-gradient(1.2px 1.2px at 12% 22%, rgba(255,255,255,0.45), transparent 60%),
+      radial-gradient(1px   1px   at 30% 78%, rgba(255,255,255,0.35), transparent 60%),
+      radial-gradient(1.4px 1.4px at 48% 14%, rgba(255,255,255,0.4),  transparent 60%),
+      radial-gradient(1px   1px   at 67% 60%, rgba(255,255,255,0.3),  transparent 60%),
+      radial-gradient(1.2px 1.2px at 86% 30%, rgba(255,255,255,0.4),  transparent 60%),
+      radial-gradient(1px   1px   at 92% 84%, rgba(255,255,255,0.35), transparent 60%),
+      radial-gradient(1.4px 1.4px at 8%  90%, rgba(255,255,255,0.4),  transparent 60%);
+    opacity: 0.55;
+  }
+  main, header, footer { position: relative; z-index: 1; }
+
+  /* Site nav goes dark, translucent */
+  .sitenav {
+    background: rgba(14, 26, 56, 0.78);
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.08);
+  }
+  .sitenav__brand strong { color: var(--chalk-100); }
+  .sitenav__brand small { color: var(--slate-300); }
+  .sitenav__links a { color: var(--chalk-100); }
+  .sitenav__links a:hover { background: rgba(255, 255, 255, 0.06); }
+  .sitenav__links a.is-active {
+    background: var(--nova-yellow);
+    color: var(--space-900);
+  }
+
+  /* Hero copy */
+  .mm-hero__eyebrow { color: var(--slate-300); }
+  .mm-hero h1 { color: var(--chalk-100); }
+  .mm-hero__lede { color: var(--slate-300); }
+  .mm-hero__lede strong { color: var(--chalk-100); }
+
+  /* Legend pills */
+  .mm-legend-pill {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--chalk-100);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+  }
+  .mm-legend-pill .swatch { border-color: rgba(255, 255, 255, 0.4); }
+
+  /* Hint copy */
+  .mm-hint { color: var(--slate-300); }
+  .mm-hint kbd {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--chalk-100);
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+
+  /* Control buttons (Utvid alle / Kollaps) */
+  .mm-controls .btn {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--chalk-100);
+    border-color: rgba(255, 255, 255, 0.22);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+  }
+  .mm-controls .btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+  }
+
+  /* Canvas */
+  .mm-canvas {
+    background:
+      radial-gradient(circle at 25% 35%, rgba(244, 196, 48, 0.10), transparent 55%),
+      radial-gradient(circle at 75% 65%, rgba(34, 200, 200, 0.10), transparent 55%),
+      #050B1F;
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 6px 7px 0 rgba(0, 0, 0, 0.55);
+  }
+  .mm-canvas::before {
+    background-image: radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 1px, transparent 1.5px);
+    background-size: 26px 26px;
+  }
+
+  /* Counter chip & zoom buttons — dark glass */
+  .mm-counter {
+    background: rgba(14, 26, 56, 0.85);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: var(--chalk-100);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(6px);
+  }
+  .mm-counter .num { color: var(--nova-yellow); }
+  .mm-counter .lbl { color: var(--slate-300); }
+
+  .mm-zoom button {
+    background: rgba(14, 26, 56, 0.85);
+    border-color: rgba(255, 255, 255, 0.22);
+    color: var(--chalk-100);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(6px);
+  }
+  .mm-zoom button:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  /* ── SVG nodes & links — dark-mode tinting ─────────────── */
+  .mm-link { stroke-opacity: 0.9; }
+  .mm-link--root { stroke: var(--chalk-100); opacity: 0.35; }
+
+  /* Root: dark fill with gold halo & text — already dark, just adjust border */
+  .mm-node--root rect {
+    fill: #050B1F;
+    stroke: var(--nova-yellow);
+    stroke-width: 2;
+  }
+
+  /* Primary nodes — keep saturated fills, they pop against dark */
+  .mm-node--primary rect { stroke: rgba(255,255,255,0.85); }
+
+  /* Domain nodes — opaque dark tinted fills (hides connector lines), light text */
+  .mm-node--domain.is-personal rect {
+    fill: #2A1F08;
+    stroke: var(--nova-yellow);
+  }
+  .mm-node--domain.is-society rect {
+    fill: #08272B;
+    stroke: var(--planet-teal);
+  }
+  .mm-node--domain text { fill: var(--chalk-100); }
+
+  /* Sub-grouping nodes — opaque slightly tinted dark with colored border */
+  .mm-node--subgroup.is-personal rect { fill: #1A1408; stroke: var(--comet-orange); }
+  .mm-node--subgroup.is-society  rect { fill: #0A171A; stroke: var(--planet-teal); }
+  .mm-node--subgroup text { fill: var(--chalk-100); }
+
+  /* Leaf chips — opaque near-canvas fill with thin colored borders */
+  .mm-node--leaf.is-personal rect {
+    fill: #15100A;
+    stroke: var(--comet-orange);
+  }
+  .mm-node--leaf.is-society rect {
+    fill: #0A1316;
+    stroke: var(--planet-teal);
+  }
+  .mm-node--leaf text { fill: var(--chalk-100); }
+
+  /* Hover state: slight lift */
+  .mm-node:hover rect { filter: brightness(1.15); }
+
+  /* Tooltip — keep dark, but lift it with a lighter border so it stands off the dark canvas */
+  .mm-tooltip {
+    background: #050B1F;
+    border: 1.5px solid var(--nova-yellow);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(244, 196, 48, 0.15);
+  }
+  .mm-tooltip.is-society { border-color: var(--planet-teal); }
+  .mm-tooltip.is-society::after { background: #050B1F; border-color: var(--planet-teal); }
+  .mm-tooltip::after {
+    background: #050B1F;
+    border-right: 1.5px solid var(--nova-yellow);
+    border-bottom: 1.5px solid var(--nova-yellow);
+  }
+  .mm-tooltip.is-society::after {
+    border-right: 1.5px solid var(--planet-teal);
+    border-bottom: 1.5px solid var(--planet-teal);
+  }
+
+  /* "+" collapsed marker on a dark page */
+  .mm-node__plus circle { fill: #0E1A38 !important; }
+
+  /* Footnote card — dark surface */
+  .mm-footnote {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 4px 5px 0 rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+  }
+  .mm-footnote__eyebrow { color: var(--nova-yellow); letter-spacing: 0.22em; }
+  .mm-footnote h3 { color: var(--chalk-100); }
+  .mm-footnote p { color: var(--slate-300); }
+
+  /* Footer — already dark via tokens, but make the back-link gold */
+  .sitefoot { border-top-color: rgba(255, 255, 255, 0.1); }
+  .sitefoot a { color: var(--nova-yellow); }
+</style>
+</head>
+<body>
+
+<header class="sitenav">
+  <div class="sitenav__inner">
+    <a class="sitenav__brand" href="index.html">
+      <img src="assets/logo.png" alt="">
+      <div>
+        <strong>Lektor Tronrud</strong>
+        <small>Et univers for nysgjerrige</small>
+      </div>
+    </a>
+    <nav class="sitenav__links">
+      <a href="index.html">Forside</a>
+      <a href="elever.html" class="is-active">For elever</a>
+      <a href="laererhub.html">For lærere</a>
+      <a href="gnistrende-hjerne.html">Gnistrende hjerne</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <section class="mm-hero">
+    <div class="mm-hero__eyebrow"><span class="dot"></span> TANKEKART · LEKTOR TRONRUD SVARER</div>
+    <h1>Trenger jeg å lære <em>matte?</em></h1>
+    <p class="mm-hero__lede">Kort svar: absolutt. 
+
+
+Matematikk er overalt. I lommeboka di, i kroppen din, i mobilen din, i broene du krysser, og i universet rundt deg. Under finner du et tankekart med over 80 grunner, fordelt på det som gjelder deg personlig og det som holder samfunnet i gang. Hold musa over et felt for å se et konkret eksempel.</p>
+  </section>
+
+  <section class="mm-controls" aria-label="Kontroller">
+    <div class="mm-controls__legend" aria-label="Tegnforklaring">
+      <span class="mm-legend-pill is-center"><span class="swatch"></span>Matte &amp; tall</span>
+      <span class="mm-legend-pill is-personal"><span class="swatch"></span>Personlig</span>
+      <span class="mm-legend-pill is-society"><span class="swatch"></span>Samfunn</span>
+    </div>
+    <button class="btn btn--sm" id="mm-expand">Utvid alle</button>
+    <button class="btn btn--sm" id="mm-collapse">Kollaps til hovedgrener</button>
+    <span class="mm-hint">Dra for å panorere &middot; <kbd>scroll</kbd> for å zoome</span>
+  </section>
+
+  <section class="mm-stage">
+    <div class="mm-canvas" id="mm-canvas">
+      <div class="mm-counter" aria-live="polite">
+        <span class="num" id="mm-counter-num">0</span>
+        <span class="lbl">synlige grener</span>
+      </div>
+
+      <svg class="mm-svg" id="mm-svg" viewBox="-1400 -1200 2800 2400" preserveAspectRatio="xMidYMid meet">
+        <g id="mm-links"></g>
+        <g id="mm-nodes"></g>
+      </svg>
+
+      <div class="mm-tooltip" id="mm-tooltip" role="tooltip" aria-hidden="true"></div>
+
+      <div class="mm-zoom" aria-label="Zoom">
+        <button id="mm-zoom-in"  aria-label="Zoom inn">+</button>
+        <button id="mm-zoom-out" aria-label="Zoom ut">&minus;</button>
+        <button id="mm-zoom-reset" aria-label="Tilbakestill" title="Tilbakestill">⌂</button>
+      </div>
+    </div>
+
+    <div class="mm-footnote">
+      <div class="mm-footnote__eyebrow">FRA LEKTOR TRONRUD</div>
+      <h3>Matte er et språk.</h3>
+      <p>Det er lett å tenke at matte bare er et fag, siden det er sånn vi blir kjent med det fra skolen. Det er ikke helt riktig.
+Du trenger ikke bli matematiker. Men du trenger å forstå nok til å bygge et godt liv. Planlegg en bedre økonomi for deg selv. Vær smart nok til å finne gode avtaler. Lag gode matretter. Reis rundt i verden. Vær observant nok til å ikke bli lurt av statistikk, politikere eller algoritmer.</p>
+      <p>Og hvis du blir nysgjerrig: bak hver gren i kartet finnes en hel verden å utforske.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="sitefoot">
+  <div class="sitefoot__sig">★ For elever</div>
+  <p><a href="elever.html">← Tilbake til elevsiden</a></p>
+</footer>
+
+<script src="matte-mindmap-data.js"></script>
+<script src="matte-mindmap-app.js"></script>
+
+</body>
+</html>

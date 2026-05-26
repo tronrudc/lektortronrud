@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>For elever · Lektor Tronrud</title>
+<link rel="icon" type="image/png" href="assets/logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/tokens.css">
+<style>
+  /* ─────────── HERO: greeting from Lektor Tronrud ─────────── */
+  .student-hero {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: var(--s-12) var(--s-6) var(--s-10);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--s-6);
+    align-items: center;
+  }
+  .student-hero__avatar {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    border: var(--border-w) solid var(--border-ink);
+    box-shadow: var(--shadow-2);
+    background: var(--nova-yellow-soft);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .student-hero__avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .student-hero__copy { min-width: 0; }
+  .student-hero__eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--slate-500); margin-bottom: var(--s-2);
+  }
+  .student-hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 800; line-height: 1.05; letter-spacing: -0.02em;
+    margin-bottom: var(--s-3);
+  }
+  .student-hero h1 em {
+    font-style: normal;
+    background: linear-gradient(95deg, var(--nova-yellow) 0%, var(--moss-green) 60%, var(--planet-teal) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .student-hero p {
+    font-size: 1.05rem; color: var(--slate-500);
+    line-height: 1.6; max-width: 60ch;
+  }
+  @media (max-width: 640px) {
+    .student-hero { grid-template-columns: 1fr; text-align: left; }
+    .student-hero__avatar { width: 72px; height: 72px; }
+  }
+
+  /* ─────────── ARCADE: RocketRaider feature card ─────────── */
+  .arcade {
+    max-width: 1100px; margin: 0 auto;
+    padding: 0 var(--s-6);
+  }
+  .arcade__label {
+    display: flex; align-items: center; gap: var(--s-3);
+    font-family: var(--font-display);
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--slate-500);
+    margin-bottom: var(--s-4);
+  }
+  .arcade__label::before, .arcade__label::after {
+    content: ''; height: 2px; background: var(--space-900); opacity: 0.15; flex: 1;
+  }
+
+  .arcade-card {
+    position: relative;
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-2xl);
+    box-shadow: var(--shadow-3);
+    background: #020817;
+    color: #fff;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  /* Starfield layers */
+  .arcade-card__sky {
+    position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(34, 200, 200, 0.18), transparent 55%),
+      radial-gradient(ellipse at 80% 70%, rgba(244, 196, 48, 0.13), transparent 55%),
+      linear-gradient(180deg, #020817 0%, #0a1432 60%, #050b1f 100%);
+  }
+  .arcade-card__stars,
+  .arcade-card__stars--mid,
+  .arcade-card__stars--far {
+    position: absolute; inset: 0; pointer-events: none;
+  }
+  .arcade-card__stars {
+    background-image:
+      radial-gradient(1.4px 1.4px at 12% 22%, #fff, transparent 60%),
+      radial-gradient(1.6px 1.6px at 30% 78%, #fff, transparent 60%),
+      radial-gradient(1.2px 1.2px at 48% 14%, #fff, transparent 60%),
+      radial-gradient(1.8px 1.8px at 67% 60%, #fff, transparent 60%),
+      radial-gradient(1.4px 1.4px at 86% 30%, #fff, transparent 60%),
+      radial-gradient(1.2px 1.2px at 92% 84%, #fff, transparent 60%),
+      radial-gradient(1.6px 1.6px at 8% 90%, #fff, transparent 60%);
+    animation: twinkle 3.2s ease-in-out infinite alternate;
+  }
+  .arcade-card__stars--mid {
+    background-image:
+      radial-gradient(1px 1px at 22% 50%, rgba(255,255,255,0.85), transparent 60%),
+      radial-gradient(1px 1px at 58% 36%, rgba(255,255,255,0.85), transparent 60%),
+      radial-gradient(1px 1px at 74% 18%, rgba(255,255,255,0.85), transparent 60%),
+      radial-gradient(1px 1px at 38% 88%, rgba(255,255,255,0.85), transparent 60%),
+      radial-gradient(1px 1px at 6% 60%, rgba(255,255,255,0.85), transparent 60%),
+      radial-gradient(1px 1px at 96% 50%, rgba(255,255,255,0.85), transparent 60%);
+    animation: twinkle 2.4s ease-in-out 0.4s infinite alternate;
+  }
+  .arcade-card__stars--far {
+    background-image:
+      radial-gradient(0.6px 0.6px at 15% 35%, rgba(255,255,255,0.55), transparent),
+      radial-gradient(0.6px 0.6px at 35% 12%, rgba(255,255,255,0.55), transparent),
+      radial-gradient(0.6px 0.6px at 55% 70%, rgba(255,255,255,0.55), transparent),
+      radial-gradient(0.6px 0.6px at 78% 44%, rgba(255,255,255,0.55), transparent),
+      radial-gradient(0.6px 0.6px at 90% 12%, rgba(255,255,255,0.55), transparent),
+      radial-gradient(0.6px 0.6px at 28% 60%, rgba(255,255,255,0.55), transparent),
+      radial-gradient(0.6px 0.6px at 64% 90%, rgba(255,255,255,0.55), transparent);
+    opacity: 0.7;
+  }
+  @keyframes twinkle {
+    0%   { opacity: 0.55; }
+    100% { opacity: 1; }
+  }
+
+  /* Subtle scanline overlay */
+  .arcade-card__scan {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: repeating-linear-gradient(
+      0deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 3px
+    );
+    mix-blend-mode: overlay;
+    opacity: 0.6;
+  }
+
+  /* Drifting rocket silhouette */
+  .arcade-card__rocket {
+    position: absolute;
+    right: 6%; top: 18%;
+    width: 110px; height: 110px;
+    transform: rotate(-18deg);
+    opacity: 0.55;
+    filter: drop-shadow(0 0 22px rgba(244, 196, 48, 0.45));
+    animation: drift 6s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  @keyframes drift {
+    0%   { transform: rotate(-18deg) translate(0, 0); }
+    100% { transform: rotate(-22deg) translate(-10px, 14px); }
+  }
+
+  .arcade-card__inner {
+    position: relative;
+    padding: clamp(var(--s-10), 6vw, var(--s-20)) var(--s-8) var(--s-12);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-6);
+    align-items: center;
+    text-align: center;
+  }
+
+  .arcade-card__badge {
+    justify-self: center;
+    display: inline-flex; align-items: center; gap: var(--s-2);
+    font-family: 'Orbitron', var(--font-display);
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.28em;
+    color: var(--nova-yellow);
+    padding: 8px 18px;
+    border: 1.5px solid rgba(244, 196, 48, 0.55);
+    border-radius: var(--r-pill);
+    background: rgba(244, 196, 48, 0.08);
+  }
+  .arcade-card__badge .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--nova-yellow);
+    box-shadow: 0 0 10px var(--nova-yellow);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%      { transform: scale(1.35); opacity: 0.55; }
+  }
+
+  .arcade-card__title {
+    font-family: 'Orbitron', var(--font-display);
+    font-weight: 900;
+    font-size: clamp(2.6rem, 8vw, 5.5rem);
+    line-height: 0.95;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #F4C430;
+    background: linear-gradient(180deg, #FFF7C9 0%, #F4C430 45%, #F5A623 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    /* Crisp, layered ink shadow — no blur, no glow */
+    filter:
+      drop-shadow(0 2px 0 #020817)
+      drop-shadow(2px 0 0 #020817)
+      drop-shadow(0 -2px 0 #020817)
+      drop-shadow(-2px 0 0 #020817)
+      drop-shadow(0 6px 0 rgba(2, 8, 23, 0.55));
+  }
+  .arcade-card__title span.glitch {
+    display: inline-block;
+  }
+
+  .arcade-card__tagline {
+    font-family: 'Orbitron', var(--font-display);
+    font-size: clamp(0.85rem, 1.4vw, 1rem);
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+  }
+
+  .arcade-card__cta {
+    justify-self: center;
+    display: inline-flex; align-items: center; gap: var(--s-3);
+    font-family: 'Orbitron', var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #020817;
+    background: var(--nova-yellow);
+    padding: 18px 44px;
+    border: 2px solid #020817;
+    border-radius: var(--r-pill);
+    box-shadow:
+      0 0 0 4px rgba(244, 196, 48, 0.25),
+      0 0 28px rgba(244, 196, 48, 0.55),
+      6px 7px 0 rgba(0,0,0,0.45);
+    transition: transform var(--t-fast), box-shadow var(--t-fast), background var(--t-fast);
+  }
+  .arcade-card__cta:hover {
+    transform: translate(-2px, -2px);
+    background: #FFD24D;
+    box-shadow:
+      0 0 0 5px rgba(244, 196, 48, 0.35),
+      0 0 42px rgba(244, 196, 48, 0.7),
+      8px 9px 0 rgba(0,0,0,0.5);
+  }
+  .arcade-card__cta:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 3px rgba(244, 196, 48, 0.25), 2px 2px 0 rgba(0,0,0,0.4);
+  }
+  .arcade-card__cta .arrow {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    line-height: 1;
+  }
+
+  .arcade-card__caption {
+    margin-top: var(--s-1);
+    font-family: 'Orbitron', var(--font-display);
+    font-size: 0.72rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* ─────────── Scoreboard strip ─────────── */
+  .arcade-stats {
+    position: relative;
+    border-top: 1.5px solid rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.35);
+    padding: var(--s-5) var(--s-8);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--s-5);
+    align-items: center;
+  }
+  .arcade-stats__label {
+    font-family: 'Orbitron', var(--font-display);
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.22em;
+    color: var(--planet-teal);
+  }
+  .arcade-stats__list {
+    list-style: none;
+    display: flex;
+    gap: var(--s-6);
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .arcade-stats__list li {
+    display: flex; align-items: baseline; gap: var(--s-2);
+    font-family: 'Orbitron', var(--font-display);
+    white-space: nowrap;
+  }
+  .arcade-stats__list .rank {
+    font-size: 0.72rem; font-weight: 700;
+    color: var(--nova-yellow);
+    letter-spacing: 0.15em;
+  }
+  .arcade-stats__list .name {
+    font-size: 0.9rem; font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.04em;
+  }
+  .arcade-stats__list .score {
+    font-size: 0.9rem; font-weight: 700;
+    color: var(--planet-teal);
+    letter-spacing: 0.08em;
+  }
+  .arcade-stats__empty {
+    font-family: 'Orbitron', var(--font-display);
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .arcade-stats__hint {
+    font-family: 'Orbitron', var(--font-display);
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  @media (max-width: 720px) {
+    .arcade-stats { grid-template-columns: 1fr; gap: var(--s-3); padding: var(--s-4) var(--s-5); }
+    .arcade-stats__hint { display: none; }
+  }
+
+  /* ─────────── Tease grid (kept, but slightly tightened) ─────────── */
+  .tease {
+    max-width: 1100px; margin: var(--s-16) auto var(--s-20);
+    padding: 0 var(--s-6);
+  }
+  .tease__head {
+    text-align: center; margin-bottom: var(--s-8);
+  }
+  .tease__eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--slate-500); margin-bottom: var(--s-2);
+  }
+  .tease h3 {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    font-weight: 800; letter-spacing: -0.02em;
+    margin-bottom: var(--s-2);
+  }
+  .tease__lede {
+    color: var(--slate-500);
+    max-width: 50ch; margin: 0 auto;
+  }
+  .tease__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--s-4);
+  }
+  .tease-card {
+    background: var(--surface);
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-2);
+    padding: var(--s-5);
+    display: flex; flex-direction: column; gap: var(--s-3);
+    opacity: 0.92;
+    transition: transform var(--t-fast), box-shadow var(--t-fast);
+  }
+  .tease-card:hover { transform: translate(-2px,-2px); box-shadow: var(--shadow-3); opacity: 1; }
+  .tease-card__icon {
+    width: 48px; height: 48px;
+    border-radius: var(--r-md);
+    border: var(--border-w) solid var(--border-ink);
+    display: grid; place-items: center;
+    font-size: 24px;
+  }
+  .tease-card h4 {
+    font-family: var(--font-display);
+    font-size: 1.1rem; font-weight: 700;
+  }
+  .tease-card p {
+    color: var(--slate-500); font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  .tease-card__lock {
+    align-self: flex-start;
+    font-family: var(--font-display);
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    padding: 4px 10px; border-radius: var(--r-pill);
+    background: var(--chalk-50); color: var(--slate-500);
+    border: 1.5px solid var(--slate-200);
+  }
+
+  /* ─────────── THINK: “Trenger jeg å lære matte?” ─────────── */
+  .think {
+    max-width: 1100px;
+    margin: var(--s-16) auto 0;
+    padding: 0 var(--s-6);
+  }
+  .think__label {
+    display: flex; align-items: center; gap: var(--s-3);
+    font-family: var(--font-display);
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--slate-500);
+    margin-bottom: var(--s-4);
+  }
+  .think__label::before, .think__label::after {
+    content: ''; height: 2px; background: var(--space-900); opacity: 0.15; flex: 1;
+  }
+  .think-card {
+    position: relative;
+    background: var(--surface);
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-2xl);
+    box-shadow: var(--shadow-3);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    min-height: 320px;
+  }
+  .think-card__copy {
+    padding: clamp(var(--s-8), 4vw, var(--s-12));
+    display: flex; flex-direction: column;
+    justify-content: center;
+    gap: var(--s-4);
+  }
+  .think-card__eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.22em;
+    color: var(--comet-orange);
+    display: inline-flex; align-items: center; gap: var(--s-2);
+  }
+  .think-card__eyebrow .swatch {
+    display: inline-flex; gap: 3px;
+  }
+  .think-card__eyebrow .swatch i {
+    width: 8px; height: 8px; border-radius: 50%;
+    border: 1.5px solid var(--space-900);
+    background: var(--nova-yellow);
+  }
+  .think-card__eyebrow .swatch i + i { background: var(--planet-teal); }
+  .think-card h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 800; line-height: 1.04; letter-spacing: -0.02em;
+  }
+  .think-card h2 em {
+    font-style: italic;
+    background: linear-gradient(95deg, var(--nova-yellow) 0%, var(--comet-orange) 50%, var(--planet-teal) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .think-card__lede {
+    color: var(--slate-500);
+    line-height: 1.6;
+    max-width: 50ch;
+  }
+  .think-card__lede strong { color: var(--space-900); font-weight: 700; }
+  .think-card__cta {
+    display: inline-flex; align-self: flex-start;
+    align-items: center; gap: var(--s-2);
+    font-family: var(--font-display);
+    font-size: 1rem; font-weight: 800;
+    padding: 14px 24px;
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-pill);
+    background: var(--space-900);
+    color: var(--surface);
+    text-decoration: none;
+    box-shadow: var(--shadow-2);
+    transition: transform var(--t-fast), box-shadow var(--t-fast), background var(--t-fast);
+    margin-top: var(--s-2);
+  }
+  .think-card__cta:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-3);
+    background: var(--slate-700);
+  }
+  .think-card__cta:active {
+    transform: translate(0, 0);
+    box-shadow: var(--shadow-press);
+  }
+  .think-card__cta .arrow { font-family: var(--font-body); }
+
+  /* Mini mind-map preview (decorative SVG) */
+  .think-card__viz {
+    position: relative;
+    background:
+      radial-gradient(circle at 30% 40%, rgba(244, 196, 48, 0.10), transparent 50%),
+      radial-gradient(circle at 70% 60%, rgba(34, 200, 200, 0.10), transparent 50%),
+      var(--chalk-50);
+    border-left: var(--border-w) solid var(--border-ink);
+    overflow: hidden;
+  }
+  .think-card__viz svg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+  }
+  .think-card__viz .stat {
+    position: absolute;
+    background: var(--surface);
+    border: 1.5px solid var(--space-900);
+    border-radius: var(--r-pill);
+    padding: 6px 12px;
+    font-family: var(--font-display);
+    font-size: 0.75rem; font-weight: 700;
+    box-shadow: var(--shadow-1);
+    white-space: nowrap;
+  }
+  .think-card__viz .stat--n {
+    top: 18px; right: 18px;
+  }
+  .think-card__viz .stat--n .num {
+    font-size: 0.95rem; font-weight: 900; color: var(--space-900);
+  }
+  .think-card__viz .stat--n .lbl {
+    font-size: 0.65rem; color: var(--slate-500);
+    text-transform: uppercase; letter-spacing: 0.12em; margin-left: 4px;
+  }
+  .think-card__viz .stat--p {
+    bottom: 24px; left: 22px;
+    color: var(--space-900);
+    background: var(--nova-yellow);
+  }
+  .think-card__viz .stat--s {
+    bottom: 24px; right: 22px;
+    color: var(--space-900);
+    background: var(--planet-teal);
+  }
+
+  @media (max-width: 760px) {
+    .think-card { grid-template-columns: 1fr; }
+    .think-card__viz {
+      border-left: none;
+      border-top: var(--border-w) solid var(--border-ink);
+      min-height: 220px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="sitenav">
+  <div class="sitenav__inner">
+    <a class="sitenav__brand" href="index.html">
+      <img src="assets/logo.png" alt="">
+      <div>
+        <strong>Lektor Tronrud</strong>
+        <small>Et univers for nysgjerrige</small>
+      </div>
+    </a>
+    <nav class="sitenav__links">
+      <a href="index.html">Forside</a>
+      <a href="elever.html" class="is-active">For elever</a>
+      <a href="laererhub.html">For lærere</a>
+      <a href="gnistrende-hjerne.html">Gnistrende hjerne</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <section class="student-hero">
+    <div class="student-hero__avatar">
+      <img src="assets/logo.png" alt="Lektor Tronrud" />
+    </div>
+    <div class="student-hero__copy">
+      <div class="student-hero__eyebrow">EN HILSEN FRA LEKTOR TRONRUD</div>
+      <h1>Å være elev er <em>en superkraft.</em></h1>
+      <p>Du har lov til å være nysgjerrig, stille dumme spørsmål og bomme på mål. Det er sånn hjernen vokser. Trykk på spillene under, tren litt, og still flere spørsmål. Kos deg!</p>
+    </div>
+  </section>
+
+  <section class="arcade" aria-labelledby="arcade-title">
+    <div class="arcade__label"><span>★ SPILL NÅ ★</span></div>
+
+    <article class="arcade-card">
+      <div class="arcade-card__sky" aria-hidden="true"></div>
+      <div class="arcade-card__stars--far" aria-hidden="true"></div>
+      <div class="arcade-card__stars--mid" aria-hidden="true"></div>
+      <div class="arcade-card__stars" aria-hidden="true"></div>
+      <div class="arcade-card__scan" aria-hidden="true"></div>
+
+      <svg class="arcade-card__rocket" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+        <path d="M50 8 C62 22 68 38 68 54 L50 64 L32 54 C32 38 38 22 50 8 Z" fill="#F4C430" stroke="#020817" stroke-width="3"/>
+        <circle cx="50" cy="36" r="7" fill="#22C8C8" stroke="#020817" stroke-width="2.5"/>
+        <path d="M32 50 L20 64 L32 60 Z" fill="#F5A623" stroke="#020817" stroke-width="2.5"/>
+        <path d="M68 50 L80 64 L68 60 Z" fill="#F5A623" stroke="#020817" stroke-width="2.5"/>
+        <path d="M44 64 L50 88 L56 64 Z" fill="#E53935" stroke="#020817" stroke-width="2.5"/>
+      </svg>
+
+      <div class="arcade-card__inner">
+        <span class="arcade-card__badge">MATTESPILL</span>
+        <h2 id="arcade-title" class="arcade-card__title">
+          Rocket<span class="glitch"> RAIDER</span>
+        </h2>
+        <p class="arcade-card__tagline">SAMLE STJERNESTØV  ·  HVA ER EN FAKTOR?</p>
+
+        <a class="arcade-card__cta" href="games/rocketraider.html">
+          <span>Spill</span>
+          <span class="arrow">▶</span>
+        </a>
+        <p class="arcade-card__caption">
+</p>
+      </div>
+
+      <div class="arcade-stats" aria-label="Din topplista">
+        <div class="arcade-stats__label">★ Topplista</div>
+        <ol class="arcade-stats__list" id="rr-scoreboard" aria-live="polite">
+          <li class="arcade-stats__empty">Ingen poeng ennå. Bli den første!</li>
+        </ol>
+        <div class="arcade-stats__hint">Lagret lokalt</div>
+      </div>
+    </article>
+  </section>
+
+  <section class="think" aria-labelledby="think-title">
+    <div class="think__label"><span>❖ NYTT ❖</span></div>
+
+    <article class="think-card">
+      <div class="think-card__copy">
+        <div class="think-card__eyebrow">
+          <span class="swatch"><i></i><i></i></span>
+          TANKEKART · INTERAKTIVT
+        </div>
+        <h2 id="think-title">Trenger jeg å lære <em>matte?</em></h2>
+        <p class="think-card__lede">
+          Det korte svaret er <strong>ja</strong>. Det lengre svaret er et tankekart med <strong>over 80 grunner</strong> — fra lønnsslippen din til svarte hull. Klikk deg gjennom, dra rundt, hold over et felt for et konkret eksempel.
+        </p>
+        <a class="think-card__cta" href="matte-mindmap.html">
+          <span>Utforsk tankekartet</span>
+          <span class="arrow">→</span>
+        </a>
+      </div>
+
+      <div class="think-card__viz" aria-hidden="true">
+        <svg viewBox="-200 -150 400 300" preserveAspectRatio="xMidYMid meet">
+          <!-- Connectors -->
+          <g fill="none" stroke-linecap="round">
+            <path d="M0 0 C -40 -30 -80 -50 -120 -55" stroke="#F4C430" stroke-width="2.5"/>
+            <path d="M0 0 C -40 30 -80 50 -120 55"   stroke="#F4C430" stroke-width="2.5"/>
+            <path d="M0 0 C 40 -30 80 -50 120 -55"   stroke="#22C8C8" stroke-width="2.5"/>
+            <path d="M0 0 C 40 30 80 50 120 55"     stroke="#22C8C8" stroke-width="2.5"/>
+            <path d="M-120 -55 C -140 -75 -160 -85 -175 -95" stroke="#F5A623" stroke-width="1.5"/>
+            <path d="M-120 -55 C -150 -55 -170 -50 -180 -45" stroke="#F5A623" stroke-width="1.5"/>
+            <path d="M-120 55 C -150 65 -170 80 -180 95" stroke="#F5A623" stroke-width="1.5"/>
+            <path d="M120 -55 C 150 -75 170 -90 180 -100" stroke="#07B3C7" stroke-width="1.5"/>
+            <path d="M120 -55 C 150 -55 170 -50 180 -45" stroke="#07B3C7" stroke-width="1.5"/>
+            <path d="M120 55 C 150 65 170 80 180 95" stroke="#07B3C7" stroke-width="1.5"/>
+          </g>
+
+          <!-- Leaf dots -->
+          <g>
+            <circle cx="-178" cy="-95"  r="4" fill="#FFFBEC" stroke="#F5A623" stroke-width="1.5"/>
+            <circle cx="-180" cy="-45"  r="4" fill="#FFFBEC" stroke="#F5A623" stroke-width="1.5"/>
+            <circle cx="-180" cy="95"   r="4" fill="#FFFBEC" stroke="#F5A623" stroke-width="1.5"/>
+            <circle cx="178"  cy="-100" r="4" fill="#ECFAFA" stroke="#07B3C7" stroke-width="1.5"/>
+            <circle cx="180"  cy="-45"  r="4" fill="#ECFAFA" stroke="#07B3C7" stroke-width="1.5"/>
+            <circle cx="180"  cy="95"   r="4" fill="#ECFAFA" stroke="#07B3C7" stroke-width="1.5"/>
+          </g>
+
+          <!-- Sub-pills -->
+          <g>
+            <rect x="-160" y="-66" width="82" height="22" rx="11" fill="#FFF1B8" stroke="#0E1A38" stroke-width="1.8"/>
+            <text x="-119" y="-50" font-family="Rubik" font-size="10" font-weight="700" text-anchor="middle" fill="#0E1A38">Penger</text>
+            <rect x="-160" y="44" width="82" height="22" rx="11" fill="#FFF1B8" stroke="#0E1A38" stroke-width="1.8"/>
+            <text x="-119" y="60" font-family="Rubik" font-size="10" font-weight="700" text-anchor="middle" fill="#0E1A38">Helse</text>
+            <rect x="78" y="-66" width="82" height="22" rx="11" fill="#D6F4F4" stroke="#0E1A38" stroke-width="1.8"/>
+            <text x="119" y="-50" font-family="Rubik" font-size="10" font-weight="700" text-anchor="middle" fill="#0E1A38">Vitenskap</text>
+            <rect x="78" y="44" width="82" height="22" rx="11" fill="#D6F4F4" stroke="#0E1A38" stroke-width="1.8"/>
+            <text x="119" y="60" font-family="Rubik" font-size="10" font-weight="700" text-anchor="middle" fill="#0E1A38">Klima</text>
+          </g>
+
+          <!-- Primary nodes -->
+          <g>
+            <rect x="-150" y="-15" width="60" height="28" rx="14" fill="#F4C430" stroke="#0E1A38" stroke-width="2"/>
+            <text x="-120" y="4" font-family="Rubik" font-size="12" font-weight="800" text-anchor="middle" fill="#0E1A38">Personlig</text>
+            <rect x="90" y="-15" width="60" height="28" rx="14" fill="#22C8C8" stroke="#0E1A38" stroke-width="2"/>
+            <text x="120" y="4" font-family="Rubik" font-size="12" font-weight="800" text-anchor="middle" fill="#0E1A38">Samfunn</text>
+          </g>
+
+          <!-- Center -->
+          <circle cx="0" cy="0" r="36" fill="none" stroke="#F4C430" stroke-width="1.5" stroke-dasharray="3 5" opacity="0.8"/>
+          <rect x="-34" y="-15" width="68" height="30" rx="15" fill="#0E1A38" stroke="#0E1A38" stroke-width="2"/>
+          <text x="0" y="5" font-family="Rubik" font-size="13" font-weight="900" text-anchor="middle" fill="#F4C430">Matte</text>
+        </svg>
+
+        <div class="stat stat--n">
+          <span class="num">80+</span><span class="lbl">grunner</span>
+        </div>
+        <div class="stat stat--p">Personlig</div>
+        <div class="stat stat--s">Samfunn</div>
+      </div>
+    </article>
+  </section>
+
+  <section class="tease">
+    <div class="tease__head">
+      <div class="tease__eyebrow">Kommer snart</div>
+      <h3>Flere spill er på vei</h3>
+      <p class="tease__lede">Lektor Tronrud har mye å gjøre, men han jobber i labben så mye han kan. Puslespill, mattespill, quizer og hjernetrim kommer snart.
+Alt er gratis, uten innlogging.</p>
+    </div>
+    <div class="tease__grid">
+      <div class="tease-card">
+        <span class="tease-card__lock">🔒 Snart</span>
+        <div class="tease-card__icon" style="background:var(--moss-green-soft);">🧩</div>
+        <h4>Webpuslespill</h4>
+        <p>Logikk-gåter med ulike vanskelighetsgrader.</p>
+      </div>
+      <div class="tease-card">
+        <span class="tease-card__lock">🔒 Snart</span>
+        <div class="tease-card__icon" style="background:var(--planet-teal-soft);">🎮</div>
+        <h4>Flere mattespill</h4>
+        <p>Lær brøk, prosent og ligninger mens du spiller.</p>
+      </div>
+      <div class="tease-card">
+        <span class="tease-card__lock">🔒 Snart</span>
+        <div class="tease-card__icon" style="background:var(--nova-yellow-soft);">❓</div>
+        <h4>Quizer</h4>
+        <p>Korte quizer som lar deg sjekke om du har skjønt det.</p>
+      </div>
+      <div class="tease-card">
+        <span class="tease-card__lock">🔒 Snart</span>
+        <div class="tease-card__icon" style="background:var(--berry-pink-soft);">🧠</div>
+        <h4>Hjernetrim</h4>
+        <p>Kjappe utfordringer. Bygg hjernemuskelen din litt etter litt.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="sitefoot">
+  <div class="sitefoot__sig">★ For elever</div>
+  <p>Bygget for deg som vil lære.</p>
+</footer>
+
+<script>
+  // ─────── Render RocketRaider topplista from localStorage ───────
+  (function renderScoreboard() {
+    const KEY = 'rr-scores-v1';
+    let scores = [];
+    try {
+      scores = JSON.parse(localStorage.getItem(KEY) || '[]');
+      if (!Array.isArray(scores)) scores = [];
+    } catch (_) { scores = []; }
+
+    const list = document.getElementById('rr-scoreboard');
+    if (!list) return;
+
+    if (!scores.length) {
+      // Keep the default empty-state <li>
+      return;
+    }
+
+    const top = scores
+      .slice()
+      .sort((a, b) => (b.score || 0) - (a.score || 0))
+      .slice(0, 5);
+
+    list.innerHTML = top.map((s, i) => {
+      const name  = (s.name || '???').toString().slice(0, 12);
+      const score = (s.score || 0).toLocaleString('nb-NO');
+      return `<li>
+        <span class="rank">#${i + 1}</span>
+        <span class="name">${escapeHtml(name)}</span>
+        <span class="score">${score}</span>
+      </li>`;
+    }).join('');
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, c => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[c]));
+    }
+  })();
+</script>
+
+</body>
+</html>

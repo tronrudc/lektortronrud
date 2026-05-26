@@ -1,0 +1,883 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lektor Tronrud — Et univers for nysgjerrige</title>
+<link rel="icon" type="image/png" href="assets/logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800;900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/tokens.css">
+<style>
+  /* ─── Page-specific layout ─── */
+  body { background: var(--paper); }
+
+  /* HERO: cosmic dark stage that fills the viewport */
+  .hero {
+    position: relative;
+    min-height: calc(100vh - 76px);
+    background: var(--space-900);
+    color: var(--surface);
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    padding: var(--s-12) var(--s-6);
+    isolation: isolate;
+  }
+
+  /* Star layer (animated twinkle) */
+  .hero__stars {
+    position: absolute; inset: 0;
+    pointer-events: none; z-index: 0;
+  }
+  .star {
+    position: absolute;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0;
+    animation: twinkle var(--dur, 3s) ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; }
+    50% { opacity: var(--max-op, 0.8); }
+  }
+
+  /* Aurora glow behind logo */
+  .hero__aurora {
+    position: absolute;
+    width: 760px; height: 760px;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(closest-side,
+      rgba(34, 200, 200, 0.25) 0%,
+      rgba(139, 195, 74, 0.16) 35%,
+      rgba(244, 196, 48, 0.10) 60%,
+      transparent 75%);
+    filter: blur(20px);
+    pointer-events: none;
+    z-index: 0;
+    animation: aurora 12s ease-in-out infinite;
+  }
+  @keyframes aurora {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.12); }
+  }
+
+  .hero__inner {
+    position: relative; z-index: 2;
+    max-width: 1100px; width: 100%;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center;
+    gap: var(--s-6);
+  }
+
+  /* Logo wrapper with floating ring */
+  .hero__logo {
+    position: relative;
+    width: var(--logo-size, 200px);
+    height: var(--logo-size, 200px);
+    display: grid; place-items: center;
+    animation: float 5s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .hero__logo img {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    box-shadow:
+      0 0 0 4px rgba(255,255,255,0.06),
+      0 0 0 8px rgba(255,255,255,0.04),
+      0 30px 80px rgba(0,0,0,0.5);
+    position: relative; z-index: 2;
+  }
+  /* Orbit ring */
+  .hero__logo::before {
+    content: '';
+    position: absolute;
+    inset: -40px;
+    border: 1.5px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    animation: spin 30s linear infinite;
+  }
+  .hero__logo::after {
+    content: '';
+    position: absolute;
+    inset: -22px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .hero__eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.28em;
+    color: var(--nova-yellow);
+    display: inline-flex; align-items: center; gap: var(--s-2);
+  }
+  .hero__eyebrow::before, .hero__eyebrow::after {
+    content: ''; width: 28px; height: 1px;
+    background: var(--nova-yellow); opacity: 0.55;
+  }
+
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 7vw, 5.5rem);
+    font-weight: 900; line-height: 0.96; letter-spacing: -0.03em;
+    max-width: 18ch;
+    text-wrap: balance;
+    padding-right: 0.18em;
+  }
+  .hero h1 em { padding-right: 0.08em; }
+  .hero h1 em {
+    font-style: italic;
+    background: linear-gradient(95deg,
+      var(--nova-yellow) 0%,
+      var(--moss-green) 45%,
+      var(--planet-teal) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  .hero__lede {
+    font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.78);
+    max-width: 56ch;
+    text-wrap: pretty;
+  }
+
+  .hero__cta {
+    display: flex; gap: var(--s-3);
+    flex-wrap: wrap; justify-content: center;
+    margin-top: var(--s-2);
+  }
+
+  .hero .btn {
+    border-color: rgba(255,255,255,0.2);
+    box-shadow: none;
+  }
+  .hero .btn--primary {
+    background: var(--nova-yellow);
+    color: var(--space-900);
+    border-color: var(--nova-yellow);
+  }
+  .hero .btn--primary:hover { background: #ffd446; }
+  .hero .btn--ghost {
+    background: transparent;
+    color: rgba(255,255,255,0.85);
+  }
+  .hero .btn--ghost:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.4);
+    color: #fff;
+  }
+
+  /* Scroll indicator */
+  .hero__scroll {
+    position: absolute;
+    bottom: var(--s-6); left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    animation: scrollPulse 2.5s ease-in-out infinite;
+  }
+  .hero__scroll::after {
+    content: ''; width: 1px; height: 24px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+  }
+  @keyframes scrollPulse {
+    0%, 100% { transform: translate(-50%, 0); opacity: 0.45; }
+    50% { transform: translate(-50%, 4px); opacity: 0.85; }
+  }
+
+  /* ─── FEATURED strip ─── */
+  .featured {
+    max-width: 1200px;
+    margin: var(--s-20) auto;
+    padding: 0 var(--s-6);
+  }
+  .featured__head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: var(--s-6);
+    margin-bottom: var(--s-6);
+    flex-wrap: wrap;
+  }
+  .featured__head h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+    font-weight: 800; letter-spacing: -0.02em;
+  }
+  .featured__head .label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem; letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--slate-500);
+  }
+
+  .feature-card {
+    background: var(--space-900);
+    color: var(--surface);
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-2xl);
+    box-shadow: var(--shadow-3);
+    padding: var(--s-12) var(--s-10);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--s-10);
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    transition: transform var(--t-base), box-shadow var(--t-base);
+  }
+  .feature-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: var(--shadow-4);
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute; inset: 0; pointer-events: none; opacity: 0.55;
+    background-image:
+      radial-gradient(1.4px 1.4px at 14% 22%, #fff, transparent),
+      radial-gradient(1px 1px at 32% 70%, #fff, transparent),
+      radial-gradient(1.6px 1.6px at 56% 14%, #fff, transparent),
+      radial-gradient(1px 1px at 78% 60%, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 88% 30%, #fff, transparent),
+      radial-gradient(1px 1px at 22% 86%, #fff, transparent);
+  }
+  .feature-card__body { position: relative; z-index: 1; }
+  .feature-card__tag {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--space-900); background: var(--nova-yellow);
+    padding: 5px 14px; border-radius: var(--r-pill);
+    margin-bottom: var(--s-4);
+  }
+  .feature-card h3 {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3vw, 2.5rem);
+    font-weight: 800; line-height: 1.05; letter-spacing: -0.02em;
+    margin-bottom: var(--s-3);
+    max-width: 22ch;
+    padding-right: 0.18em;
+  }
+  .feature-card h3 em {
+    font-style: italic;
+    background: linear-gradient(95deg, var(--nova-yellow), var(--planet-teal));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    padding-right: 0.08em;
+  }
+  .feature-card p {
+    color: rgba(255,255,255,0.75);
+    font-size: 1.05rem; max-width: 50ch;
+    margin-bottom: var(--s-5);
+    line-height: 1.55;
+  }
+  .feature-card .read {
+    display: inline-flex; align-items: center; gap: var(--s-2);
+    font-family: var(--font-display);
+    font-weight: 700; color: var(--nova-yellow);
+    font-size: 0.95rem;
+  }
+  .feature-card__art {
+    position: relative; z-index: 1;
+    width: 220px; height: 220px;
+    display: grid; place-items: center;
+  }
+  .feature-card__art .glow {
+    position: absolute; inset: 0;
+    background: radial-gradient(closest-side, rgba(244, 196, 48, 0.4), transparent 70%);
+    filter: blur(20px);
+  }
+  .feature-card__art .spark {
+    position: relative;
+    font-size: 140px;
+    line-height: 1;
+    filter: drop-shadow(0 0 30px rgba(244, 196, 48, 0.6));
+    animation: sparkPulse 3s ease-in-out infinite;
+  }
+  @keyframes sparkPulse {
+    0%, 100% { transform: scale(1) rotate(-5deg); }
+    50% { transform: scale(1.08) rotate(5deg); }
+  }
+
+  /* Video embed within feature card */
+  .feature-card--video { align-items: stretch; }
+  .feature-card--video .feature-card__body { align-self: center; }
+  .feature-card__video {
+    position: relative; z-index: 1;
+    width: 480px;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    border: 1.5px solid rgba(255,255,255,0.12);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+    background: #000;
+  }
+  .feature-card__video iframe {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    border: 0;
+  }
+  /* Thumbnail facade (click → loads iframe) */
+  .yt-facade {
+    position: absolute; inset: 0;
+    cursor: pointer;
+    background-size: cover;
+    background-position: center;
+    display: grid; place-items: center;
+    transition: transform var(--t-base);
+  }
+  .yt-facade::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,0.45) 100%);
+  }
+  .yt-facade:hover { transform: scale(1.02); }
+  .yt-facade__play {
+    position: relative; z-index: 1;
+    width: 78px; height: 54px;
+    border-radius: 14px;
+    background: rgba(20,20,20,0.85);
+    display: grid; place-items: center;
+    transition: background var(--t-base), transform var(--t-base);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  }
+  .yt-facade:hover .yt-facade__play {
+    background: #ff0033;
+    transform: scale(1.08);
+  }
+  .yt-facade__play::before {
+    content: '';
+    width: 0; height: 0;
+    border-left: 18px solid #fff;
+    border-top: 11px solid transparent;
+    border-bottom: 11px solid transparent;
+    margin-left: 4px;
+  }
+
+  /* Stack featured sections tighter */
+  .featured + .featured { margin-top: calc(var(--s-20) * -1 + var(--s-10)); }
+
+  @media (max-width: 760px) {
+    .feature-card { grid-template-columns: 1fr; padding: var(--s-8) var(--s-6); }
+    .feature-card__art { width: 140px; height: 140px; margin: 0 auto; }
+    .feature-card__art .spark { font-size: 90px; }
+    .feature-card__video { width: 100%; }
+  }
+  @media (max-width: 1000px) {
+    .feature-card--video { grid-template-columns: 1fr; }
+    .feature-card__video { width: 100%; }
+  }
+
+  /* Hide hero__stars on tweak */
+  body[data-bg="cream"] .hero {
+    background: var(--paper);
+    color: var(--space-900);
+  }
+  body[data-bg="cream"] .hero__lede { color: var(--slate-500); }
+  body[data-bg="cream"] .hero__stars,
+  body[data-bg="cream"] .hero__aurora,
+  body[data-bg="cream"] .hero__scroll { display: none; }
+  body[data-bg="cream"] .hero__logo img {
+    box-shadow: var(--shadow-3);
+  }
+  body[data-bg="cream"] .hero__logo::before { border-color: rgba(14,26,56,0.18); }
+  body[data-bg="cream"] .hero__logo::after { border-color: rgba(14,26,56,0.10); }
+  body[data-bg="cream"] .hero .btn--ghost {
+    color: var(--space-900);
+    border-color: var(--space-900);
+  }
+  body[data-bg="cream"] .hero .btn--ghost:hover {
+    background: var(--chalk-50);
+    border-color: var(--space-900);
+    color: var(--space-900);
+  }
+  body[data-bg="cream"] .hero .btn--primary {
+    background: var(--space-900); color: var(--surface);
+    border-color: var(--space-900);
+  }
+  body[data-bg="cream"] .hero .btn--primary:hover { background: var(--slate-700); }
+
+  /* Hide featured strip via tweak */
+  body[data-show-featured="false"] .featured { display: none; }
+
+  /* ─── Tweaks panel (custom, vanilla) ─── */
+  #tweaks-panel {
+    position: fixed; right: 20px; bottom: 20px; z-index: 9999;
+    width: 320px;
+    background: #1a1a2e;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    color: #f4f3ee;
+    font-family: var(--font-body, system-ui, sans-serif);
+    font-size: 13px;
+    display: none;
+    overflow: hidden;
+  }
+  #tweaks-panel.visible { display: block; }
+  .tweaks-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.02);
+  }
+  .tweaks-title {
+    font-family: var(--font-mono, monospace);
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+  }
+  .tweaks-close {
+    background: transparent; border: 0; color: rgba(255,255,255,0.6);
+    font-size: 22px; line-height: 1; cursor: pointer; padding: 0 4px;
+  }
+  .tweaks-close:hover { color: #fff; }
+  .tweaks-body { padding: 14px 16px; max-height: 70vh; overflow-y: auto; }
+  .tweaks-section {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .tweaks-section:last-child { border-bottom: 0; }
+  .tweaks-section__label {
+    font-family: var(--font-mono, monospace);
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 8px;
+  }
+  .tweak-row {
+    display: flex; align-items: center; gap: 12px;
+    justify-content: space-between;
+    padding: 6px 0;
+  }
+  .tweak-row__name { color: rgba(255,255,255,0.92); flex: 1; }
+  .tweak-help { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; line-height: 1.4; }
+  .tweak-switch {
+    position: relative; display: inline-block;
+    width: 40px; height: 22px; flex-shrink: 0;
+  }
+  .tweak-switch input { opacity: 0; width: 0; height: 0; }
+  .slider-track {
+    position: absolute; inset: 0; cursor: pointer;
+    background: rgba(255,255,255,0.18); border-radius: 22px;
+    transition: background 0.2s;
+  }
+  .slider-track::before {
+    content: ""; position: absolute;
+    height: 16px; width: 16px; left: 3px; top: 3px;
+    background: #fff; border-radius: 50%;
+    transition: transform 0.2s;
+  }
+  .tweak-switch input:checked + .slider-track { background: var(--planet-teal, #22C8C8); }
+  .tweak-switch input:checked + .slider-track::before { transform: translateX(18px); }
+
+  .tweak-radio {
+    display: flex; gap: 4px; flex-wrap: wrap;
+    margin-top: 4px;
+  }
+  .tweak-radio button {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.85);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .tweak-radio button:hover { background: rgba(255,255,255,0.1); }
+  .tweak-radio button.is-active {
+    background: var(--planet-teal, #22C8C8);
+    color: #0E1A38;
+    border-color: var(--planet-teal, #22C8C8);
+    font-weight: 600;
+  }
+
+  .tweak-slider input[type="range"] {
+    width: 100%;
+    accent-color: var(--planet-teal, #22C8C8);
+  }
+  .tweak-slider__value {
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    text-align: right;
+    margin-top: 2px;
+  }
+
+  .tweak-text {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 6px;
+    color: #fff;
+    padding: 6px 8px;
+    font-size: 12px;
+    font-family: inherit;
+    margin-top: 4px;
+  }
+  .tweak-text:focus {
+    outline: 1px solid var(--planet-teal, #22C8C8);
+    border-color: var(--planet-teal, #22C8C8);
+  }
+</style>
+</head>
+<body data-bg="cosmos" data-show-featured="true">
+
+<header class="sitenav">
+  <div class="sitenav__inner">
+    <a class="sitenav__brand" href="index.html">
+      <img src="assets/logo.png" alt="">
+      <div>
+        <strong>Lektor Tronrud</strong>
+        <small>Et univers for nysgjerrige</small>
+      </div>
+    </a>
+    <nav class="sitenav__links">
+      <a href="index.html" class="is-active">Forside</a>
+      <a href="elever.html">For elever</a>
+      <a href="laererhub.html">For lærere</a>
+      <a href="gnistrende-hjerne.html">Gnistrende hjerne</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <section class="hero">
+    <div class="hero__stars" id="stars"></div>
+    <div class="hero__aurora"></div>
+
+    <div class="hero__inner">
+      <div class="hero__logo">
+        <img src="assets/logo.png" alt="Lektor Tronrud-logo" />
+      </div>
+
+      <div class="hero__eyebrow" id="eyebrow">Lektor Tronrud</div>
+
+      <h1 id="headline">Et univers for nysgjerrige</h1>
+
+      <p class="hero__lede" id="lede">Hjernen din gnistrer og vokser hver gang du øver. Bokstavelig talt!
+Her finner du verktøy for klasserommet, utfordringer for nysgjerrige hjerner, og forskning på hvordan du lærer best!</p>
+
+      <div class="hero__cta">
+        <a class="btn btn--primary btn--lg" href="elever.html">Elevportal →</a>
+        <a class="btn btn--ghost btn--lg" href="laererhub.html">Lærerverktøy</a>
+      </div>
+    </div>
+
+    <div class="hero__scroll">Scroll<br></div>
+  </section>
+
+  <section class="featured" id="featured-article">
+    <div class="featured__head">
+      <span class="label">★ Siste artikkel</span>
+    </div>
+
+    <a class="feature-card" href="gnistrende-hjerne.html">
+      <div class="feature-card__body">
+        <span class="feature-card__tag">✨ Ny artikkel</span>
+        <h3>Hjernen din <em>gnistrer</em> hver gang du gjør feil.</h3>
+        <p>Tre fakta fra hjerneforskningen som forandret hvordan jeg tenker på skolen, på feiling, og på hva vi egentlig holder på med når vi lærer.</p>
+        <span class="read">Les artikkelen →</span>
+      </div>
+      <div class="feature-card__art">
+        <div class="glow"></div>
+        <div class="spark">⚡</div>
+      </div>
+    </a>
+  </section>
+
+  <section class="featured" id="featured-film">
+    <div class="featured__head">
+      <span class="label">★ Siste kortfilm</span>
+    </div>
+
+    <article class="feature-card feature-card--video">
+      <div class="feature-card__body">
+        <span class="feature-card__tag">🎬 Ny kortfilm</span>
+        <h3 id="film-title">Fire mennesker <em>rundt Månen</em></h3>
+        <p id="film-desc">Du har sett Månen veldig mange ganger. Men ikke som Artemis II. I påsken 2026 sendte vi fire mennesker rundt Månen, lenger unna Jorda enn noe menneske noensinne har vært.
+
+
+Dette er historien om Artemis II; om rakettvitenskap og sorg, om kjeks bak månen, og om hvorfor vi i det hele tatt drar opp dit.</p>
+        <a class="read" href="https://youtu.be/IUN-vw_4oKI" target="_blank" rel="noopener">Se på YouTube →</a>
+      </div>
+      <div class="feature-card__video" id="yt-mount">
+        <div
+          class="yt-facade"
+          role="button"
+          tabindex="0"
+          aria-label="Spill av video: Fire mennesker rundt Månen"
+          data-video-id="IUN-vw_4oKI"
+          style="background-image: url('https://i.ytimg.com/vi/IUN-vw_4oKI/hqdefault.jpg');">
+          <div class="yt-facade__play" aria-hidden="true"></div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+</main>
+
+<footer class="sitefoot">
+  <div class="sitefoot__sig">★ Lektor Tronrud</div>
+  <p>Egentlig lagde jeg alt dette bare til meg selv... Men siden du først er her ... velkommen! Alt er gratis :-)</p>
+  <p class="sitefoot__small">© 2026 Carl August Tronrud</p>
+</footer>
+
+<script>
+  // YouTube facade — clicking thumbnail loads the actual iframe (autoplay)
+  (function () {
+    document.querySelectorAll('.yt-facade').forEach(facade => {
+      function activate() {
+        const id = facade.dataset.videoId;
+        const iframe = document.createElement('iframe');
+        iframe.src = 'https://www.youtube.com/embed/' + id + '?autoplay=1&rel=0';
+        iframe.title = 'Lektor Tronrud — kortfilm';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        iframe.allowFullscreen = true;
+        facade.replaceWith(iframe);
+      }
+      facade.addEventListener('click', activate);
+      facade.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
+      });
+    });
+  })();
+</script>
+
+<script>
+  // Stars
+  (function () {
+    const starsEl = document.getElementById('stars');
+    if (!starsEl) return;
+    for (let i = 0; i < 110; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      const size = Math.random() * 2 + 0.5;
+      s.style.cssText = `
+        width:${size}px;height:${size}px;
+        left:${Math.random()*100}%;
+        top:${Math.random()*100}%;
+        --dur:${(Math.random()*4+2).toFixed(1)}s;
+        --max-op:${(Math.random()*0.6+0.2).toFixed(2)};
+        animation-delay:${(Math.random()*6).toFixed(1)}s;
+      `;
+      starsEl.appendChild(s);
+    }
+  })();
+</script>
+
+<!-- ── Tweaks panel ───────────────────────────────────────── -->
+<script>
+(function () {
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "headline": "Et univers for nysgjerrige",
+    "headlineEm": "nysgjerrige",
+    "lede": "Hjernen vokser hver gang du øver. Her finner du verktøy for klasserommet, utfordringer for nysgjerrige hjerner, og forskning på hvorfor feiling er det smarteste du kan gjøre.",
+    "eyebrow": "Lektor Tronrud",
+    "background": "cosmos",
+    "showFeatured": true,
+    "logoSize": 200
+  }/*EDITMODE-END*/;
+
+  let tweaks = { ...TWEAK_DEFAULTS };
+
+  const headlineEl = document.getElementById('headline');
+  const ledeEl = document.getElementById('lede');
+  const eyebrowEl = document.getElementById('eyebrow');
+  const heroLogo = document.querySelector('.hero__logo');
+
+  // Render functions
+  function renderHeadline() {
+    const h = tweaks.headline || '';
+    const emText = tweaks.headlineEm || '';
+    if (emText && h.includes(emText)) {
+      const parts = h.split(emText);
+      headlineEl.innerHTML = '';
+      headlineEl.appendChild(document.createTextNode(parts[0]));
+      const em = document.createElement('em');
+      em.textContent = emText;
+      headlineEl.appendChild(em);
+      headlineEl.appendChild(document.createTextNode(parts.slice(1).join(emText)));
+    } else {
+      headlineEl.textContent = h;
+    }
+  }
+  function renderLede() { ledeEl.textContent = tweaks.lede; }
+  function renderEyebrow() { eyebrowEl.textContent = tweaks.eyebrow; }
+  function renderBg() { document.body.dataset.bg = tweaks.background; }
+  function renderFeatured() { document.body.dataset.showFeatured = tweaks.showFeatured ? 'true' : 'false'; }
+  function renderLogoSize() {
+    if (heroLogo) heroLogo.style.setProperty('--logo-size', tweaks.logoSize + 'px');
+  }
+  function renderAll() {
+    renderHeadline(); renderLede(); renderEyebrow();
+    renderBg(); renderFeatured(); renderLogoSize();
+  }
+  renderAll();
+
+  function persist(partial) {
+    Object.assign(tweaks, partial);
+    try {
+      window.parent.postMessage({
+        type: '__edit_mode_set_keys',
+        edits: partial
+      }, '*');
+    } catch (_) {}
+  }
+
+  // ─── Build panel ───
+  const panel = document.createElement('div');
+  panel.id = 'tweaks-panel';
+  panel.innerHTML = `
+    <div class="tweaks-head">
+      <span class="tweaks-title">Tweaks</span>
+      <button class="tweaks-close" aria-label="Lukk">×</button>
+    </div>
+    <div class="tweaks-body">
+
+      <div class="tweaks-section">
+        <div class="tweaks-section__label">Bakgrunn</div>
+        <div class="tweak-radio" data-tweak="background">
+          <button data-value="cosmos">Kosmos</button>
+          <button data-value="cream">Krem</button>
+        </div>
+      </div>
+
+      <div class="tweaks-section">
+        <div class="tweaks-section__label">Headline</div>
+        <input class="tweak-text" data-tweak="headline" type="text" />
+        <div class="tweak-help">Ord som skal fremheves (i kursiv gradient):</div>
+        <input class="tweak-text" data-tweak="headlineEm" type="text" placeholder="f.eks. nysgjerrige" />
+      </div>
+
+      <div class="tweaks-section">
+        <div class="tweaks-section__label">Eyebrow</div>
+        <input class="tweak-text" data-tweak="eyebrow" type="text" />
+      </div>
+
+      <div class="tweaks-section">
+        <div class="tweaks-section__label">Tagline / lede</div>
+        <textarea class="tweak-text" data-tweak="lede" rows="4"></textarea>
+      </div>
+
+      <div class="tweaks-section">
+        <div class="tweaks-section__label">Logo-størrelse</div>
+        <div class="tweak-slider">
+          <input type="range" data-tweak="logoSize" min="100" max="320" step="10" />
+          <div class="tweak-slider__value" data-display="logoSize"></div>
+        </div>
+      </div>
+
+      <div class="tweaks-section">
+        <div class="tweak-row">
+          <div>
+            <div class="tweak-row__name">Vis siste artikkel</div>
+            <div class="tweak-help">Strip under hero med utvalgt innhold.</div>
+          </div>
+          <label class="tweak-switch">
+            <input type="checkbox" data-tweak="showFeatured" />
+            <span class="slider-track"></span>
+          </label>
+        </div>
+      </div>
+
+    </div>
+  `;
+  document.body.appendChild(panel);
+
+  // Sync UI from tweaks state
+  function syncUI() {
+    panel.querySelectorAll('input[type="text"], textarea').forEach(el => {
+      const k = el.dataset.tweak;
+      if (k && k in tweaks) el.value = tweaks[k];
+    });
+    panel.querySelectorAll('input[type="range"]').forEach(el => {
+      const k = el.dataset.tweak;
+      if (k && k in tweaks) el.value = tweaks[k];
+      const display = panel.querySelector(`[data-display="${k}"]`);
+      if (display) display.textContent = tweaks[k] + 'px';
+    });
+    panel.querySelectorAll('input[type="checkbox"]').forEach(el => {
+      const k = el.dataset.tweak;
+      if (k && k in tweaks) el.checked = !!tweaks[k];
+    });
+    panel.querySelectorAll('.tweak-radio').forEach(group => {
+      const k = group.dataset.tweak;
+      group.querySelectorAll('button').forEach(b => {
+        b.classList.toggle('is-active', b.dataset.value === tweaks[k]);
+      });
+    });
+  }
+  syncUI();
+
+  // Wire up controls
+  panel.querySelectorAll('input[type="text"], textarea').forEach(el => {
+    el.addEventListener('input', () => {
+      const k = el.dataset.tweak;
+      persist({ [k]: el.value });
+      if (k === 'headline' || k === 'headlineEm') renderHeadline();
+      else if (k === 'lede') renderLede();
+      else if (k === 'eyebrow') renderEyebrow();
+    });
+  });
+  panel.querySelectorAll('input[type="range"]').forEach(el => {
+    el.addEventListener('input', () => {
+      const k = el.dataset.tweak;
+      const v = parseInt(el.value, 10);
+      persist({ [k]: v });
+      const display = panel.querySelector(`[data-display="${k}"]`);
+      if (display) display.textContent = v + 'px';
+      if (k === 'logoSize') renderLogoSize();
+    });
+  });
+  panel.querySelectorAll('input[type="checkbox"]').forEach(el => {
+    el.addEventListener('change', () => {
+      const k = el.dataset.tweak;
+      persist({ [k]: el.checked });
+      if (k === 'showFeatured') renderFeatured();
+    });
+  });
+  panel.querySelectorAll('.tweak-radio button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const group = btn.closest('.tweak-radio');
+      const k = group.dataset.tweak;
+      const v = btn.dataset.value;
+      persist({ [k]: v });
+      group.querySelectorAll('button').forEach(b => b.classList.toggle('is-active', b === btn));
+      if (k === 'background') renderBg();
+    });
+  });
+
+  panel.querySelector('.tweaks-close').addEventListener('click', () => {
+    panel.classList.remove('visible');
+    try { window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*'); } catch (_) {}
+  });
+
+  // Listener BEFORE announcing availability
+  window.addEventListener('message', (e) => {
+    const msg = e.data;
+    if (!msg || typeof msg !== 'object') return;
+    if (msg.type === '__activate_edit_mode') panel.classList.add('visible');
+    else if (msg.type === '__deactivate_edit_mode') panel.classList.remove('visible');
+  });
+
+  try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch (_) {}
+})();
+</script>
+
+</body>
+</html>

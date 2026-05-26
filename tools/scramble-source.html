@@ -1,0 +1,454 @@
+# tronrud_classroom_scramble.py
+
+#  Title: Classroom Scramble Web App
+#  Author: Carl August Tronrud
+#  Date: 16.08.25
+#  Description: This script writes a single self-contained HTML file for the "Classroom scramble" web app.
+#  It generates a seating map with a single click and allows drag-and-drop of desks.
+
+from pathlib import Path
+
+OUT_FILE = Path("index.html")
+
+HTML = r"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Classroom scramble</title>
+
+  <!-- Rubik font -->
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind for utilities -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { rubik: ['Rubik','ui-sans-serif','system-ui'] },
+          colors: { page:'#F3F4F2', navy:'#2F3944', greenOn:'#8BC34A', orange:'#F59E0B', cyan1:'#12D6E5', cyan2:'#07B3C7' }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body{ background: var(--page, #F3F4F2); }
+    .skew{ position:absolute; right:-8vw; top:-9rem; width:130vw; height:12rem; transform:rotate(10deg); background:#2F3944; }
+    .title{ font-size:53px; font-weight:700; letter-spacing:.2px; }
+    .subtitle{ font-size:14.9px; color:#5b5b5b; }
+
+    /* Center badge + question above each textarea */
+    .input-col{ display:flex; flex-direction:column; align-items:center; text-align:center; }
+    .badge{ background:#2F3944; color:#fff; font-weight:700; font-size:24.8px; padding:.45rem 1.6rem; border-radius:9999px; display:inline-block; box-shadow:0 6px 0 rgba(0,0,0,.15); }
+    .question{ font-size:13.2px; font-weight:700; margin-top:1.1rem; }
+
+    /* Textareas styled like cards */
+    .card{ width:min(100%, 560px); height:15.5rem; border-radius:18px; background:#fff; border: 2px solid #222; box-shadow:10px 10px 0 rgba(0,0,0,.18); padding:1.2rem 1.4rem; font-size:16px; line-height:1.6; outline:none; resize:vertical; }
+
+    /* Selector pills */
+    .arr-pill{ font-size:21px; background:#fff; border:2px solid #111; color:#111; border-radius:9999px; padding:.8rem 2.6rem; box-shadow:8px 8px 0 rgba(0,0,0,.15); cursor:pointer; }
+    .arr-pill.active{ background:#8BC34A; color:#fff; font-weight:700; font-style:italic; }
+
+    /* Scramble button */
+    .scramble{ background:#F59E0B; color:#fff; border-radius:9999px; padding:1rem 3.2rem; font-weight:700; font-style:italic; font-size:20px; box-shadow:0 10px 0 rgba(0,0,0,.12); cursor:pointer; }
+
+    /* Drag & drop helper text */
+    .drag-info{ font-size:18px; font-style:italic; color:#222; margin-top:1.5rem; margin-bottom:2rem; }
+
+    /* Desks */
+    .desk4{ width:280px; height:210px; }
+    .desk2{ width:280px; height:130px; }
+    .cell{ border:1.6px solid #2a2a2a; display:flex; align-items:center; justify-content:center; padding:0 12px; }
+    .name{ font-size:13px; color:#2b2b2b; white-space:nowrap; }
+
+    /* Export buttons + footer text */
+    .export{ border-radius:9999px; padding:1rem 2.2rem; color:#fff; font-weight:700; width:16rem; cursor:pointer; }
+    .export.pdf{ background:#12D6E5; }
+    .export.txt{ background:#07B3C7; }
+    .footer-1{ font-size:12.5px; color:#333; }
+    .footer-2{ font-size:10px; color:#7b7b7b; }
+
+    /* Drag & Drop seats */
+    .draggable-seat{ cursor:grab; user-select:none; }
+    .draggable-seat.dragging{ opacity:0.6; }
+    .drop-target{ outline:3px dashed #8BC34A; outline-offset:-3px; }
+  </style>
+
+  <!-- Export libs -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+</head>
+<body class="font-rubik">
+
+  <!-- Header -->
+  <div class="relative overflow-hidden">
+    <div class="skew"></div>
+    <div class="relative z-10 max-w-6xl lg:max-w-7xl mx-auto px-8 pt-12 pb-2">
+      <h1 class="title mt-6">Classroom scramble</h1>
+      <p class="subtitle mt-2 mb-8">Dear superhero. Please don’t waste your time.</p>
+    </div>
+  </div>
+
+  <!-- Inputs -->
+  <div class="max-w-6xl lg:max-w-7xl mx-auto px-8 mt-6 grid grid-cols-1 md:grid-cols-3 gap-16">
+    <!-- Input 1 -->
+    <div class="input-col">
+      <div class="badge">Input 1</div>
+      <p class="question">Who is lucky to have you as their teacher?</p>
+      <textarea id="names" class="card mt-5" placeholder="Harry, Hermione, Ron, Neville, Luna, Ginny, Fred, George, Seamus, Cedric, Colin, Dean, Lavender, Katie, Angelina, Anthony, Cho, Susan, Padma, Lee, Hannah, Justin"></textarea>
+    </div>
+
+    <!-- Input 2 -->
+    <div class="input-col">
+      <div class="badge">Input 2</div>
+      <p class="question">Who must absolutely not sit next to each other?</p>
+      <textarea id="forbidden" class="card mt-5" placeholder="Ron, Lavender&#10;Harry, Justin&#10;Luna, Ginny"></textarea>
+    </div>
+
+    <!-- Input 3 -->
+    <div class="input-col">
+      <div class="badge">Input 3</div>
+      <p class="question">What kind of seating arrangement?</p>
+      <div class="mt-6 flex flex-col gap-6">
+        <button id="btnPairs" class="arr-pill">Pairs</button>
+        <button id="btnBundles" class="arr-pill active">Bundles</button>
+        <button id="btnHorseshoe" class="arr-pill">Horse shoe</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scramble -->
+  <div class="max-w-6xl lg:max-w-7xl mx-auto px-8">
+    <div class="flex items-center justify-center py-14">
+      <button id="scramble" class="scramble">Scramble!</button>
+    </div>
+    <p class="drag-info text-center">Drag and drop desks around for the perfect fit</p>
+  </div>
+
+  <!-- Seating layout -->
+  <div id="layout" class="max-w-6xl lg:max-w-7xl mx-auto px-8 pb-6"></div>
+
+  <!-- Exports + Footer -->
+  <div class="max-w-6xl lg:max-w-7xl mx-auto px-8 pt-6 pb-24 text-center space-y-6">
+    <div class="flex flex-col gap-6 items-center justify-center">
+      <button id="exportPdf" class="export pdf">Export as pdf</button>
+      <button id="exportText" class="export txt">Export as text</button>
+    </div>
+    <div class="mt-10 footer-1">
+      Thank you for using my website!<br/>Now, go inspire some kids!
+    </div>
+    <div class="mt-4 footer-2">
+      created by<br/>Carl August Tronrud
+    </div>
+  </div>
+
+  <!-- Logo at very bottom -->
+  <div class="w-full flex justify-center mt-24 mb-24">
+    <img src="./logo.png" alt="TRONRUD" class="w-28 h-28 object-contain"/>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const $ = (id) => document.getElementById(id);
+
+  // Keep current state so drag & drop can swap seats without recomputing
+  let mode = 'bundles';
+  let currentOrder = [];
+  let currentLayout = null; // for horseshoe only
+
+  // Split comma and newline separated student names. Keeps full names.
+  function parseNames(raw, placeholder){
+    const src = raw && raw.trim().length ? raw : (placeholder || '');
+    return src.split(/[,\n;]+/).map(s => s.trim()).filter(Boolean);
+  }
+
+  // Parse forbidden pairs, order independent
+  function parseForbidden(raw, placeholder){
+    const src = raw && raw.trim().length ? raw : (placeholder || '');
+    const set = new Set();
+    src.split(/\\n+/).map(s=>s.trim()).filter(Boolean).forEach(line=>{
+      const [a,b] = line.split(',').map(x=> (x||'').trim());
+      if (a && b) {
+        const A=a.toLowerCase(), B=b.toLowerCase();
+        set.add(A<B ? A+'|'+B : B+'|'+A);
+      }
+    });
+    return set;
+  }
+
+  const forbKey=(a,b)=>{ const A=a.toLowerCase(), B=b.toLowerCase(); return A<B?A+'|'+B:B+'|'+A; };
+  const isForbidden=(a,b,set)=> set.has(forbKey(a,b));
+
+  // Fisher–Yates shuffle
+  const shuffle=a=>{ a=[...a]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+
+  // ----- Generators -----
+
+  // Random pairs that try to avoid forbidden edges
+  function pairsOrder(students, forbidden){
+    const n=students.length, MAX=500;
+    for (let t=0;t<MAX;t++){
+      const arr=shuffle(students);
+      let ok=true;
+      for (let i=0;i<n-1;i+=2){ if (arr[i+1] && isForbidden(arr[i], arr[i+1], forbidden)) { ok=false; break; } }
+      if (ok) return arr;
+    }
+    return shuffle(students);
+  }
+
+  // Bundles of 4 with light local swapping to avoid forbidden edges
+  function bundlesOrder(students, forbidden){
+    const MAX=600;
+    const groups4=a=>{ const g=[]; for(let i=0;i<a.length;i+=4) g.push(a.slice(i,i+4)); return g; };
+    const valid=g=>{ for(let i=0;i<g.length;i++) for(let j=i+1;j<g.length;j++) if(isForbidden(g[i],g[j],forbidden)) return false; return true; };
+    for (let t=0;t<MAX;t++){
+      const arr=shuffle(students), groups=groups4(arr); let ok=true;
+      outer: for (let gi=0; gi<groups.length; gi++){
+        for (let si=0; si<groups[gi].length; si++){
+          const s=groups[gi][si];
+          for (let k=0;k<groups[gi].length;k++){
+            if (k===si) continue;
+            if (isForbidden(s, groups[gi][k], forbidden)){
+              let swapped=false;
+              for (let gj=0; gj<groups.length; gj++){ if (gj===gi) continue;
+                for (let sj=0; sj<groups[gj].length; sj++){
+                  const A=[...groups[gi]], B=[...groups[gj]];
+                  [A[si],B[sj]]=[B[sj],A[si]];
+                  if (valid(A)&&valid(B)){ groups[gi]=A; groups[gj]=B; swapped=true; break; }
+                }
+                if (swapped) break;
+              }
+              if (!swapped){ ok=false; break outer; }
+            }
+          }
+        }
+      }
+      if (ok) return groups.flat();
+    }
+    // fallback greedy
+    const g=[];
+    for (const s of shuffle(students)){
+      let placed=false;
+      for (const b of g) if (b.length<4 && b.every(x=>!isForbidden(x,s,forbidden))) { b.push(s); placed=true; break; }
+      if (!placed) g.push([s]);
+    }
+    return g.flat();
+  }
+
+  // Auto-balance horseshoe width so the three sides are similar
+  function computeUSlotsBalanced(n){
+    let k = Math.max(2, Math.ceil(n/3));         // top width
+    let rem = Math.max(0, n - k);                // remaining seats for the sides
+    let sRight = Math.floor(rem/2);
+    let sLeft  = rem - sRight;
+    const rows = 1 + Math.max(sLeft, sRight);
+    const cols = k;
+
+    const slots=[];
+    for(let c=0;c<cols;c++) slots.push({r:0,c});          // top row
+    for(let r=1;r<=sRight;r++) slots.push({r, c:cols-1}); // right column down
+    for(let r=1;r<=sLeft;r++)  slots.push({r, c:0});      // left column down
+
+    return { slots, rows, cols };
+  }
+
+  // Adjacency on the U shape to evaluate forbidden neighbors
+  function neighborEdges(slots, cols, rows){
+    const id=(r,c)=>r+','+c, idx=new Map(); slots.forEach((p,i)=>idx.set(id(p.r,p.c),i));
+    const e=[];
+    for(let c=0;c<cols-1;c++){ const a=idx.get(id(0,c)), b=idx.get(id(0,c+1)); if(a!=null&&b!=null) e.push([a,b]); }
+    if(idx.has(id(0,cols-1))&&idx.has(id(1,cols-1))) e.push([idx.get(id(0,cols-1)), idx.get(id(1,cols-1))]);
+    for(let r=1;r<rows-1;r++){ const a=idx.get(id(r,cols-1)), b=idx.get(id(r+1,cols-1)); if(a!=null&&b!=null) e.push([a,b]); }
+    if(idx.has(id(0,0))&&idx.has(id(1,0))) e.push([idx.get(id(0,0)), idx.get(id(1,0))]);
+    for(let r=1;r<rows-1;r++){ const a=idx.get(id(r,0)), b=idx.get(id(r+1,0)); if(a!=null&&b!=null) e.push([a,b]); }
+    return e;
+  }
+
+  // Try random assignments that satisfy forbidden neighbor checks on the U
+  function horseshoeOrder(students, forbidden){
+    const n=students.length, L=computeUSlotsBalanced(n), E=neighborEdges(L.slots, L.cols, L.rows);
+    const MAX=1000;
+    for(let t=0;t<MAX;t++){
+      const arr=shuffle(students); let ok=true;
+      for(const [i,j] of E){ if(isForbidden(arr[i],arr[j],forbidden)){ ok=false; break; } }
+      if(ok) return {order:arr, layout:L};
+    }
+    return {order:students, layout:L};
+  }
+
+  // ----- Rendering -----
+  const root = $('layout');
+  const mk=(tag,cls,txt)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; };
+
+  function renderPairs(order){
+    const grid=mk('div','grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16 justify-items-center');
+    for (let i=0;i<order.length;i+=2){
+      const card=mk('div','desk2 border border-black rounded-md overflow-hidden');
+      const g=mk('div','grid grid-cols-2 w-full h-full');
+      const a=mk('div','cell draggable-seat',null); a.setAttribute('draggable','true'); a.dataset.index = i;        a.appendChild(mk('span','name',order[i]||''));
+      const b=mk('div','cell draggable-seat',null); b.setAttribute('draggable','true'); b.dataset.index = i+1;     b.appendChild(mk('span','name',order[i+1]||''));
+      g.append(a,b); card.append(g); grid.append(card);
+    }
+    return grid;
+  }
+
+  function renderBundles(order){
+    const grid=mk('div','grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16 justify-items-center');
+    for (let i=0;i<order.length;i+=4){
+      const card=mk('div','desk4 border border-black rounded-md overflow-hidden');
+      const g=mk('div','grid grid-cols-2 grid-rows-2 w-full h-full');
+      const n1=mk('div','cell border-r border-b draggable-seat',null); n1.setAttribute('draggable','true'); n1.dataset.index = i;     n1.appendChild(mk('span','name',order[i]||''));
+      const n2=mk('div','cell border-b draggable-seat',null);          n2.setAttribute('draggable','true'); n2.dataset.index = i+1;  n2.appendChild(mk('span','name',order[i+1]||''));
+      const n3=mk('div','cell border-r draggable-seat',null);          n3.setAttribute('draggable','true'); n3.dataset.index = i+2;  n3.appendChild(mk('span','name',order[i+2]||''));
+      const n4=mk('div','cell draggable-seat',null);                   n4.setAttribute('draggable','true'); n4.dataset.index = i+3;  n4.appendChild(mk('span','name',order[i+3]||''));
+      g.append(n1,n2,n3,n4); card.append(g); grid.append(card);
+    }
+    return grid;
+  }
+
+  function renderHorseshoe(order, layout){
+    const { slots, rows, cols } = layout;
+    const outer=mk('div','overflow-auto');
+    const grid=mk('div','grid gap-6 justify-center'); grid.style.gridTemplateColumns=`repeat(${cols}, 110px)`;
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        const idx = slots.findIndex(p=>p.r===r && p.c===c);
+        if (idx >= 0){
+          const box=mk('div','w-[110px] h-[110px] border border-black rounded-md flex items-center justify-center draggable-seat',null);
+          box.setAttribute('draggable','true');
+          box.dataset.index = idx; // index into currentOrder
+          box.appendChild(mk('span','name',order[idx]||''));
+          grid.append(box);
+        } else {
+          grid.append(mk('div','w-[110px] h-[110px]'));
+        }
+      }
+    }
+    outer.append(grid); return outer;
+  }
+
+  function snapshot(){ return { students: parseNames($('names').value, $('names').placeholder), forbidden: parseForbidden($('forbidden').value, $('forbidden').placeholder) }; }
+
+  function setOrderFromMode(){
+    const { students, forbidden } = snapshot();
+    if (mode==='pairs'){ currentOrder = pairsOrder(students, forbidden); currentLayout=null; }
+    else if (mode==='bundles'){ currentOrder = bundlesOrder(students, forbidden); currentLayout=null; }
+    else { const r = horseshoeOrder(students, forbidden); currentOrder = r.order; currentLayout = r.layout; }
+  }
+
+  function renderFromCurrent(){
+    root.innerHTML='';
+    if(!currentOrder.length) return;
+    if(mode==='pairs'){ root.append(renderPairs(currentOrder)); }
+    else if(mode==='bundles'){ root.append(renderBundles(currentOrder)); }
+    else { root.append(renderHorseshoe(currentOrder, currentLayout)); }
+    attachSeatDragAndDrop();
+  }
+
+  // ----- Drag & Drop: seat-level swapping -----
+  let dragStartIndex = null;
+
+  function attachSeatDragAndDrop(){
+    const seats = root.querySelectorAll('.draggable-seat');
+    seats.forEach(el=>{
+      el.addEventListener('dragstart', onDragStart);
+      el.addEventListener('dragover', onDragOver);
+      el.addEventListener('dragleave', onDragLeave);
+      el.addEventListener('drop', onDrop);
+      el.addEventListener('dragend', onDragEnd);
+    });
+  }
+
+  function onDragStart(e){
+    this.classList.add('dragging');
+    dragStartIndex = parseInt(this.dataset.index,10);
+    try{ e.dataTransfer.setData('text/plain', String(dragStartIndex)); }catch{}
+    e.dataTransfer.effectAllowed = 'move';
+  }
+  function onDragOver(e){
+    e.preventDefault();
+    this.classList.add('drop-target');
+    e.dataTransfer.dropEffect = 'move';
+  }
+  function onDragLeave(){
+    this.classList.remove('drop-target');
+  }
+  function onDrop(e){
+    e.preventDefault();
+    this.classList.remove('drop-target');
+    const targetIndex = parseInt(this.dataset.index,10);
+    if (dragStartIndex==null || isNaN(targetIndex)) return;
+    if (targetIndex === dragStartIndex) return;
+
+    // Swap two seats in currentOrder and re-render
+    const a = dragStartIndex, b = targetIndex;
+    const tmp = currentOrder[a];
+    currentOrder[a] = currentOrder[b];
+    currentOrder[b] = tmp;
+
+    renderFromCurrent();
+    dragStartIndex = null;
+  }
+  function onDragEnd(){
+    this.classList.remove('dragging');
+  }
+
+  // Buttons and actions
+  const pills={ pairs:$('btnPairs'), bundles:$('btnBundles'), horseshoe:$('btnHorseshoe') };
+  function setActive(){ Object.values(pills).forEach(b=>b.classList.remove('active')); pills[mode].classList.add('active'); }
+
+  pills.pairs.addEventListener('click', ()=>{ mode='pairs'; setActive(); setOrderFromMode(); renderFromCurrent(); });
+  pills.bundles.addEventListener('click', ()=>{ mode='bundles'; setActive(); setOrderFromMode(); renderFromCurrent(); });
+  pills.horseshoe.addEventListener('click', ()=>{ mode='horseshoe'; setActive(); setOrderFromMode(); renderFromCurrent(); });
+  $('scramble').addEventListener('click', ()=>{ setOrderFromMode(); renderFromCurrent(); });
+
+  // Export buttons
+  $('exportPdf').addEventListener('click', async ()=>{
+    if(!root.firstChild){ alert('Nothing to export yet.'); return; }
+    const canvas=await html2canvas(root,{scale:2, backgroundColor:'#fff'});
+    const img=canvas.toDataURL('image/png'); const { jsPDF }=window.jspdf;
+    const pdf=new jsPDF({orientation:'portrait', unit:'pt', format:'a4'});
+    const pageW=pdf.internal.pageSize.getWidth(), pageH=pdf.internal.pageSize.getHeight();
+    const imgW=pageW-72, imgH=canvas.height*imgW/canvas.width; const y=36;
+    if(imgH>pageH-72){ const r=(pageH-72)/imgH; pdf.addImage(img,'PNG',36,y,imgW*r,imgH*r); } else { pdf.addImage(img,'PNG',36,y,imgW,imgH); }
+    pdf.save('classroom-scramble.pdf');
+  });
+
+  $('exportText').addEventListener('click', async ()=>{
+    if(!currentOrder.length){ alert('Nothing to export yet.'); return; }
+    let txt='';
+    if(mode==='pairs'){
+      for(let i=0,d=1;i<currentOrder.length;i+=2,d++){
+        txt += currentOrder[i+1] ? `Desk ${d}: ${currentOrder[i]} | ${currentOrder[i+1]}\n`
+                                 : `Desk ${d}: ${currentOrder[i]} (alone)\n`;
+      }
+    } else if(mode==='bundles'){
+      for(let i=0,g=1;i<currentOrder.length;i+=4,g++){
+        txt += `Bundle ${g}: ${(currentOrder.slice(i,i+4).filter(Boolean)).join(', ')}\n`;
+      }
+    } else {
+      for(let i=0;i<currentOrder.length;i++){
+        txt += `Seat ${i+1}: ${currentOrder[i]}\n`;
+      }
+    }
+    try{ await navigator.clipboard.writeText(txt); alert('Seating exported to clipboard as text.'); }catch{ alert('Clipboard write failed.'); }
+  });
+
+  // First draw
+  setActive();
+  setOrderFromMode();
+  renderFromCurrent();
+});
+</script>
+</body>
+</html>
+"""
+
+def main() -> None:
+  OUT_FILE.write_text(HTML, encoding="utf-8")
+  print(f"Wrote {OUT_FILE.resolve()}")
+
+if __name__ == "__main__":
+  main()

@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Gnistrende hjerne — Lektor Tronrud</title>
+<link rel="icon" type="image/png" href="assets/logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/tokens.css">
+<style>
+  /* The whole page sits on the dark cosmic stage to match the brand. */
+  body { background: var(--space-900); color: #fff; }
+
+  /* Sitenav on dark stage */
+  .sitenav {
+    background: rgba(14, 26, 56, 0.7);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .sitenav__brand strong, .sitenav__brand { color: #fff; }
+  .sitenav__brand small { color: rgba(255,255,255,0.5); }
+  .sitenav__links a { color: rgba(255,255,255,0.85); }
+  .sitenav__links a:hover { background: rgba(255,255,255,0.08); }
+  .sitenav__links a.is-active { background: var(--nova-yellow); color: var(--space-900); }
+
+  /* Animated layers */
+  .stars, .sparks-container {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0;
+    overflow: hidden;
+  }
+  .star {
+    position: absolute; border-radius: 50%; background: #fff;
+    animation: twinkle var(--dur) ease-in-out infinite alternate;
+    opacity: 0;
+  }
+  @keyframes twinkle {
+    0%   { opacity: 0; transform: scale(0.8); }
+    100% { opacity: var(--max-op); transform: scale(1.2); }
+  }
+  .spark-particle {
+    position: absolute; width: 3px; height: 3px;
+    background: var(--nova-yellow); border-radius: 50%;
+    animation: floatup var(--dur2) ease-in infinite;
+    opacity: 0;
+    box-shadow: 0 0 6px var(--nova-yellow);
+  }
+  @keyframes floatup {
+    0%   { opacity: 0; transform: translateY(0) scale(1); }
+    20%  { opacity: 0.9; }
+    100% { opacity: 0; transform: translateY(-140px) scale(0.2); }
+  }
+
+  /* ── HERO (kept from current page) ─────────────────────────── */
+  .gm-hero {
+    position: relative; z-index: 1;
+    max-width: 1100px; margin: 0 auto;
+    padding: var(--s-16) var(--s-6) var(--s-10);
+    display: grid; grid-template-columns: 1.5fr 1fr;
+    gap: var(--s-10); align-items: center;
+  }
+  .gm-hero__eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--nova-yellow); margin-bottom: var(--s-4);
+  }
+  .gm-hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-weight: 800; line-height: 1; letter-spacing: -0.025em;
+    margin-bottom: var(--s-5); color: #fff;
+  }
+  .gm-hero h1 em {
+    font-style: normal;
+    background: linear-gradient(95deg, var(--nova-yellow) 0%, var(--moss-green) 50%, var(--planet-teal) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .gm-hero p {
+    font-size: 1.2rem; line-height: 1.55;
+    color: rgba(255,255,255,0.78); max-width: 50ch;
+  }
+  .gm-hero__visual {
+    aspect-ratio: 1;
+    display: grid; place-items: center;
+    position: relative;
+  }
+  .gm-hero__visual img {
+    width: 70%; position: relative; z-index: 1;
+    filter:
+      drop-shadow(0 0 24px rgba(244,196,48,0.55))
+      drop-shadow(0 0 60px rgba(244,196,48,0.35))
+      drop-shadow(0 0 120px rgba(244,196,48,0.18));
+    animation: pulse 3.6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+  }
+
+  /* ── ARTICLE ────────────────────────────────────────────────── */
+  .article {
+    position: relative; z-index: 1;
+    max-width: 760px; margin: 0 auto;
+    padding: 0 var(--s-6);
+  }
+
+  .divider {
+    display: flex; align-items: center; gap: var(--s-5);
+    margin: var(--s-12) 0;
+    color: rgba(255,255,255,0.15);
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px;
+    background: rgba(255,255,255,0.12);
+  }
+  .divider-icon {
+    color: var(--nova-yellow);
+    font-size: 1rem;
+  }
+
+  .lede {
+    font-size: 1.15rem; line-height: 1.75;
+    color: rgba(255,255,255,0.85);
+    text-align: center;
+    max-width: 56ch; margin: 0 auto;
+  }
+  .lede strong { color: #fff; font-weight: 700; }
+
+  /* Fact card */
+  .fact { margin-bottom: var(--s-16); }
+
+  /* Swap container — facts can be reordered via DOM swap (JS).
+     Fact numbers are auto-assigned via CSS counter so they always read 01/02/03. */
+  .article { counter-reset: factno; }
+  .fact { counter-increment: factno; }
+  .fact-number::before { content: "0" counter(factno); }
+
+  .fact-number {
+    font-family: var(--font-mono);
+    font-size: 0.75rem; letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: var(--s-2);
+  }
+  .tag {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 4px 12px; border-radius: var(--r-pill);
+    margin-bottom: var(--s-4);
+    border: 1.5px solid;
+  }
+  .tag.purple { color: var(--planet-teal);    border-color: rgba(34,200,200,0.3);  background: rgba(34,200,200,0.1); }
+  .tag.teal   { color: var(--moss-green);     border-color: rgba(139,195,74,0.3);  background: rgba(139,195,74,0.1); }
+  .tag.orange { color: var(--comet-orange);   border-color: rgba(245,166,35,0.3);  background: rgba(245,166,35,0.1); }
+  .tag.pink   { color: var(--berry-pink);     border-color: rgba(233,30,99,0.3);   background: rgba(233,30,99,0.1); }
+  .tag.spark  { color: var(--nova-yellow);    border-color: rgba(244,196,48,0.3);  background: rgba(244,196,48,0.1); }
+
+  .fact-claim {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3.5vw, 2.25rem);
+    font-weight: 800; line-height: 1.18; letter-spacing: -0.015em;
+    color: #fff; margin-bottom: var(--s-6);
+    text-wrap: balance;
+  }
+  .fact-claim em {
+    font-style: normal;
+    background: linear-gradient(95deg, var(--nova-yellow), var(--comet-orange));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .fact-claim .accent-green  { color: var(--moss-green); }
+  .fact-claim .accent-orange { color: var(--comet-orange); }
+  .fact-claim .accent-pink   { color: var(--berry-pink); }
+  .fact-claim .accent-spark  { color: var(--nova-yellow); }
+
+  .fact-body {
+    color: rgba(255,255,255,0.78);
+    font-size: 1rem; line-height: 1.85;
+  }
+  .fact-body p + p { margin-top: var(--s-4); }
+  .fact-body strong { color: #fff; font-weight: 700; }
+  .fact-body em { font-style: italic; color: #fff; }
+
+  /* Callout — design-system card on dark stage */
+  .callout {
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-left: 4px solid var(--planet-teal);
+    border-radius: var(--r-md);
+    padding: var(--s-5) var(--s-6);
+    margin: var(--s-5) 0;
+  }
+  .callout.green  { border-left-color: var(--moss-green); }
+  .callout.orange { border-left-color: var(--comet-orange); }
+  .callout.pink   { border-left-color: var(--berry-pink); }
+  .callout.spark  { border-left-color: var(--nova-yellow); }
+  .callout p {
+    font-size: 0.98rem; line-height: 1.7;
+    color: rgba(255,255,255,0.9);
+  }
+  .callout p + p { margin-top: var(--s-3); }
+  .callout .source {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.04em;
+  }
+
+  /* Compare visual */
+  .compare-visual {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: var(--s-4); margin: var(--s-6) 0;
+  }
+  .compare-card {
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: var(--r-lg);
+    padding: var(--s-5);
+    text-align: center;
+  }
+  .compare-card h4 {
+    font-family: var(--font-display);
+    font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    margin-bottom: var(--s-4);
+  }
+  .compare-card.fixed h4  { color: var(--comet-orange); }
+  .compare-card.growth h4 { color: var(--moss-green); }
+  .compare-card p {
+    font-size: 0.85rem; line-height: 1.55;
+    color: rgba(255,255,255,0.6);
+  }
+  .activity-bars {
+    display: flex; align-items: flex-end; justify-content: center;
+    gap: 5px; height: 56px; margin: var(--s-3) 0;
+  }
+  .bar {
+    width: 9px; border-radius: 3px 3px 0 0;
+  }
+  .compare-card.fixed .bar  { background: rgba(245,166,35,0.45); }
+  .compare-card.growth .bar { background: var(--moss-green); }
+
+  /* Big quote — design-system card style */
+  .big-quote {
+    background: var(--surface);
+    color: var(--space-900);
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-xl);
+    box-shadow: 6px 7px 0 rgba(0,0,0,0.45);
+    padding: var(--s-8); margin: var(--s-6) 0;
+    position: relative;
+  }
+  .big-quote::before {
+    content: '“';
+    position: absolute; top: -28px; left: 24px;
+    font-family: var(--font-display);
+    font-size: 6rem; line-height: 1;
+    color: var(--nova-yellow);
+  }
+  .big-quote p {
+    font-family: var(--font-display);
+    font-size: 1.25rem; font-weight: 600; font-style: italic;
+    line-height: 1.45; letter-spacing: -0.01em;
+    color: var(--space-900);
+  }
+  .big-quote cite {
+    display: block; margin-top: var(--s-3);
+    font-family: var(--font-display);
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.16em;
+    color: var(--slate-500); font-style: normal;
+  }
+
+  /* Closing card */
+  .closing {
+    position: relative; z-index: 1;
+    max-width: 760px; margin: var(--s-16) auto var(--s-12);
+    padding: var(--s-12) var(--s-8);
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: var(--r-2xl);
+    text-align: center;
+  }
+  .closing-spark {
+    font-size: 2.75rem; margin-bottom: var(--s-4);
+    animation: sparkPulse 2.4s ease-in-out infinite;
+    display: inline-block;
+  }
+  @keyframes sparkPulse {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(244,196,48,0.5)); }
+    50%      { transform: scale(1.18); filter: drop-shadow(0 0 16px rgba(244,196,48,0.9)); }
+  }
+  .closing h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3vw, 2rem);
+    font-weight: 800; letter-spacing: -0.015em;
+    color: #fff; margin-bottom: var(--s-4);
+  }
+  .closing p {
+    color: rgba(255,255,255,0.78);
+    max-width: 50ch; margin: 0 auto var(--s-6);
+    font-size: 1rem; line-height: 1.75;
+  }
+  .closing .btn--accent { color: #fff; }
+
+  /* Footer (override default) */
+  .sitefoot {
+    margin-top: 0;
+    background: var(--space-900);
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0; transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 800px) {
+    .gm-hero { grid-template-columns: 1fr; }
+    .gm-hero__visual { max-width: 240px; margin: 0 auto; }
+    .compare-visual { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Animated cosmic backdrop -->
+<div class="stars" id="stars" aria-hidden="true"></div>
+<div class="sparks-container" id="sparks" aria-hidden="true"></div>
+
+<header class="sitenav">
+  <div class="sitenav__inner">
+    <a class="sitenav__brand" href="index.html">
+      <img src="assets/logo.png" alt="">
+      <div>
+        <strong>Lektor Tronrud</strong>
+        <small>Et univers for nysgjerrige</small>
+      </div>
+    </a>
+    <nav class="sitenav__links">
+      <a href="index.html">Forside</a>
+      <a href="elever.html">For elever</a>
+      <a href="laererhub.html">For lærere</a>
+      <a href="gnistrende-hjerne.html" class="is-active">Gnistrende hjerne</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO (kept) -->
+  <section class="gm-hero">
+    <div>
+      <div class="gm-hero__eyebrow">✨ Gnistrende hjerne</div>
+      <h1>Hjernen din gnistrer hver gang du gjør feil.</h1>
+      <p>Når du øver med noe som oppleves utfordrende (uten å gi opp, så klart) så kribler nervecellene i hjernen din, og hjernen din blir større. Bokstavelig talt!</p>
+    </div>
+    <div class="gm-hero__visual">
+      <img src="assets/logo.png" alt="">
+    </div>
+  </section>
+
+  <article class="article">
+
+    <div class="divider reveal"><span class="divider-icon">✦</span></div>
+
+    <p class="lede reveal">Én setning fra en vitenskapelig artikkel forandret hvordan jeg tenker på skolen,
+på feiling, og på hva vi egentlig holder på med når vi lærer.
+La meg dele den med deg.</p>
+
+    <div class="divider reveal"><span class="divider-icon">✦</span></div>
+
+    <!-- Fact 1 -->
+    <section class="fact reveal">
+      <p class="fact-number"></p>
+      <span class="tag purple">Nevrovitenskap</span>
+      <h2 class="fact-claim">Hjernen gnistrer når du gjør feil</h2>
+      <div class="fact-body">
+        <p>Den amerikanske psykologen Jason Moser oppdaget noe veldig merkelig:</p>
+
+        <div class="callout">
+          <p><strong>Du trenger ikke engang å vite at du gjorde en feil.</strong> Hjernen din gnistrer og vokser uansett.</p>
+          <p class="source">Moser et al. (2011). Mind Your Errors, Psychological Science.</p>
+        </div>
+
+        <p>
+</p>
+
+        <p>Noe av det du lærer mest av er å øve på noe som utfordrer deg. Hvis du opplever at noe er vanskelig, sørg for å være tålmodig uten å gi opp! Hjernen er akkurat som en muskel. Hvis du bruker den så blir den sterkere. MEN … hvis du gir opp, så har du strevet helt uten grunn…</p>
+      </div>
+    </section>
+
+    <div class="fact-swap" id="factSwap">
+
+    <!-- Fact 2 -->
+    <section class="fact reveal" id="factGrowth">
+      <p class="fact-number"></p>
+      <span class="tag teal">GROWTH MINDSET</span>
+      <h2 class="fact-claim">Tankesettet ditt bestemmer hvor mye du lærer</h2>
+      <div class="fact-body">
+        <p>Denne biten er det villeste og viktigste jeg noensinne har lært.</p>
+
+        <p>Men først må du forstå forskjellen på to måter å tenke rundt egne ferdigheter.
+</p>
+
+        <p>Personer med et <strong>fastlåst tankesett</strong> tenker at du er født enten med eller uten enkelte ferdigheter. De er enten flink i matematikk eller ikke, og det er ingenting man kan gjøre for å endre på dette. Personer med et <strong>voksende tankesett</strong> tror at ferdigheter utvikles gjennom innsats og øving. Hvem har rett?</p>
+
+        <p>Heldigvis er det sånn at <em>"Jeg er enten flink i matte eller ikke, og det er ingenting jeg kan gjøre for å endre på dette." </em>, og ingen er født uten evnen til å lære seg tall og regning.</p>
+
+        <p>Moser sammenlignet hjerneaktiviteten til personer fra disse to gruppene mens de gjorde en feil. Og hjerneresponsen var <strong>radikalt forskjellig!</strong></p>
+
+        <div class="compare-visual">
+          <div class="compare-card fixed">
+            <h4 style="font-size: 11px">FASTLÅST TANKESETT
+(FIXED MIDSET)</h4>
+            <div class="activity-bars">
+              <div class="bar" style="height:14px"></div>
+              <div class="bar" style="height:18px"></div>
+              <div class="bar" style="height:12px"></div>
+              <div class="bar" style="height:20px"></div>
+              <div class="bar" style="height:10px"></div>
+              <div class="bar" style="height:16px"></div>
+              <div class="bar" style="height:13px"></div>
+            </div>
+            <p>Hjerneaktiviteten etter feilen er lav.<br>Personen gir opp fort.</p>
+          </div>
+          <div class="compare-card growth">
+            <h4 style="font-size: 9px">VOKSENDE TANKESETT
+(GROWTH MINDSET)</h4>
+            <div class="activity-bars">
+              <div class="bar" style="height:32px"></div>
+              <div class="bar" style="height:48px"></div>
+              <div class="bar" style="height:42px"></div>
+              <div class="bar" style="height:54px"></div>
+              <div class="bar" style="height:46px"></div>
+              <div class="bar" style="height:40px"></div>
+              <div class="bar" style="height:36px"></div>
+            </div>
+            <p>Hjerneaktiviteten er betraktelig høyere.<br>Personen prøver selv om det er vanskelig.</p>
+          </div>
+        </div>
+
+        <p>Dette betyr at du kan aktivt velge om hjernen din skal lære eller ikke. Er ikke det helt sprøtt?! </p>
+
+        <p>Hvis du tenker at feiltakelser er en naturlig del av det å lære, så knitrer hjernen din med masse aktivitet og læring! Hvis du tenker at feiltakelser er ukomfortabelt eller unødvendig, så forblir hjernen din fullstendig uendret. Du kan øve og prøve like mye som alle rundt deg, men <em>det er faktisk tankesettet ditt som bestemmer om du lærer mye eller lite.</em></p>
+
+        <div class="callout green">
+          <p>Ingen er født med matematikkferdigheter, på samme måte som ingen er født uten evnen til å lære seg matematikk"</p>
+          <p class="source">— Jo Boaler. (2016). Mathematical Mindset.</p>
+        </div>
+
+        <p>Neste gang du står fast på en oppgave eller regner feil, husk at det er akkurat i disse øyeblikkene du lærer mest!</p>
+      </div>
+    </section>
+
+    <!-- Fact 3 -->
+    <section class="fact reveal" id="factProphecy">
+      <p class="fact-number"></p>
+      <span class="tag orange">Selvoppfyllende profetier</span>
+      <h2 class="fact-claim">Ingen er født med en <span class="accent-orange">mattehjerne</span></h2>
+      <div class="fact-body">
+        <p>Jo Boaler er en av mine favorittforskere. Hun har forsket på matematikklæring og angst i over 20 år. Konklusjonen hennes er krystallklar: Det finnes ingen hjerner som er bedre eller dårligere på å forstå brøk enn andre. Ingen har et iboende talent for algebra, og ingen er født uten evnen til å lære seg å leke med tall.</p>
+
+        <div class="big-quote">
+          <p>«Nei ass, jeg har ikke mattehjerne, så det kan jeg ikke få til.»</p>
+          <cite>— NOE VI ALLE HAR HØRT, OG KANSKJE SAGT :(</cite>
+        </div>
+
+        <p>
+</p>
+
+        <div class="callout orange">
+          <p>Forskerne Gilovich og Dweck beskriver det som en selvoppfyllende profeti: Tror du at intelligensen din er fastlåst, vil den sjeldnere utvikle seg. Tror du den kan vokse, og legger inn innsatsen deretter, da har du betraktelig høyere sjanse for at den faktisk gjør det.</p>
+          <p class="source">— Carl August Tronrud. (2021). Utvikling av growth mindset rundt elevers feiltakelser i matematikk. Masteroppgave, Universitetet i Agder.</p>
+        </div>
+
+        <p>Eleven som sier «Jeg er ikke god i matte» sier egentlig noe om hva hun <em>ennå</em> ikke har lært. Det lille ordet «ennå» er noe av det mest kraftfulle en lærer kan gi tilbake.</p>
+      </div>
+    </section>
+
+    </div><!-- /.fact-swap -->
+
+
+
+    <div class="divider reveal"><span class="divider-icon">✦</span></div>
+
+  </article>
+
+  <!-- Closing -->
+  <section class="closing reveal">
+    <div class="closing-spark">⚡</div>
+    <h2>Hjernen din gnistrer akkurat nå.</h2>
+    <p>Du leste noe du ikke visste fra før. Kanskje du var litt skeptisk til noe av det? Kanskje én setning overrasket deg. Uansett, det er aktivitet der inne.</p>
+    <a class="btn btn--accent btn--lg" href="index.html">← Tilbake til forsiden</a>
+  </section>
+
+</main>
+
+<footer class="sitefoot">
+  <div class="sitefoot__sig">★ Gnistrende hjerne</div>
+  <p>Designet etter <a href="styleguide.html">designsystemet</a>.</p>
+</footer>
+
+<script>
+  // Stars
+  (function () {
+    const starsEl = document.getElementById('stars');
+    for (let i = 0; i < 90; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      const size = Math.random() * 2 + 0.5;
+      s.style.cssText = `
+        width:${size}px;height:${size}px;
+        left:${Math.random()*100}%;
+        top:${Math.random()*100}%;
+        --dur:${(Math.random()*4+2).toFixed(1)}s;
+        --max-op:${(Math.random()*0.6+0.15).toFixed(2)};
+        animation-delay:${(Math.random()*6).toFixed(1)}s;
+      `;
+      starsEl.appendChild(s);
+    }
+  })();
+
+  // Sparks
+  (function () {
+    const sparksEl = document.getElementById('sparks');
+    function createSpark() {
+      const sp = document.createElement('div');
+      sp.className = 'spark-particle';
+      sp.style.cssText = `
+        left:${Math.random()*100}%;
+        bottom:${Math.random()*40}%;
+        --dur2:${(Math.random()*3+2).toFixed(1)}s;
+        animation-delay:${(Math.random()*3).toFixed(1)}s;
+      `;
+      sparksEl.appendChild(sp);
+      setTimeout(() => sp.remove(), 6000);
+    }
+    setInterval(createSpark, 500);
+  })();
+
+  // Scroll reveal
+  (function () {
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+    reveals.forEach(el => observer.observe(el));
+  })();
+
+  // Tweaks: reorder Fact 2 / Fact 3
+  (function () {
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "growthAsConclusion": true
+    }/*EDITMODE-END*/;
+
+    let tweaks = { ...TWEAK_DEFAULTS };
+
+    const swap = document.getElementById('factSwap');
+    const growth = document.getElementById('factGrowth');
+    const prophecy = document.getElementById('factProphecy');
+
+    function applyOrder() {
+      if (!swap || !growth || !prophecy) return;
+      if (tweaks.growthAsConclusion) {
+        // Prophecy first (02), growth as conclusion (03)
+        swap.appendChild(prophecy);
+        swap.appendChild(growth);
+      } else {
+        // Original: growth (02), prophecy (03)
+        swap.appendChild(growth);
+        swap.appendChild(prophecy);
+      }
+    }
+
+    applyOrder();
+
+    // ---- Tweaks panel ----
+    const panel = document.createElement('div');
+    panel.id = 'tweaks-panel';
+    panel.innerHTML = `
+      <div class="tweaks-head">
+        <span class="tweaks-title">Tweaks</span>
+        <button class="tweaks-close" aria-label="Lukk">×</button>
+      </div>
+      <div class="tweaks-body">
+        <div class="tweak-row">
+          <div class="tweak-label">
+            <div class="tweak-name">Avslutt med growth mindset</div>
+            <div class="tweak-help">Bytter rekkefølge på de to siste poengene.</div>
+          </div>
+          <label class="tweak-switch">
+            <input type="checkbox" id="tweak-growth-conclusion">
+            <span class="slider-track"></span>
+          </label>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(panel);
+
+    const styles = document.createElement('style');
+    styles.textContent = `
+      #tweaks-panel {
+        position: fixed; right: 20px; bottom: 20px; z-index: 9999;
+        width: 300px;
+        background: #1a1a2e;
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        color: #f4f3ee;
+        font-family: var(--font-sans, system-ui, sans-serif);
+        font-size: 13px;
+        display: none;
+        overflow: hidden;
+      }
+      #tweaks-panel.visible { display: block; }
+      .tweaks-head {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 14px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.02);
+      }
+      .tweaks-title {
+        font-family: var(--font-mono, ui-monospace, monospace);
+        font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+        color: rgba(255,255,255,0.7);
+      }
+      .tweaks-close {
+        background: transparent; border: 0; color: rgba(255,255,255,0.6);
+        font-size: 20px; line-height: 1; cursor: pointer; padding: 0 4px;
+      }
+      .tweaks-close:hover { color: #fff; }
+      .tweaks-body { padding: 14px; }
+      .tweak-row {
+        display: flex; align-items: center; gap: 12px;
+        justify-content: space-between;
+      }
+      .tweak-name { font-weight: 600; color: #fff; margin-bottom: 2px; }
+      .tweak-help { font-size: 11px; color: rgba(255,255,255,0.55); line-height: 1.4; }
+      .tweak-switch {
+        position: relative; display: inline-block;
+        width: 40px; height: 22px; flex-shrink: 0;
+      }
+      .tweak-switch input { opacity: 0; width: 0; height: 0; }
+      .slider-track {
+        position: absolute; inset: 0; cursor: pointer;
+        background: rgba(255,255,255,0.18); border-radius: 22px;
+        transition: background 0.2s;
+      }
+      .slider-track::before {
+        content: ""; position: absolute;
+        height: 16px; width: 16px; left: 3px; top: 3px;
+        background: #fff; border-radius: 50%;
+        transition: transform 0.2s;
+      }
+      .tweak-switch input:checked + .slider-track {
+        background: #6c5ce7;
+      }
+      .tweak-switch input:checked + .slider-track::before {
+        transform: translateX(18px);
+      }
+    `;
+    document.head.appendChild(styles);
+
+    const checkbox = panel.querySelector('#tweak-growth-conclusion');
+    const closeBtn = panel.querySelector('.tweaks-close');
+
+    function syncUI() {
+      checkbox.checked = !!tweaks.growthAsConclusion;
+    }
+    syncUI();
+
+    checkbox.addEventListener('change', () => {
+      tweaks.growthAsConclusion = checkbox.checked;
+      applyOrder();
+      try {
+        window.parent.postMessage({
+          type: '__edit_mode_set_keys',
+          edits: { growthAsConclusion: tweaks.growthAsConclusion }
+        }, '*');
+      } catch (_) {}
+    });
+
+    closeBtn.addEventListener('click', () => {
+      panel.classList.remove('visible');
+      try {
+        window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+      } catch (_) {}
+    });
+
+    // Listener BEFORE announcing availability
+    window.addEventListener('message', (e) => {
+      const msg = e.data;
+      if (!msg || typeof msg !== 'object') return;
+      if (msg.type === '__activate_edit_mode') {
+        panel.classList.add('visible');
+      } else if (msg.type === '__deactivate_edit_mode') {
+        panel.classList.remove('visible');
+      }
+    });
+
+    try {
+      window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    } catch (_) {}
+  })();
+</script>
+
+</body>
+</html>

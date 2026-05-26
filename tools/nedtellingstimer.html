@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Nedtellingstimer — Lektor Tronrud</title>
+<link rel="icon" type="image/png" href="../assets/logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800;900&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/tokens.css">
+<style>
+  body { background: var(--space-900); color: var(--surface); min-height: 100vh; overflow: hidden; font-family: var(--font-body); }
+  body.--running.--phase-warning { background: #2a2235; }
+  body.--running.--phase-danger { background: #3a1f1f; }
+  body.--running.--phase-done { background: #1f3a23; }
+  body.--running { transition: background 0.8s ease; }
+
+  /* Subtle stars */
+  .stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1.4px 1.4px at 14% 22%, #fff, transparent),
+      radial-gradient(1px 1px at 32% 70%, #fff, transparent),
+      radial-gradient(1.6px 1.6px at 56% 14%, #fff, transparent),
+      radial-gradient(1px 1px at 78% 60%, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 88% 30%, #fff, transparent),
+      radial-gradient(1px 1px at 22% 86%, #fff, transparent),
+      radial-gradient(1px 1px at 48% 88%, #fff, transparent),
+      radial-gradient(1.3px 1.3px at 70% 38%, #fff, transparent);
+    opacity: 0.55;
+  }
+
+  .topbar {
+    position: relative; z-index: 5;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--s-4) var(--s-6);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .topbar a {
+    text-decoration: none; color: rgba(255,255,255,0.85);
+    font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;
+    display: flex; align-items: center; gap: var(--s-2);
+  }
+  .topbar a:hover { color: #fff; }
+  .topbar img { width: 28px; height: 28px; border-radius: 50%; }
+  .topbar .actions { display: flex; gap: var(--s-2); }
+  .topbar .pill {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.14);
+    color: #fff;
+    font-family: var(--font-display); font-size: 0.8rem; font-weight: 600;
+    padding: 7px 14px; border-radius: var(--r-pill);
+    cursor: pointer;
+  }
+  .topbar .pill:hover { background: rgba(255,255,255,0.15); }
+
+  .stage {
+    position: relative; z-index: 1;
+    height: calc(100vh - 64px);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: var(--s-6);
+    text-align: center;
+  }
+
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: var(--s-6);
+  }
+
+  .clock {
+    font-family: var(--font-display);
+    font-size: clamp(7rem, 28vw, 22rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+    text-shadow: 0 0 80px rgba(255,255,255,0.15);
+    margin-bottom: var(--s-4);
+  }
+  body.--phase-warning .clock { color: var(--nova-yellow); }
+  body.--phase-danger .clock {
+    color: var(--supernova-red);
+    animation: pulse 1s ease-in-out infinite;
+  }
+  body.--phase-done .clock {
+    color: var(--moss-green);
+    animation: pulseDone 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+  }
+  @keyframes pulseDone {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.85; }
+  }
+
+  /* Progress arc */
+  .arc-wrap {
+    position: relative;
+    width: min(72vw, 70vh);
+    aspect-ratio: 1;
+    margin: 0 auto var(--s-6);
+    display: grid; place-items: center;
+  }
+  .arc-wrap .clock { margin: 0; position: relative; z-index: 2; }
+  .arc {
+    position: absolute; inset: 0;
+    transform: rotate(-90deg);
+  }
+  .arc circle {
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+  }
+  .arc__bg { stroke: rgba(255,255,255,0.08); }
+  .arc__fg {
+    stroke: var(--planet-teal);
+    transition: stroke-dashoffset 0.4s linear, stroke 0.6s ease;
+  }
+  body.--phase-warning .arc__fg { stroke: var(--nova-yellow); }
+  body.--phase-danger .arc__fg { stroke: var(--supernova-red); }
+  body.--phase-done .arc__fg { stroke: var(--moss-green); }
+
+  .controls {
+    display: flex; gap: var(--s-3);
+    flex-wrap: wrap; justify-content: center;
+    margin-top: var(--s-4);
+  }
+  .ctrl {
+    font-family: var(--font-display);
+    font-weight: 700;
+    border-radius: var(--r-pill);
+    padding: 14px 28px;
+    border: 2px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    cursor: pointer;
+    transition: all var(--t-fast);
+    font-size: 1rem;
+  }
+  .ctrl:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.4);
+  }
+  .ctrl--primary {
+    background: var(--nova-yellow); color: var(--space-900);
+    border-color: var(--nova-yellow);
+    font-size: 1.15rem;
+    padding: 14px 36px;
+  }
+  .ctrl--primary:hover { background: #ffd446; border-color: #ffd446; }
+
+  .presets {
+    display: flex; gap: var(--s-2);
+    flex-wrap: wrap; justify-content: center;
+    margin-bottom: var(--s-4);
+  }
+  .preset {
+    font-family: var(--font-display);
+    font-size: 0.8rem; font-weight: 600;
+    padding: 8px 16px;
+    border-radius: var(--r-pill);
+    border: 1px solid rgba(255,255,255,0.16);
+    background: transparent;
+    color: rgba(255,255,255,0.78);
+    cursor: pointer;
+    transition: all var(--t-fast);
+  }
+  .preset:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .preset.is-active {
+    background: var(--planet-teal); color: var(--space-900);
+    border-color: var(--planet-teal);
+  }
+
+  .custom-input {
+    margin-top: var(--s-3);
+    display: flex; gap: var(--s-2);
+    align-items: center;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.85rem;
+  }
+  .custom-input input {
+    width: 70px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: var(--r-sm);
+    padding: 6px 10px;
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    text-align: center;
+  }
+
+  /* Done overlay */
+  .done-msg {
+    position: absolute;
+    bottom: 8%;
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 2.4vw, 2rem);
+    font-weight: 700;
+    color: var(--moss-green);
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  body.--phase-done .done-msg { opacity: 1; }
+
+  /* Hide chrome in fullscreen-mode-ish */
+  body.--minimal .topbar,
+  body.--minimal .label,
+  body.--minimal .presets,
+  body.--minimal .custom-input,
+  body.--minimal .controls { display: none; }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<header class="topbar">
+  <a href="../laererhub.html">
+    <img src="../assets/logo.png" alt="">
+    ← Tilbake
+  </a>
+  <div class="actions">
+    <button id="minimal-btn" class="pill">Distraksjonsfri</button>
+    <button id="fs-btn" class="pill">⛶ Fullskjerm</button>
+  </div>
+</header>
+
+<main class="stage">
+  <div class="label" id="label">Nedteller</div>
+
+  <div class="presets" id="presets">
+    <button class="preset" data-min="5">5 min</button>
+    <button class="preset" data-min="10">10 min</button>
+    <button class="preset is-active" data-min="15">15 min</button>
+    <button class="preset" data-min="25">25 min</button>
+    <button class="preset" data-min="45">45 min</button>
+  </div>
+
+  <div class="arc-wrap">
+    <svg class="arc" viewBox="0 0 200 200">
+      <circle class="arc__bg" cx="100" cy="100" r="92"></circle>
+      <circle id="arc-fg" class="arc__fg" cx="100" cy="100" r="92"
+              stroke-dasharray="578.05" stroke-dashoffset="0"></circle>
+    </svg>
+    <div class="clock" id="clock" style="font-size: 250px">15:00</div>
+  </div>
+
+  <div class="custom-input">
+    <span>Egendefinert:</span>
+    <input id="custom-min" type="number" min="1" max="180" value="15" />
+    <span>min</span>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl ctrl--primary" id="start-btn">▶ Start</button>
+    <button class="ctrl" id="reset-btn">↺ Nullstill</button>
+  </div>
+
+  <div class="done-msg">★ Tiden er ute</div>
+</main>
+
+<script>
+(function () {
+  const clockEl = document.getElementById('clock');
+  const arcFg = document.getElementById('arc-fg');
+  const startBtn = document.getElementById('start-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const minimalBtn = document.getElementById('minimal-btn');
+  const fsBtn = document.getElementById('fs-btn');
+  const presetsEl = document.getElementById('presets');
+  const customMin = document.getElementById('custom-min');
+
+  const ARC_LEN = 2 * Math.PI * 92; // ≈ 578.05
+
+  let totalMs = 15 * 60 * 1000;
+  let remainingMs = totalMs;
+  let intervalId = null;
+  let endAt = null;
+
+  function fmt(ms) {
+    if (ms < 0) ms = 0;
+    const totalSec = Math.ceil(ms / 1000);
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  }
+
+  function updatePhase() {
+    document.body.classList.remove('--phase-warning', '--phase-danger', '--phase-done');
+    if (remainingMs <= 0) {
+      document.body.classList.add('--phase-done');
+    } else {
+      const pct = remainingMs / totalMs;
+      if (pct < 0.1) document.body.classList.add('--phase-danger');
+      else if (pct < 0.25) document.body.classList.add('--phase-warning');
+    }
+  }
+
+  function render() {
+    clockEl.textContent = fmt(remainingMs);
+    const frac = totalMs > 0 ? remainingMs / totalMs : 0;
+    arcFg.style.strokeDashoffset = ARC_LEN * (1 - frac);
+    updatePhase();
+  }
+
+  function tick() {
+    remainingMs = endAt - Date.now();
+    if (remainingMs <= 0) {
+      remainingMs = 0;
+      stop();
+      beep();
+    }
+    render();
+  }
+
+  function start() {
+    if (intervalId) return;
+    if (remainingMs <= 0) remainingMs = totalMs;
+    endAt = Date.now() + remainingMs;
+    document.body.classList.add('--running');
+    intervalId = setInterval(tick, 200);
+    startBtn.textContent = '⏸ Pause';
+    tick();
+  }
+
+  function pause() {
+    if (!intervalId) return;
+    clearInterval(intervalId); intervalId = null;
+    remainingMs = Math.max(0, endAt - Date.now());
+    startBtn.textContent = '▶ Fortsett';
+    render();
+  }
+
+  function stop() {
+    clearInterval(intervalId); intervalId = null;
+    startBtn.textContent = '▶ Start';
+    document.body.classList.remove('--running');
+  }
+
+  function reset() {
+    stop();
+    remainingMs = totalMs;
+    document.body.classList.remove('--phase-warning', '--phase-danger', '--phase-done');
+    render();
+  }
+
+  function setMinutes(min) {
+    totalMs = min * 60 * 1000;
+    customMin.value = min;
+    reset();
+  }
+
+  // Audio beep
+  function beep() {
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      const ctx = new Ctx();
+      [0, 0.3, 0.6].forEach((delay, i) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.frequency.value = 880;
+        o.type = 'sine';
+        g.gain.setValueAtTime(0, ctx.currentTime + delay);
+        g.gain.linearRampToValueAtTime(0.4, ctx.currentTime + delay + 0.02);
+        g.gain.linearRampToValueAtTime(0, ctx.currentTime + delay + 0.25);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(ctx.currentTime + delay);
+        o.stop(ctx.currentTime + delay + 0.3);
+      });
+    } catch (_) {}
+  }
+
+  // Wire up
+  startBtn.addEventListener('click', () => {
+    if (intervalId) pause(); else start();
+  });
+  resetBtn.addEventListener('click', reset);
+  minimalBtn.addEventListener('click', () => {
+    document.body.classList.toggle('--minimal');
+    minimalBtn.textContent = document.body.classList.contains('--minimal')
+      ? '↩ Vis kontroller' : 'Distraksjonsfri';
+  });
+  fsBtn.addEventListener('click', () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen();
+  });
+
+  presetsEl.addEventListener('click', (e) => {
+    const b = e.target.closest('.preset'); if (!b) return;
+    presetsEl.querySelectorAll('.preset').forEach(x => x.classList.remove('is-active'));
+    b.classList.add('is-active');
+    setMinutes(+b.dataset.min);
+  });
+
+  customMin.addEventListener('change', () => {
+    let v = parseInt(customMin.value, 10);
+    if (!v || v < 1) v = 1;
+    if (v > 180) v = 180;
+    customMin.value = v;
+    presetsEl.querySelectorAll('.preset').forEach(x => x.classList.remove('is-active'));
+    setMinutes(v);
+  });
+
+  // Keyboard
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.code === 'Space') { e.preventDefault(); if (intervalId) pause(); else start(); }
+    else if (e.key.toLowerCase() === 'r') { e.preventDefault(); reset(); }
+    else if (e.key.toLowerCase() === 'f') { e.preventDefault(); fsBtn.click(); }
+    else if (e.key === 'Escape' && document.body.classList.contains('--minimal')) {
+      minimalBtn.click();
+    }
+  });
+
+  // Initial render
+  render();
+})();
+</script>
+
+</body>
+</html>

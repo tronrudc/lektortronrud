@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>For lærere — Lektor Tronrud</title>
+<link rel="icon" type="image/png" href="assets/logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800;900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/tokens.css">
+<style>
+  /* HERO */
+  .hub-hero {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--s-16) var(--s-6) var(--s-10);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--s-8);
+    align-items: end;
+  }
+  .hub-hero__eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--slate-500);
+    margin-bottom: var(--s-4);
+    display: inline-flex; align-items: center; gap: var(--s-2);
+  }
+  .hub-hero__eyebrow::before {
+    content: ''; width: 28px; height: 1px;
+    background: var(--slate-300);
+  }
+  .hub-hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 800; line-height: 1; letter-spacing: -0.025em;
+    margin-bottom: var(--s-4);
+    max-width: 16ch;
+    text-wrap: balance;
+  }
+  .hub-hero h1 em {
+    font-style: italic;
+    background: linear-gradient(95deg, var(--moss-green) 0%, var(--planet-teal) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    padding-right: 0.06em;
+  }
+  .hub-hero__lede {
+    font-size: 1.15rem;
+    color: var(--slate-500);
+    line-height: 1.55;
+    max-width: 56ch;
+    text-wrap: pretty;
+  }
+  /* TOOLS */
+  .tools-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--s-6);
+  }
+  .tools-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: var(--s-4); flex-wrap: wrap;
+    margin-bottom: var(--s-6);
+    padding-bottom: var(--s-3);
+    border-bottom: 1.5px dashed var(--slate-200);
+  }
+  .tools-head h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem; font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .tools-head .count {
+    font-family: var(--font-mono);
+    font-size: 0.7rem; letter-spacing: 0.18em;
+    color: var(--slate-500);
+    text-transform: uppercase;
+  }
+
+  /* Extra spacing when sections stack */
+  .tools-wrap + .tools-wrap { margin-top: var(--s-10); }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--s-5);
+  }
+
+  .tool-card {
+    background: var(--surface);
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-2);
+    padding: var(--s-6);
+    display: flex; flex-direction: column;
+    gap: var(--s-4);
+    text-decoration: none;
+    color: var(--space-900);
+    position: relative;
+    overflow: hidden;
+    transition: transform var(--t-fast), box-shadow var(--t-fast);
+    min-height: 260px;
+  }
+  .tool-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: var(--shadow-3);
+  }
+  .tool-card:focus-visible {
+    outline: 3px solid var(--planet-teal);
+    outline-offset: 3px;
+  }
+  /* Subtle pattern accent on hover */
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: var(--accent, var(--moss-green-soft));
+    opacity: 0;
+    transition: opacity var(--t-base);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .tool-card:hover::before { opacity: 0.5; }
+
+  .tool-card__icon {
+    position: relative; z-index: 1;
+    width: 64px; height: 64px;
+    border-radius: var(--r-lg);
+    border: var(--border-w) solid var(--border-ink);
+    background: var(--accent, var(--moss-green-soft));
+    display: grid; place-items: center;
+    font-size: 30px;
+    box-shadow: 2px 2px 0 rgba(14,26,56,0.18);
+  }
+
+  .tool-card__num {
+    position: absolute;
+    top: var(--s-5); right: var(--s-5);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--slate-300);
+    letter-spacing: 0.1em;
+  }
+
+  .tool-card__body {
+    position: relative; z-index: 1;
+    flex: 1;
+  }
+  .tool-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.4rem; font-weight: 800;
+    line-height: 1.15; letter-spacing: -0.015em;
+    margin-bottom: var(--s-2);
+  }
+  .tool-card p {
+    color: var(--slate-500);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .tool-card__cta {
+    position: relative; z-index: 1;
+    display: inline-flex; align-items: center;
+    gap: var(--s-2);
+    align-self: flex-start;
+    font-family: var(--font-display);
+    font-size: 0.875rem; font-weight: 700;
+    padding: 10px 18px;
+    border-radius: var(--r-pill);
+    border: var(--border-w) solid var(--border-ink);
+    background: var(--space-900);
+    color: var(--surface);
+    box-shadow: var(--shadow-1);
+    transition: transform var(--t-fast), box-shadow var(--t-fast), background var(--t-fast);
+  }
+  .tool-card:hover .tool-card__cta {
+    background: var(--accent-deep, var(--moss-green-deep));
+    color: var(--surface);
+    transform: translate(-1px,-1px);
+    box-shadow: var(--shadow-2);
+  }
+  .tool-card__cta::after {
+    content: '→';
+    transition: transform var(--t-fast);
+  }
+  .tool-card:hover .tool-card__cta::after { transform: translateX(3px); }
+
+  /* Color accents per card */
+  .tool-card.--teal   { --accent: var(--planet-teal-soft);  --accent-deep: var(--planet-teal-deep); }
+  .tool-card.--orange { --accent: var(--comet-orange-soft); --accent-deep: var(--comet-orange); }
+  .tool-card.--green  { --accent: var(--moss-green-soft);   --accent-deep: var(--moss-green-deep); }
+  .tool-card.--pink   { --accent: var(--berry-pink-soft);   --accent-deep: var(--berry-pink); }
+  .tool-card.--yellow { --accent: var(--nova-yellow-soft);  --accent-deep: #d4a91e; }
+
+  /* PERSONAL NOTE */
+  .personal {
+    max-width: 1200px;
+    margin: var(--s-20) auto var(--s-16);
+    padding: 0 var(--s-6);
+  }
+  .personal__panel {
+    background: var(--space-900);
+    color: var(--surface);
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-2xl);
+    box-shadow: var(--shadow-3);
+    padding: var(--s-12) var(--s-10);
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--s-10);
+    align-items: center;
+  }
+  .personal__panel::before {
+    content: '';
+    position: absolute; inset: 0; pointer-events: none; opacity: 0.45;
+    background-image:
+      radial-gradient(1.4px 1.4px at 18% 24%, #fff, transparent),
+      radial-gradient(1px 1px at 36% 72%, #fff, transparent),
+      radial-gradient(1.6px 1.6px at 60% 16%, #fff, transparent),
+      radial-gradient(1px 1px at 80% 60%, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 90% 32%, #fff, transparent),
+      radial-gradient(1px 1px at 24% 88%, #fff, transparent);
+  }
+  .personal__avatar {
+    position: relative; z-index: 1;
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 3px solid var(--nova-yellow);
+    padding: 6px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    flex-shrink: 0;
+  }
+  .personal__avatar img {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .personal__body {
+    position: relative; z-index: 1;
+  }
+  .personal__sig {
+    font-family: var(--font-display);
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.22em;
+    color: var(--nova-yellow);
+    margin-bottom: var(--s-3);
+  }
+  .personal__panel p {
+    font-size: 1.2rem;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.92);
+    text-wrap: pretty;
+    max-width: 60ch;
+  }
+  .personal__panel p em {
+    font-style: italic;
+    background: linear-gradient(95deg, var(--nova-yellow), var(--moss-green));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .personal__name {
+    margin-top: var(--s-5);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--nova-yellow);
+  }
+
+  @media (max-width: 720px) {
+    .hub-hero { grid-template-columns: 1fr; gap: var(--s-5); }
+    .personal__panel { grid-template-columns: 1fr; padding: var(--s-8) var(--s-6); gap: var(--s-5); }
+    .personal__avatar { width: 80px; height: 80px; }
+    .personal__panel p { font-size: 1.05rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="sitenav">
+  <div class="sitenav__inner">
+    <a class="sitenav__brand" href="index.html">
+      <img src="assets/logo.png" alt="">
+      <div>
+        <strong>Lektor Tronrud</strong>
+        <small>Et univers for nysgjerrige</small>
+      </div>
+    </a>
+    <nav class="sitenav__links">
+      <a href="index.html">Forside</a>
+      <a href="elever.html">For elever</a>
+      <a href="laererhub.html" class="is-active">For lærere</a>
+      <a href="gnistrende-hjerne.html">Gnistrende hjerne</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <section class="hub-hero">
+    <div>
+      <div class="hub-hero__eyebrow" id="greeting">For lærere</div>
+      <h1>Verktøy for <em>superhelter</em></h1>
+      <p class="hub-hero__lede">Fem verktøy jeg bruker hver dag. Helt gratis :)</p>
+    </div>
+  </section>
+
+  <section class="tools-wrap">
+    <div class="tools-head">
+      <h2>Klassedata</h2>
+      <span class="count">Lagres bare på din enhet</span>
+    </div>
+
+    <div class="tools-grid">
+
+      <a class="tool-card --teal" href="tools/klasselister.html">
+        <span class="tool-card__num">00</span>
+        <div class="tool-card__icon">📋</div>
+        <div class="tool-card__body">
+          <h3>Klasselister</h3>
+          <p>Lagre klasselistene dine én gang. Bruk dem i alle verktøyene.</p>
+        </div>
+        <span class="tool-card__cta">Åpne</span>
+      </a>
+
+    </div>
+  </section>
+
+  <section class="tools-wrap">
+    <div class="tools-head">
+      <h2>Klasseromsverktøy</h2>
+      <span class="count">5 verktøy</span>
+    </div>
+
+    <div class="tools-grid">
+
+      <a class="tool-card --orange" href="tools/scrambler.html">
+        <span class="tool-card__num">01</span>
+        <div class="tool-card__icon">🎲</div>
+        <div class="tool-card__body">
+          <h3>Classroom Scrambler</h3>
+          <p>Lag klassekart på ett minutt!</p>
+        </div>
+        <span class="tool-card__cta">Åpne</span>
+      </a>
+
+      <a class="tool-card --teal" href="tools/navnetrekker.html">
+        <span class="tool-card__num">02</span>
+        <div class="tool-card__icon">🎯</div>
+        <div class="tool-card__body">
+          <h3>Navnetrekker</h3>
+          <p>Trekk en tilfeldig elev fra klasselista. Vis på tavla hvis du vil!</p>
+        </div>
+        <span class="tool-card__cta">Åpne</span>
+      </a>
+
+      <a class="tool-card --pink" href="tools/gruppeskaper.html">
+        <span class="tool-card__num">03</span>
+        <div class="tool-card__icon">👥</div>
+        <div class="tool-card__body">
+          <h3>Gruppeskaper</h3>
+          <p>Del klassen din i grupper.</p>
+        </div>
+        <span class="tool-card__cta">Åpne</span>
+      </a>
+
+      <a class="tool-card --green" href="tools/klasseromsvisning.html">
+        <span class="tool-card__num">04</span>
+        <div class="tool-card__icon">📺</div>
+        <div class="tool-card__body">
+          <h3>Lærerdashboard</h3>
+          <p>Oppgaver i ulike nivåer, klokke, og mål på tavla. Alt jeg trenger til en &quot;øvetid&quot; :)</p>
+        </div>
+        <span class="tool-card__cta">Åpne</span>
+      </a>
+
+      <a class="tool-card --yellow" href="tools/nedtellingstimer.html">
+        <span class="tool-card__num">05</span>
+        <div class="tool-card__icon">⏱</div>
+        <div class="tool-card__body">
+          <h3>Nedtellingstimer</h3>
+          <p>Pomodoroklokke for prøver eller øvetid.</p>
+        </div>
+        <span class="tool-card__cta">Åpne</span>
+      </a>
+
+    </div>
+  </section>
+
+  <section class="personal">
+    <div class="personal__panel">
+      <div class="personal__avatar">
+        <img src="assets/logo.png" alt="" />
+      </div>
+      <div class="personal__body">
+        <div class="personal__sig">★ En liten hilsen</div>
+        <p>Lærere er <em>undervurderte superhelter.</em> Vi fortjener verktøy som fungerer godt så vi kan bruke energien på det som betyr noe: elevene våre. Her er verktøyene jeg selv bruker hver dag!</p>
+        <div class="personal__name">— Lektor Tronrud</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="sitefoot">
+  <div class="sitefoot__sig">★ Lærerhub</div>
+  <p>Forslag eller bugs? Send meg en mail på tronrudc@gmail.com</p>
+</footer>
+
+<script>
+  document.getElementById('greeting').textContent = 'Hei, kjære lærer';
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1989 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lektor Tronrud — Designsystem</title>
+<link rel="icon" type="image/png" href="assets/logo.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ========================================================================
+   TOKENS — the single source of truth
+   ======================================================================== */
+:root {
+  /* ── Brand neutrals ─────────────────────────────────────────── */
+  --space-900: #0E1A38;   /* logo deep navy — primary ink + brand */
+  --space-800: #1A2440;
+  --slate-700: #2D3748;   /* legacy slate (existing tools) */
+  --slate-500: #5B6478;
+  --slate-300: #94A0B5;
+  --slate-200: #C8CFDC;
+  --chalk-100: #E6E2DC;   /* warm divider */
+  --chalk-50:  #EEECEA;   /* warm cream alias */
+  --paper:     #F3F4F2;   /* page background */
+  --surface:   #FFFFFF;
+
+  /* ── Accents (pulled from logo + existing tools) ────────────── */
+  --nova-yellow: #F4C430;       /* logo yellow → highlights, energy */
+  --nova-yellow-soft: #FFF1B8;
+  --comet-orange: #F5A623;      /* timer warnings, "nivå 2" */
+  --comet-orange-soft: #FFE6BD;
+  --moss-green: #8BC34A;         /* "active", success, "nivå 1" */
+  --moss-green-deep: #4CAF50;
+  --moss-green-soft: #E8F5E9;
+  --planet-teal: #22C8C8;        /* primary action, links */
+  --planet-teal-deep: #07B3C7;
+  --planet-teal-soft: #D6F4F4;
+  --aurora-blue: #00BCD4;        /* info, "nivå 3" */
+  --aurora-blue-soft: #E0F7FA;
+  --berry-pink:  #E91E63;        /* "stille" / quiet warning */
+  --berry-pink-soft: #FCE4EC;
+  --supernova-red: #E53935;      /* errors, expired timer */
+  --supernova-red-soft: #FFE0E0;
+
+  /* ── Typography ─────────────────────────────────────────────── */
+  --font-display:  'Rubik', system-ui, sans-serif;
+  --font-body:     'Atkinson Hyperlegible', system-ui, sans-serif;
+  --font-mono:     'JetBrains Mono', ui-monospace, monospace;
+
+  --fs-12: 0.75rem;
+  --fs-14: 0.875rem;
+  --fs-16: 1rem;
+  --fs-18: 1.125rem;
+  --fs-20: 1.25rem;
+  --fs-24: 1.5rem;
+  --fs-30: 1.875rem;
+  --fs-36: 2.25rem;
+  --fs-48: 3rem;
+  --fs-64: 4rem;
+  --fs-96: 6rem;
+
+  --lh-tight:  1.1;
+  --lh-snug:   1.25;
+  --lh-normal: 1.5;
+  --lh-loose:  1.7;
+
+  /* ── Spacing — 4px base ─────────────────────────────────────── */
+  --s-0: 0;
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+  --s-20: 80px;
+  --s-24: 96px;
+
+  /* ── Radii ──────────────────────────────────────────────────── */
+  --r-sm:    6px;
+  --r-md:   10px;
+  --r-lg:   14px;     /* card default */
+  --r-xl:   18px;
+  --r-2xl:  24px;
+  --r-pill: 9999px;
+
+  /* ── Borders ────────────────────────────────────────────────── */
+  --border-w: 2px;
+  --border-ink: var(--space-900);
+
+  /* ── Signature shadows — hard offsets, no blur ──────────────── */
+  --shadow-1:  2px 2px 0 rgba(14, 26, 56, 0.20);
+  --shadow-2:  4px 5px 0 rgba(14, 26, 56, 0.28);
+  --shadow-3:  6px 7px 0 rgba(14, 26, 56, 0.32);
+  --shadow-4: 10px 10px 0 rgba(14, 26, 56, 0.18);
+  --shadow-press: 1px 1px 0 rgba(14, 26, 56, 0.20);
+
+  /* ── Motion ─────────────────────────────────────────────────── */
+  --t-fast:  0.12s ease;
+  --t-base:  0.2s  ease;
+  --t-slow:  0.35s ease;
+}
+
+/* ========================================================================
+   RESET-ish
+   ======================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+body {
+  font-family: var(--font-body);
+  font-size: var(--fs-16);
+  line-height: var(--lh-normal);
+  color: var(--space-900);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img { max-width: 100%; display: block; }
+button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+code, pre { font-family: var(--font-mono); font-size: 0.92em; }
+
+/* ========================================================================
+   PAGE FRAME
+   ======================================================================== */
+.page {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: var(--s-12);
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: var(--s-8);
+}
+
+/* ── Sidebar nav ──────────────────────────────────────────────── */
+.sidenav {
+  position: sticky;
+  top: var(--s-8);
+  align-self: start;
+  height: calc(100vh - var(--s-16));
+  padding: var(--s-6);
+  background: var(--surface);
+  border: var(--border-w) solid var(--border-ink);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-2);
+  overflow-y: auto;
+}
+.sidenav__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding-bottom: var(--s-5);
+  margin-bottom: var(--s-4);
+  border-bottom: 1px solid var(--chalk-100);
+}
+.sidenav__brand img {
+  width: 44px; height: 44px;
+  border-radius: var(--r-pill);
+}
+.sidenav__brand h1 {
+  font-family: var(--font-display);
+  font-size: var(--fs-16);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+.sidenav__brand small {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--slate-500);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.sidenav__group {
+  margin-bottom: var(--s-5);
+}
+.sidenav__title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--slate-500);
+  margin-bottom: var(--s-2);
+  padding: 0 var(--s-2);
+}
+.sidenav a {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-md);
+  font-size: var(--fs-14);
+  color: var(--space-900);
+  text-decoration: none;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.sidenav a:hover { background: var(--chalk-50); }
+.sidenav a.is-active {
+  background: var(--space-900);
+  color: var(--surface);
+}
+.sidenav a .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--slate-300);
+  flex-shrink: 0;
+}
+.sidenav a.is-active .dot { background: var(--nova-yellow); }
+
+/* ── Main column ──────────────────────────────────────────────── */
+.main { min-width: 0; }
+
+/* ========================================================================
+   HERO
+   ======================================================================== */
+.hero {
+  position: relative;
+  background: var(--space-900);
+  color: var(--surface);
+  border: var(--border-w) solid var(--border-ink);
+  border-radius: var(--r-2xl);
+  padding: var(--s-12) var(--s-12) var(--s-10);
+  overflow: hidden;
+  margin-bottom: var(--s-12);
+  box-shadow: var(--shadow-3);
+}
+.hero__stars {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(1.4px 1.4px at 12% 18%, #fff, transparent),
+    radial-gradient(1px 1px at 28% 64%, #fff, transparent),
+    radial-gradient(1.6px 1.6px at 44% 32%, #fff, transparent),
+    radial-gradient(1px 1px at 62% 12%, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 78% 70%, #fff, transparent),
+    radial-gradient(1px 1px at 88% 24%, #fff, transparent),
+    radial-gradient(1px 1px at 16% 86%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 92% 92%, #fff, transparent),
+    radial-gradient(1px 1px at 36% 92%, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 70% 48%, #fff, transparent);
+  opacity: 0.7;
+  pointer-events: none;
+}
+.hero__inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--s-10);
+  align-items: end;
+}
+.hero__eyebrow {
+  font-family: var(--font-display);
+  font-size: var(--fs-12);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--nova-yellow);
+  margin-bottom: var(--s-4);
+}
+.hero h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, var(--fs-64));
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  margin-bottom: var(--s-5);
+}
+.hero h2 em {
+  font-style: normal;
+  background: linear-gradient(95deg, var(--nova-yellow) 0%, var(--moss-green) 50%, var(--planet-teal) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero p {
+  font-size: var(--fs-18);
+  max-width: 56ch;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: var(--s-6);
+}
+.hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-3);
+}
+.hero__meta span {
+  font-family: var(--font-display);
+  font-size: var(--fs-12);
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.hero__logo {
+  width: 168px; height: 168px;
+  border-radius: var(--r-pill);
+  border: 4px solid rgba(255,255,255,0.18);
+}
+
+/* ========================================================================
+   SECTIONS
+   ======================================================================== */
+.section {
+  margin-bottom: var(--s-16);
+  scroll-margin-top: var(--s-6);
+}
+.section__head {
+  margin-bottom: var(--s-8);
+  padding-bottom: var(--s-5);
+  border-bottom: 1px dashed var(--slate-200);
+}
+.section__num {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  font-weight: 500;
+  color: var(--slate-500);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--s-3);
+}
+.section__num::before {
+  content: ''; width: 18px; height: 2px; background: var(--space-900);
+}
+.section h3 {
+  font-family: var(--font-display);
+  font-size: var(--fs-36);
+  font-weight: 800;
+  line-height: var(--lh-tight);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--s-3);
+}
+.section__lede {
+  font-size: var(--fs-18);
+  color: var(--slate-500);
+  max-width: 70ch;
+}
+
+.subhead {
+  font-family: var(--font-display);
+  font-size: var(--fs-12);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--slate-500);
+  margin: var(--s-8) 0 var(--s-4);
+}
+
+/* ========================================================================
+   COLOR — palette grid
+   ======================================================================== */
+.swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--s-4);
+}
+.swatch {
+  background: var(--surface);
+  border: var(--border-w) solid var(--border-ink);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+  transition: transform var(--t-fast), box-shadow var(--t-fast);
+  cursor: pointer;
+}
+.swatch:hover {
+  transform: translate(-2px,-2px);
+  box-shadow: var(--shadow-3);
+}
+.swatch__chip {
+  height: 96px;
+  position: relative;
+}
+.swatch__chip::after {
+  content: attr(data-token);
+  position: absolute;
+  bottom: 8px; left: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(255,255,255,0.85);
+  background: rgba(0,0,0,0.25);
+  padding: 2px 6px;
+  border-radius: 4px;
+  backdrop-filter: blur(2px);
+}
+.swatch--light .swatch__chip::after {
+  color: rgba(14,26,56,0.85);
+  background: rgba(255,255,255,0.6);
+}
+.swatch__body {
+  padding: var(--s-3) var(--s-4) var(--s-4);
+}
+.swatch__name {
+  font-family: var(--font-display);
+  font-size: var(--fs-14);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.swatch__hex {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--slate-500);
+}
+.swatch__use {
+  font-size: var(--fs-12);
+  color: var(--slate-500);
+  margin-top: var(--s-2);
+  line-height: 1.4;
+}
+
+/* Logo color extraction strip */
+.color-extraction {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: var(--s-6);
+  align-items: center;
+  background: var(--surface);
+  border: var(--border-w) solid var(--border-ink);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-2);
+  padding: var(--s-6);
+  margin-bottom: var(--s-8);
+}
+.color-extraction img { border-radius: var(--r-pill); }
+.color-extraction__chips { display: flex; gap: var(--s-3); flex-wrap: wrap; }
+.color-extraction__chip {
+  display: flex; align-items: center; gap: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+}
+.color-extraction__chip span {
+  width: 28px; height: 28px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid var(--space-900);
+  box-shadow: var(--shadow-1);
+}
+.color-extraction p {
+  margin-top: var(--s-3);
+  font-size: var(--fs-14);
+  color: var(--slate-500);
+}
+
+/* ========================================================================
+   TYPOGRAPHY
+   ======================================================================== */
+.type-spec {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: var(--s-6);
+  align-items: baseline;
+  padding: var(--s-5) 0;
+  border-bottom: 1px dashed var(--slate-200);
+}
+.type-spec:last-child { border-bottom: 0; }
+.type-spec__meta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--slate-500);
+  line-height: 1.5;
+}
+.type-spec__meta b { color: var(--space-900); }
+.type-spec__sample { line-height: var(--lh-tight); }
+
+.t-display-1 { font-family: var(--font-display); font-size: var(--fs-96); font-weight: 800; letter-spacing: -0.03em; line-height: 0.95; }
+.t-display-2 { font-family: var(--font-display); font-size: var(--fs-64); font-weight: 800; letter-spacing: -0.025em; line-height: 1; }
+.t-h1        { font-family: var(--font-display); font-size: var(--fs-48); font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; }
+.t-h2        { font-family: var(--font-display); font-size: var(--fs-36); font-weight: 700; letter-spacing: -0.015em; line-height: 1.1; }
+.t-h3        { font-family: var(--font-display); font-size: var(--fs-24); font-weight: 700; line-height: 1.2; }
+.t-h4        { font-family: var(--font-display); font-size: var(--fs-20); font-weight: 600; line-height: 1.3; }
+.t-body-lg   { font-family: var(--font-body);    font-size: var(--fs-20); font-weight: 400; line-height: 1.55; }
+.t-body      { font-family: var(--font-body);    font-size: var(--fs-16); font-weight: 400; line-height: 1.5; }
+.t-body-sm   { font-family: var(--font-body);    font-size: var(--fs-14); font-weight: 400; line-height: 1.5; }
+.t-eyebrow   { font-family: var(--font-display); font-size: var(--fs-12); font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; }
+.t-mono      { font-family: var(--font-mono);    font-size: var(--fs-14); font-weight: 500; }
+
+/* Font duo card */
+.font-duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-4);
+}
+.font-card {
+  background: var(--surface);
+  border: var(--border-w) solid var(--border-ink);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-2);
+  padding: var(--s-6);
+}
+.font-card__role {
+  font-family: var(--font-display);
+  font-size: var(--fs-12);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--slate-500);
+  margin-bottom: var(--s-2);
+}
+.font-card__name {
+  font-size: var(--fs-36);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--s-3);
+}
+.font-card__name.--rubik { font-family: var(--font-display); }
+.font-card__name.--ahl   { font-family: var(--font-body); font-weight: 700; }
+.font-card__alphabet {
+  font-size: var(--fs-20);
+  margin-bottom: var(--s-2);
+  color: var(--space-900);
+}
+.font-card__weights {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--slate-500);
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: 1px dashed var(--slate-200);
+}
+
+/* ========================================================================
+   SPACING & RADIUS
+   ======================================================================== */
+.spacing-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s-2);
+}
+.spacing-row {
+  display: grid;
+  grid-template-columns: 80px 80px 1fr;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-2) var(--s-4);
+  background: var(--surface);
+  border: 1.5px solid var(--chalk-100);
+  border-radius: var(--r-md);
+}
+.spacing-row__token {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  font-weight: 500;
+}
+.spacing-row__value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--slate-500);
+}
+.spacing-row__bar {
+  height: 14px;
+  background: var(--space-900);
+  border-radius: 3px;
+}
+
+.radius-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--s-4);
+}
+.radius-card {
+  background: var(--surface);
+  border: var(--border-w) solid var(--border-ink);
+  padding: var(--s-4);
+  text-align: center;
+  box-shadow: var(--shadow-1);
+}
+.radius-card__demo {
+  height: 70px;
+  margin-bottom: var(--s-3);
+  background: var(--moss-green-soft);
+  border: 1.5px solid var(--moss-green-deep);
+}
+.radius-card__token {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  font-weight: 600;
+}
+.radius-card__value {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--slate-500);
+}
+
+/* Shadow demo */
+.shadow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: var(--s-6);
+  padding: var(--s-6) 0;
+}
+.shadow-card {
+  height: 120px;
+  background: var(--surface);
+  border: var(--border-w) solid var(--border-ink);
+  border-radius: var(--r-lg);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  font-weight: 600;
+  color: var(--space-900);
+}
+
+/* ========================================================================
+   BUTTONS  ── canonical button system
+   ======================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  font-family: var(--font-display);
+  font-size: var(--fs-14);
+  font-weight: 700;
+  line-height: 1;
+  padding: 12px 22px;
+  border-radius: var(--r-pill);
+  border: var(--border-w) solid var(--border-ink);
+  background: var(--surface);
+  color: var(--space-900);
+  box-shadow: var(--shadow-1);
+  transition: transform var(--t-fast), box-shadow var(--t-fast),
+              background var(--t-fast), color var(--t-fast);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn:hover:not(:disabled) {
+  transform: translate(-2px,-2px);
+  box-shadow: var(--shadow-2);
+}
+.btn:active:not(:disabled) {
+  transform: translate(0,0);
+  box-shadow: var(--shadow-press);
+}
+.btn:focus-visible {
+  outline: 3px solid var(--planet-teal);
+  outline-offset: 3px;
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* — Variants — */
+.btn--primary {
+  background: var(--space-900);
+  color: var(--surface);
+}
+.btn--primary:hover:not(:disabled) { background: var(--slate-700); }
+
+.btn--accent {
+  background: var(--comet-orange);
+  color: var(--surface);
+}
+.btn--accent:hover:not(:disabled) { background: #e0941c; }
+
+.btn--success {
+  background: var(--moss-green);
+  color: var(--surface);
+}
+.btn--success:hover:not(:disabled) { background: var(--moss-green-deep); }
+
+.btn--info {
+  background: var(--planet-teal);
+  color: var(--surface);
+}
+.btn--info:hover:not(:disabled) { background: var(--planet-teal-deep); }
+
+.btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--space-900);
+}
+.btn--ghost:hover:not(:disabled) {
+  background: var(--chalk-50);
+  border-color: var(--space-900);
+  box-shadow: var(--shadow-1);
+}
+
+.btn--danger {
+  background: var(--supernova-red);
+  color: var(--surface);
+}
+
+/* — Sizes — */
+.btn--sm { padding: 7px 14px; font-size: var(--fs-12); }
+.btn--lg { padding: 16px 30px; font-size: var(--fs-16); }
+.btn--xl { padding: 20px 40px; font-size: var(--fs-20); font-style: italic; }
+
+.btn--icon-only { padding: 10px; aspect-ratio: 1; }
+.btn--block { display: flex; width: 100%; }
+
+/* Button grid for the demo */
+.btn-grid {
+  display: grid;
+  grid-template-columns: 200px repeat(5, 1fr);
+  gap: var(--s-3) var(--s-4);
+  align-items: center;
+  padding: var(--s-6);
+  background: var(--surface);
+  border: var(--border-w) solid var(--border-ink);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-2);
+}
+.btn-grid__label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  font-weight: 600;
+  color: var(--slate-500);
+}
+.btn-grid__head {
+  font-family: var(--font-display);
+  font-size: var(--fs-12);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--slate-500);
+  text-align: center;
+}
+
+/* ========================================================================
+   TABS
+   ======================================================================== */
+.tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--chalk-50);
+  border: var(--border-w) solid var(--border-ink);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-1);
+}
+.tab {
+  font-family: var(--font-display);
+  font-size: var(--fs-12);
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: var(--r-pill);
+  color: var(--slate-500);
+  transition: all var(--t-fast);
+  white-space: nowrap;
+}
+.tab:hover { color: var(--space-900); }
+.tab.is-active {
+  background: var(--space-900);
+  color: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+
+/* Underline tabs (alt variant) */
+.tabs--underline {
+  display: flex;
+  gap: var(--s-6);
+  border-bottom: var(--border-w) solid var(--space-900);
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+.tabs--underline .tab {
+  border-radius: 0;
+  background: transparent;
+  padding: 12px 0;
+  position: relative;
+  color: var(--slate-500);
+}
+.tabs--underline .tab.is-active {
+  background: transparent;
+  color: var(--space-900);
+  box-shadow: none;
+}
+.tabs--underline .tab.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -3px;
+  height: 4px;
+  background: var(--nova-yellow);
+  border-radius: 4px 4px 0 0;
+}
+
+/* ========================================================================
+   CARDS
+   ======================================================================== */
+.card {
+  background: var(--surface);
+  border: var(--border-w) solid var(--border-ink);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-2);
+  padding: var(--s-6);
+}
+.card--soft {
+  border: 1.5px solid var(--chalk-100);
+  box-shadow: none;
+}
+.card--ink {
+  background: var(--space-900);
+  color: var(--surface);
+}
+.card--ink h4 { color: var(--surface); }
+.card--ink p { color: rgba(255,255,255,0.75); }
+
+.card--accent-top { padding: 0; overflow: hidden; }
+.card--accent-top .card__band {
+  height: 12px;
+  background: var(--moss-green);
+}
+.card--accent-top .card__inner { padding: var(--s-6); }
+
+.card--task { padding: 0; overflow: hidden; }
+.card--task .card__band {
+  display: flex;
+  align-items: center;
+  padding: var(--s-3) var(--s-5);
+  background: var(--moss-green);
+}
+.card--task .card__band-badge {
+  font-family: var(--font-display);
+  font-size: var(--fs-14);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  padding: 4px 14px;
+  border-radius: var(--r-pill);
+  border: 1.5px solid rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.25);
+  color: var(--surface);
+}
+.card--task .card__divider {
+  height: 2px;
+  background: var(--moss-green);
+}
+.card--task .card__inner { padding: var(--s-5); }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--s-5);
+}
+.card h4 {
+  font-family: var(--font-display);
+  font-size: var(--fs-20);
+  font-weight: 700;
+  margin-bottom: var(--s-2);
+}
+.card p {
+  font-size: var(--fs-14);
+  color: var(--slate-500);
+  line-height: 1.55;
+}
+.card__eyebrow {
+  font-family: var(--font-display);
+  font-size: var(--fs-12);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--slate-500);
+  margin-bottom: var(--s-2);
+}
+
+/* Tool card — for the educator hub previews */
+.tool-card {
+  position: relative;
+  background: var(--surface);
+  border: var(--border-w) solid var(--border-ink);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-3);
+  padding: var(--s-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  transition: transform var(--t-base), box-shadow var(--t-base);
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+}
+.tool-card:hover {
+  transform: translate(-3px,-3px);
+  box-shadow: var(--shadow-4);
+}
+.tool-card__icon {
+  width: 56px; height: 56px;
+  border-radius: var(--r-md);
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  border: var(--border-w) solid var(--border-ink);
+}
+.tool-card__icon.--green  { background: var(--moss-green-soft); }
+.tool-card__icon.--orange { background: var(--comet-orange-soft); }
+.tool-card__icon.--teal   { background: var(--planet-teal-soft); }
+.tool-card__icon.--yellow { background: var(--nova-yellow-soft); }
+.tool-card__icon.--pink   { background: var(--berry-pink-soft); }
+.tool-card__icon.--blue   { background: var(--aurora-blue-soft); }
+
+.tool-card__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-20);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+.tool-card__desc {
+  font-size: var(--fs-14);
+  color: var(--slate-500);
+  line-height: 1.5;
+}
+.tool-card__cta {
+  margin-top: auto;
+  font-family: var(--font-display);
+  font-size: var(--fs-12);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--space-900);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ========================================================================
+   ROSTER ROW / NAME CHIP
+   ======================================================================== */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 6px 14px 6px 6px;
+  background: var(--surface);
+  border: 1.5px solid var(--space-900);
+  border-radius: var(--r-pill);
+  font-family: var(--font-display);
+  font-size: var(--fs-14);
+  font-weight: 600;
+  box-shadow: var(--shadow-1);
+}
+.chip__avatar {
+  width: 24px; height: 24px;
+  border-radius: var(--r-pill);
+  background: var(--moss-green);
+  color: var(--surface);
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--space-900);
+}
+.chip--solid {
+  background: var(--space-900);
+  color: var(--surface);
+}
+.chip--solid .chip__avatar { background: var(--nova-yellow); color: var(--space-900); }
+
+.chip-cluster { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+
+.roster {
+  background: var(--surface);
+  border: var(--border-w) solid var(--border-ink);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+}
+.roster__head, .roster__row {
+  display: grid;
+  grid-template-columns: 36px 1.5fr 1fr 1fr auto;
+  gap: var(--s-4);
+  align-items: center;
+  padding: var(--s-3) var(--s-5);
+}
+.roster__head {
+  background: var(--chalk-50);
+  border-bottom: var(--border-w) solid var(--border-ink);
+  font-family: var(--font-display);
+  font-size: var(--fs-12);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--slate-500);
+}
+.roster__row {
+  border-bottom: 1px solid var(--chalk-100);
+  font-size: var(--fs-14);
+}
+.roster__row:last-child { border-bottom: 0; }
+.roster__row:hover { background: var(--chalk-50); }
+.roster__avatar {
+  width: 28px; height: 28px;
+  border-radius: var(--r-pill);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--surface);
+  border: 1.5px solid var(--space-900);
+}
+.roster__name {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.roster__meta { color: var(--slate-500); font-family: var(--font-mono); font-size: var(--fs-12); }
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  border: 1.5px solid currentColor;
+}
+.status-pill::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor;
+}
+.status-pill.--present { color: #1b5540; background: var(--moss-green-soft); border-color: #4a8a5e; }
+.status-pill.--late    { color: #7a3e00; background: var(--comet-orange-soft); border-color: var(--comet-orange); }
+.status-pill.--absent  { color: #880e4f; background: var(--berry-pink-soft); border-color: var(--berry-pink); }
+
+/* ========================================================================
+   CODE BLOCK
+   ======================================================================== */
+.codeblock {
+  position: relative;
+  background: var(--space-900);
+  color: #E6ECF7;
+  border-radius: var(--r-md);
+  padding: var(--s-5) var(--s-6);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  line-height: 1.7;
+  overflow-x: auto;
+  margin-top: var(--s-4);
+}
+.codeblock .tk-prop  { color: var(--planet-teal); }
+.codeblock .tk-val   { color: var(--nova-yellow); }
+.codeblock .tk-com   { color: var(--slate-300); font-style: italic; }
+
+/* ========================================================================
+   SHOWCASE — hub preview
+   ======================================================================== */
+.showcase {
+  background: var(--paper);
+  border: var(--border-w) solid var(--border-ink);
+  border-radius: var(--r-xl);
+  padding: var(--s-6);
+  box-shadow: var(--shadow-2);
+}
+.showcase__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--s-5);
+  flex-wrap: wrap;
+  gap: var(--s-3);
+}
+.showcase__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-12);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--slate-500);
+}
+
+/* Hub mock layout */
+.hub {
+  background: var(--paper);
+  border-radius: var(--r-lg);
+  padding: var(--s-6);
+}
+.hub__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--s-6);
+  flex-wrap: wrap;
+  gap: var(--s-3);
+}
+.hub__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.hub__brand img {
+  width: 48px; height: 48px; border-radius: var(--r-pill);
+}
+.hub__brand-text strong {
+  font-family: var(--font-display);
+  font-size: var(--fs-18);
+  font-weight: 700;
+}
+.hub__brand-text small {
+  font-size: var(--fs-12);
+  color: var(--slate-500);
+  display: block;
+}
+
+/* Whiteboard preview (mini dashboard) */
+.whiteboard-mini {
+  background: var(--chalk-50);
+  border: var(--border-w) solid var(--border-ink);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-2);
+  padding: var(--s-3);
+  display: grid;
+  gap: var(--s-2);
+}
+.wbm-row {
+  display: grid;
+  gap: var(--s-2);
+}
+.wbm-row.--top {
+  grid-template-columns: auto auto 1fr auto auto;
+  align-items: center;
+  background: var(--surface);
+  border: 1.5px solid var(--space-900);
+  border-radius: var(--r-md);
+  padding: var(--s-2) var(--s-3);
+}
+.wbm-clock {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1.5px solid var(--space-900);
+  position: relative;
+}
+.wbm-clock::before, .wbm-clock::after {
+  content: '';
+  position: absolute;
+  background: var(--space-900);
+  left: 50%; top: 50%;
+  transform-origin: 0 0;
+  border-radius: 1px;
+}
+.wbm-clock::before {
+  width: 1.5px; height: 9px;
+  transform: translate(-1px, -2px) rotate(40deg);
+}
+.wbm-clock::after {
+  width: 1.5px; height: 12px;
+  background: var(--comet-orange);
+  transform: translate(-1px, -1px) rotate(-30deg);
+}
+.wbm-timer {
+  font-family: var(--font-body);
+  font-size: var(--fs-24);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+}
+.wbm-mini-pill {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  border: 1.5px solid var(--space-900);
+}
+.wbm-mini-pill.--green { background: var(--moss-green-soft); color: #1b5540; }
+.wbm-mini-pill.--pink  { background: var(--berry-pink-soft);  color: #880e4f; }
+
+.wbm-row.--mid {
+  grid-template-columns: 2fr 1fr 2fr;
+}
+.wbm-mid-card {
+  background: var(--surface);
+  border: 1.5px solid var(--space-900);
+  border-radius: var(--r-md);
+  padding: 8px 10px;
+  font-size: 11px;
+}
+.wbm-mid-card.--ink {
+  background: var(--space-900);
+  color: var(--surface);
+  text-align: center;
+}
+.wbm-mid-card label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--slate-500);
+  font-weight: 700;
+  display: block;
+}
+.wbm-mid-card.--ink label {
+  color: rgba(255,255,255,0.55);
+}
+.wbm-mid-card strong { font-weight: 700; }
+
+.wbm-row.--bot {
+  grid-template-columns: 1fr 1fr 1fr;
+  min-height: 110px;
+}
+.wbm-task {
+  border: 1.5px solid var(--space-900);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.wbm-task__header {
+  padding: 4px 10px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--surface);
+}
+.wbm-task__header.--g { background: var(--moss-green); }
+.wbm-task__header.--o { background: var(--comet-orange); }
+.wbm-task__header.--b { background: var(--aurora-blue); }
+.wbm-task__body {
+  padding: 6px 10px;
+  font-size: 10px;
+  color: var(--space-900);
+  line-height: 1.5;
+}
+
+/* Footer */
+.footer {
+  margin-top: var(--s-16);
+  padding: var(--s-8) var(--s-6);
+  text-align: center;
+  background: var(--space-900);
+  color: var(--surface);
+  border-radius: var(--r-2xl);
+  border: var(--border-w) solid var(--border-ink);
+}
+.footer p { color: rgba(255,255,255,0.6); font-size: var(--fs-14); }
+.footer .footer__sig {
+  font-family: var(--font-display);
+  font-size: var(--fs-12);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--nova-yellow);
+  margin-bottom: var(--s-3);
+}
+
+/* ========================================================================
+   Responsive trim
+   ======================================================================== */
+@media (max-width: 980px) {
+  .page { grid-template-columns: 1fr; padding: var(--s-4); gap: var(--s-6); }
+  .sidenav { position: relative; height: auto; max-height: 70vh; top: 0; }
+  .hero { padding: var(--s-8) var(--s-6); }
+  .hero__inner { grid-template-columns: 1fr; }
+  .hero__logo { width: 96px; height: 96px; }
+  .btn-grid { grid-template-columns: 1fr; }
+  .btn-grid > * { justify-self: start; }
+  .btn-grid__head { display: none; }
+  .font-duo { grid-template-columns: 1fr; }
+  .type-spec { grid-template-columns: 1fr; gap: var(--s-2); }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ════════════════════════════════════════════════════════════
+       SIDEBAR
+       ════════════════════════════════════════════════════════════ -->
+  <aside class="sidenav">
+    <div class="sidenav__brand">
+      <img src="assets/logo.png" alt="">
+      <div>
+        <h1>Lektor Tronrud</h1>
+        <small>Designsystem · v1.0</small>
+      </div>
+    </div>
+
+    <nav>
+      <div class="sidenav__group">
+        <div class="sidenav__title">Grunnlag</div>
+        <a href="#brand"><span class="dot"></span>Merkevare</a>
+        <a href="#colors"><span class="dot"></span>Farger</a>
+        <a href="#typography"><span class="dot"></span>Typografi</a>
+        <a href="#spacing"><span class="dot"></span>Mellomrom &amp; rader</a>
+        <a href="#shadows"><span class="dot"></span>Skygger</a>
+      </div>
+      <div class="sidenav__group">
+        <div class="sidenav__title">Komponenter</div>
+        <a href="#buttons"><span class="dot"></span>Knapper</a>
+        <a href="#tabs"><span class="dot"></span>Faner</a>
+        <a href="#cards"><span class="dot"></span>Kort</a>
+        <a href="#chips"><span class="dot"></span>Navnemerker</a>
+        <a href="#roster"><span class="dot"></span>Klasseliste</a>
+      </div>
+      <div class="sidenav__group">
+        <div class="sidenav__title">I bruk</div>
+        <a href="#hub"><span class="dot"></span>Lærerhub</a>
+        <a href="#dashboard"><span class="dot"></span>Tavlevisning</a>
+        <a href="#tokens"><span class="dot"></span>Tokens (kode)</a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- ════════════════════════════════════════════════════════════
+       MAIN
+       ════════════════════════════════════════════════════════════ -->
+  <main class="main">
+
+    <!-- ─── HERO ────────────────────────────────────────────── -->
+    <header class="hero" id="brand">
+      <div class="hero__stars" aria-hidden="true"></div>
+      <div class="hero__inner">
+        <div>
+          <div class="hero__eyebrow">Designsystem · Mai 2026</div>
+          <h2>Et univers <em>for nysgjerrige hoder.</em></h2>
+          <p>Et levende stilkart for Lektor Tronrud — verktøyene, tavlevisningene, og sidene jeg bygger for elever, lærere og alle som er sultne på å lære. Bygget på det som allerede står sterkt i klasserommet: tydelig typografi, runde kanter og skygger som faller som krittstøv.</p>
+          <div class="hero__meta">
+            <span>★ Ungdomsskole</span>
+            <span>★ Norsk bokmål</span>
+            <span>★ Bygget for projektor</span>
+            <span>★ Fra barneskole til universitet</span>
+          </div>
+        </div>
+        <img class="hero__logo" src="assets/logo.png" alt="Lektor Tronrud-logo: en fargerik hjerne i verdensrommet.">
+      </div>
+    </header>
+
+    <!-- ─── COLORS ──────────────────────────────────────────── -->
+    <section class="section" id="colors">
+      <div class="section__head">
+        <div class="section__num">01 / Farger</div>
+        <h3>En palett hentet rett ut av logoen</h3>
+        <p class="section__lede">Den dype romnatten i logoen er hovedfargen. Den gule stjernen, den grønne planeten og den teale kometen er aksentene som driver klasseromsverktøyene fremover.</p>
+      </div>
+
+      <div class="color-extraction">
+        <img src="assets/logo.png" alt="">
+        <div>
+          <div class="color-extraction__chips">
+            <div class="color-extraction__chip"><span style="background:#0E1A38"></span>#0E1A38</div>
+            <div class="color-extraction__chip"><span style="background:#F4C430"></span></div>
+            <div class="color-extraction__chip"><span style="background:#8BC34A"></span>#8BC34A</div>
+            <div class="color-extraction__chip"><span style="background:#22C8C8"></span>#22C8C8</div>
+            <div class="color-extraction__chip"><span style="background:#F5A623"></span>#F5A623</div>
+          </div>
+          <p>Hver aksent tar med seg historien fra logoen: stjernen er oransje, planetringen er blå, det grønne i hjernen blir til "Nivå 1", den teale komethalen blir hovedfarge for handling, og den oransje månen blir varslet som ber elevene se opp.</p>
+        </div>
+      </div>
+
+      <div class="subhead">Merkevare-nøytrale</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch__chip" data-token="--space-900" style="background:#0E1A38"></div><div class="swatch__body"><div class="swatch__name">Space 900</div><div class="swatch__hex">#0E1A38</div><div class="swatch__use">Hovedblekk · kortramme · tavlebakgrunn</div></div></div>
+        <div class="swatch"><div class="swatch__chip" data-token="--space-800" style="background:#1A2440"></div><div class="swatch__body"><div class="swatch__name">Space 800</div><div class="swatch__hex">#1A2440</div><div class="swatch__use">Mørke seksjoner · hover-tilstand</div></div></div>
+        <div class="swatch"><div class="swatch__chip" data-token="--slate-700" style="background:#2D3748"></div><div class="swatch__body"><div class="swatch__name">Slate 700</div><div class="swatch__hex">#2D3748</div><div class="swatch__use">Eldre tools-alias · sekundær blekk</div></div></div>
+        <div class="swatch"><div class="swatch__chip" data-token="--slate-500" style="background:#5B6478"></div><div class="swatch__body"><div class="swatch__name">Slate 500</div><div class="swatch__hex">#5B6478</div><div class="swatch__use">Stille tekst · etiketter</div></div></div>
+        <div class="swatch swatch--light"><div class="swatch__chip" data-token="--slate-200" style="background:#C8CFDC"></div><div class="swatch__body"><div class="swatch__name">Slate 200</div><div class="swatch__hex">#C8CFDC</div><div class="swatch__use">Skillelinjer · stiplede streker</div></div></div>
+        <div class="swatch swatch--light"><div class="swatch__chip" data-token="--chalk-50" style="background:#EEECEA;border-bottom:1px solid #C8CFDC"></div><div class="swatch__body"><div class="swatch__name">Chalk 50</div><div class="swatch__hex">#EEECEA</div><div class="swatch__use">Varm bakgrunn · seksjon-fyll</div></div></div>
+        <div class="swatch swatch--light"><div class="swatch__chip" data-token="--paper" style="background:#F3F4F2;border-bottom:1px solid #C8CFDC"></div><div class="swatch__body"><div class="swatch__name">Paper</div><div class="swatch__hex">#F3F4F2</div><div class="swatch__use">Standard sidebakgrunn</div></div></div>
+        <div class="swatch swatch--light"><div class="swatch__chip" data-token="--surface" style="background:#FFFFFF;border-bottom:1px solid #C8CFDC"></div><div class="swatch__body"><div class="swatch__name">Surface</div><div class="swatch__hex">#FFFFFF</div><div class="swatch__use">Kortflater · inputfelt</div></div></div>
+      </div>
+
+      <div class="subhead">Aksenter — kosmosserien</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch__chip" data-token="--nova-yellow" style="background:#F4C430"></div><div class="swatch__body"><div class="swatch__name">Nova Yellow</div><div class="swatch__hex">#F4C430</div><div class="swatch__use">Energi · markering · "ny"</div></div></div>
+        <div class="swatch"><div class="swatch__chip" data-token="--comet-orange" style="background:#F5A623"></div><div class="swatch__body"><div class="swatch__name">Comet Orange</div><div class="swatch__hex">#F5A623</div><div class="swatch__use">Nivå 2 · varsler · scramble-knapp</div></div></div>
+        <div class="swatch"><div class="swatch__chip" data-token="--moss-green" style="background:#8BC34A"></div><div class="swatch__body"><div class="swatch__name">Moss Green</div><div class="swatch__hex">#8BC34A</div><div class="swatch__use">Nivå 1 · suksess · aktiv</div></div></div>
+        <div class="swatch"><div class="swatch__chip" data-token="--planet-teal" style="background:#22C8C8"></div><div class="swatch__body"><div class="swatch__name">Planet Teal</div><div class="swatch__hex">#22C8C8</div><div class="swatch__use">Hovedhandling · lenker · eksport</div></div></div>
+        <div class="swatch"><div class="swatch__chip" data-token="--aurora-blue" style="background:#00BCD4"></div><div class="swatch__body"><div class="swatch__name">Aurora Blue</div><div class="swatch__hex">#00BCD4</div><div class="swatch__use">Nivå 3 · informasjon</div></div></div>
+        <div class="swatch"><div class="swatch__chip" data-token="--berry-pink" style="background:#E91E63"></div><div class="swatch__body"><div class="swatch__name">Berry Pink</div><div class="swatch__hex">#E91E63</div><div class="swatch__use">Stille-modus · forsiktig</div></div></div>
+        <div class="swatch"><div class="swatch__chip" data-token="--supernova-red" style="background:#E53935"></div><div class="swatch__body"><div class="swatch__name">Supernova Red</div><div class="swatch__hex">#E53935</div><div class="swatch__use">Feil · utløpt nedteller</div></div></div>
+      </div>
+
+      <div class="subhead">Myke aksent-bakgrunner (10 % toner)</div>
+      <div class="swatch-grid">
+        <div class="swatch swatch--light"><div class="swatch__chip" data-token="--nova-yellow-soft" style="background:#FFF1B8;border-bottom:1px solid #C8CFDC"></div><div class="swatch__body"><div class="swatch__name">Nova soft</div><div class="swatch__hex">#FFF1B8</div></div></div>
+        <div class="swatch swatch--light"><div class="swatch__chip" data-token="--comet-orange-soft" style="background:#FFE6BD;border-bottom:1px solid #C8CFDC"></div><div class="swatch__body"><div class="swatch__name">Comet soft</div><div class="swatch__hex">#FFE6BD</div></div></div>
+        <div class="swatch swatch--light"><div class="swatch__chip" data-token="--moss-green-soft" style="background:#E8F5E9;border-bottom:1px solid #C8CFDC"></div><div class="swatch__body"><div class="swatch__name">Moss soft</div><div class="swatch__hex">#E8F5E9</div></div></div>
+        <div class="swatch swatch--light"><div class="swatch__chip" data-token="--planet-teal-soft" style="background:#D6F4F4;border-bottom:1px solid #C8CFDC"></div><div class="swatch__body"><div class="swatch__name">Teal soft</div><div class="swatch__hex">#D6F4F4</div></div></div>
+        <div class="swatch swatch--light"><div class="swatch__chip" data-token="--aurora-blue-soft" style="background:#E0F7FA;border-bottom:1px solid #C8CFDC"></div><div class="swatch__body"><div class="swatch__name">Aurora soft</div><div class="swatch__hex">#E0F7FA</div></div></div>
+        <div class="swatch swatch--light"><div class="swatch__chip" data-token="--berry-pink-soft" style="background:#FCE4EC;border-bottom:1px solid #C8CFDC"></div><div class="swatch__body"><div class="swatch__name">Berry soft</div><div class="swatch__hex">#FCE4EC</div></div></div>
+      </div>
+    </section>
+
+    <!-- ─── TYPOGRAPHY ──────────────────────────────────────── -->
+    <section class="section" id="typography">
+      <div class="section__head">
+        <div class="section__num">02 / Typografi</div>
+        <h3>To skrifter, én stemme</h3>
+        <p class="section__lede">Rubik gir overskriftene karakter — geometriske former med små karakterfulle detaljer. Atkinson Hyperlegible ble laget for synshemmede, og er derfor det beste vi har til å lese fra siste rad i klasserommet.</p>
+      </div>
+
+      <div class="font-duo">
+        <div class="font-card">
+          <div class="font-card__role">Display · Overskrifter</div>
+          <div class="font-card__name --rubik">Rubik</div>
+          <div class="font-card__alphabet" style="font-family:var(--font-display);">AaBbCcDdÆØÅ 0123 ?!æøå</div>
+          <div class="font-card__weights">Vekter: 400 · 500 · 600 · 700 · <b style="color:var(--space-900)">800</b></div>
+        </div>
+        <div class="font-card">
+          <div class="font-card__role">Body · All brødtekst</div>
+          <div class="font-card__name --ahl">Atkinson<br>Hyperlegible</div>
+          <div class="font-card__alphabet" style="font-family:var(--font-body);">AaBbCcDdÆØÅ 0123 ?!æøå</div>
+          <div class="font-card__weights">Vekter: 400 · 400 italic · 700 · 700 italic</div>
+        </div>
+      </div>
+
+      <div class="subhead">Type-skala</div>
+
+      <div class="type-spec">
+        <div class="type-spec__meta"><b>Display 1</b><br>Rubik 800 / 96px<br>Tracking −3 %</div>
+        <div class="type-spec__sample t-display-1">10:00</div>
+      </div>
+      <div class="type-spec">
+        <div class="type-spec__meta"><b>Display 2</b><br>Rubik 800 / 64px</div>
+        <div class="type-spec__sample t-display-2">Et univers for nysgjerrige</div>
+      </div>
+      <div class="type-spec">
+        <div class="type-spec__meta"><b>H1</b><br>Rubik 800 / 48px</div>
+        <div class="type-spec__sample t-h1">Brøk, desimaltall og prosent</div>
+      </div>
+      <div class="type-spec">
+        <div class="type-spec__meta"><b>H2</b><br>Rubik 700 / 36px</div>
+        <div class="type-spec__sample t-h2">Klasseromsverktøy</div>
+      </div>
+      <div class="type-spec">
+        <div class="type-spec__meta"><b>H3</b><br>Rubik 700 / 24px</div>
+        <div class="type-spec__sample t-h3">Dagens læringsmål</div>
+      </div>
+      <div class="type-spec">
+        <div class="type-spec__meta"><b>H4</b><br>Rubik 600 / 20px</div>
+        <div class="type-spec__sample t-h4">Velg en oppgave</div>
+      </div>
+      <div class="type-spec">
+        <div class="type-spec__meta"><b>Body L</b><br>Atkinson 400 / 20px</div>
+        <div class="type-spec__sample t-body-lg">Hjernen din vokser hver gang du øver. Feil er ikke fiasko — feil er læring som ennå ikke er ferdig.</div>
+      </div>
+      <div class="type-spec">
+        <div class="type-spec__meta"><b>Body</b><br>Atkinson 400 / 16px</div>
+        <div class="type-spec__sample t-body">Standard brødtekst for grensesnitt og lengre instruksjoner. Setningene puster, linjehøyden er 1.5, og tegnsettet er optimalisert for skjerm.</div>
+      </div>
+      <div class="type-spec">
+        <div class="type-spec__meta"><b>Body S</b><br>Atkinson 400 / 14px</div>
+        <div class="type-spec__sample t-body-sm">Brukes til hjelpetekst, bildetekst og tabellinnhold der plass er knapp.</div>
+      </div>
+      <div class="type-spec">
+        <div class="type-spec__meta"><b>Eyebrow</b><br>Rubik 700 / 12px<br>Tracking +16 %</div>
+        <div class="type-spec__sample t-eyebrow">Nivå 1 · Oppgavesett</div>
+      </div>
+      <div class="type-spec">
+        <div class="type-spec__meta"><b>Mono</b><br>JetBrains 500 / 14px</div>
+        <div class="type-spec__sample t-mono">--space-900: #0E1A38;</div>
+      </div>
+    </section>
+
+    <!-- ─── SPACING & RADIUS ────────────────────────────────── -->
+    <section class="section" id="spacing">
+      <div class="section__head">
+        <div class="section__num">03 / Mellomrom &amp; radier</div>
+        <h3>Et 4-pikslers gitter</h3>
+        <p class="section__lede">Alle mellomrom er multipler av 4 piksler. Bruk de små for elementer som hører tett sammen, de store for å gi seksjoner luft.</p>
+      </div>
+
+      <div class="spacing-list">
+        <div class="spacing-row"><span class="spacing-row__token">--s-1</span><span class="spacing-row__value">4 px</span><div class="spacing-row__bar" style="width:4px"></div></div>
+        <div class="spacing-row"><span class="spacing-row__token">--s-2</span><span class="spacing-row__value">8 px</span><div class="spacing-row__bar" style="width:8px"></div></div>
+        <div class="spacing-row"><span class="spacing-row__token">--s-3</span><span class="spacing-row__value">12 px</span><div class="spacing-row__bar" style="width:12px"></div></div>
+        <div class="spacing-row"><span class="spacing-row__token">--s-4</span><span class="spacing-row__value">16 px</span><div class="spacing-row__bar" style="width:16px"></div></div>
+        <div class="spacing-row"><span class="spacing-row__token">--s-5</span><span class="spacing-row__value">20 px</span><div class="spacing-row__bar" style="width:20px"></div></div>
+        <div class="spacing-row"><span class="spacing-row__token">--s-6</span><span class="spacing-row__value">24 px</span><div class="spacing-row__bar" style="width:24px"></div></div>
+        <div class="spacing-row"><span class="spacing-row__token">--s-8</span><span class="spacing-row__value">32 px</span><div class="spacing-row__bar" style="width:32px"></div></div>
+        <div class="spacing-row"><span class="spacing-row__token">--s-10</span><span class="spacing-row__value">40 px</span><div class="spacing-row__bar" style="width:40px"></div></div>
+        <div class="spacing-row"><span class="spacing-row__token">--s-12</span><span class="spacing-row__value">48 px</span><div class="spacing-row__bar" style="width:48px"></div></div>
+        <div class="spacing-row"><span class="spacing-row__token">--s-16</span><span class="spacing-row__value">64 px</span><div class="spacing-row__bar" style="width:64px"></div></div>
+        <div class="spacing-row"><span class="spacing-row__token">--s-20</span><span class="spacing-row__value">80 px</span><div class="spacing-row__bar" style="width:80px"></div></div>
+        <div class="spacing-row"><span class="spacing-row__token">--s-24</span><span class="spacing-row__value">96 px</span><div class="spacing-row__bar" style="width:96px"></div></div>
+      </div>
+
+      <div class="subhead">Hjørneradier</div>
+      <div class="radius-grid">
+        <div class="radius-card"><div class="radius-card__demo" style="border-radius:6px"></div><div class="radius-card__token">--r-sm</div><div class="radius-card__value">6 px</div></div>
+        <div class="radius-card"><div class="radius-card__demo" style="border-radius:10px"></div><div class="radius-card__token">--r-md</div><div class="radius-card__value">10 px</div></div>
+        <div class="radius-card"><div class="radius-card__demo" style="border-radius:14px"></div><div class="radius-card__token">--r-lg</div><div class="radius-card__value">14 px · standard kort</div></div>
+        <div class="radius-card"><div class="radius-card__demo" style="border-radius:18px"></div><div class="radius-card__token">--r-xl</div><div class="radius-card__value">18 px</div></div>
+        <div class="radius-card"><div class="radius-card__demo" style="border-radius:24px"></div><div class="radius-card__token">--r-2xl</div><div class="radius-card__value">24 px · helt-ut-kort</div></div>
+        <div class="radius-card"><div class="radius-card__demo" style="border-radius:9999px"></div><div class="radius-card__token">--r-pill</div><div class="radius-card__value">∞ · pille &amp; chip</div></div>
+      </div>
+    </section>
+
+    <!-- ─── SHADOWS ─────────────────────────────────────────── -->
+    <section class="section" id="shadows">
+      <div class="section__head">
+        <div class="section__num">04 / Skygger</div>
+        <h3>Krittstøv, ikke bokeh</h3>
+        <p class="section__lede">Skyggene har null blur. De faller som krittstøv ned-og-til-høyre, som om kortene er klippet ut og limt på papir. Ingen myke gradienter, ingen Apple-aktige glow.</p>
+      </div>
+
+      <div class="shadow-grid">
+        <div class="shadow-card" style="box-shadow:var(--shadow-1)">--shadow-1</div>
+        <div class="shadow-card" style="box-shadow:var(--shadow-2)">--shadow-2</div>
+        <div class="shadow-card" style="box-shadow:var(--shadow-3)">--shadow-3</div>
+        <div class="shadow-card" style="box-shadow:var(--shadow-4)">--shadow-4</div>
+      </div>
+    </section>
+
+    <!-- ─── BUTTONS ─────────────────────────────────────────── -->
+    <section class="section" id="buttons">
+      <div class="section__head">
+        <div class="section__num">05 / Knapper</div>
+        <h3>Alle tilstander, alle størrelser</h3>
+        <p class="section__lede">Hver knapp har en kant, en hard skygge, og en bevegelse oppover-til-venstre på hover. Trykker du, klapper den ned mot papiret.</p>
+      </div>
+
+      <div class="btn-grid">
+        <div></div>
+        <div class="btn-grid__head">Default</div>
+        <div class="btn-grid__head">Hover</div>
+        <div class="btn-grid__head">Pressed</div>
+        <div class="btn-grid__head">Focus</div>
+        <div class="btn-grid__head">Disabled</div>
+
+        <div class="btn-grid__label">.btn (standard)</div>
+        <button class="btn">Lukk</button>
+        <button class="btn" style="transform:translate(-2px,-2px);box-shadow:var(--shadow-2)">Lukk</button>
+        <button class="btn" style="transform:translate(0,0);box-shadow:var(--shadow-press)">Lukk</button>
+        <button class="btn" style="outline:3px solid var(--planet-teal);outline-offset:3px">Lukk</button>
+        <button class="btn" disabled>Lukk</button>
+
+        <div class="btn-grid__label">.btn--primary</div>
+        <button class="btn btn--primary">Lagre</button>
+        <button class="btn btn--primary" style="background:var(--slate-700);transform:translate(-2px,-2px);box-shadow:var(--shadow-2)">Lagre</button>
+        <button class="btn btn--primary" style="transform:translate(0,0);box-shadow:var(--shadow-press)">Lagre</button>
+        <button class="btn btn--primary" style="outline:3px solid var(--planet-teal);outline-offset:3px">Lagre</button>
+        <button class="btn btn--primary" disabled>Lagre</button>
+
+        <div class="btn-grid__label">.btn--accent</div>
+        <button class="btn btn--accent">Scramble!</button>
+        <button class="btn btn--accent" style="background:#e0941c;transform:translate(-2px,-2px);box-shadow:var(--shadow-2)">Scramble!</button>
+        <button class="btn btn--accent" style="transform:translate(0,0);box-shadow:var(--shadow-press)">Scramble!</button>
+        <button class="btn btn--accent" style="outline:3px solid var(--planet-teal);outline-offset:3px">Scramble!</button>
+        <button class="btn btn--accent" disabled>Scramble!</button>
+
+        <div class="btn-grid__label">.btn--success</div>
+        <button class="btn btn--success">▶ Start</button>
+        <button class="btn btn--success" style="background:var(--moss-green-deep);transform:translate(-2px,-2px);box-shadow:var(--shadow-2)">▶ Start</button>
+        <button class="btn btn--success" style="transform:translate(0,0);box-shadow:var(--shadow-press)">▶ Start</button>
+        <button class="btn btn--success" style="outline:3px solid var(--planet-teal);outline-offset:3px">▶ Start</button>
+        <button class="btn btn--success" disabled>▶ Start</button>
+
+        <div class="btn-grid__label">.btn--info</div>
+        <button class="btn btn--info">Eksport</button>
+        <button class="btn btn--info" style="background:var(--planet-teal-deep);transform:translate(-2px,-2px);box-shadow:var(--shadow-2)">Eksport</button>
+        <button class="btn btn--info" style="transform:translate(0,0);box-shadow:var(--shadow-press)">Eksport</button>
+        <button class="btn btn--info" style="outline:3px solid var(--planet-teal);outline-offset:3px">Eksport</button>
+        <button class="btn btn--info" disabled>Eksport</button>
+
+        <div class="btn-grid__label">.btn--ghost</div>
+        <button class="btn btn--ghost">Avbryt</button>
+        <button class="btn btn--ghost" style="background:var(--chalk-50);border-color:var(--space-900);box-shadow:var(--shadow-1)">Avbryt</button>
+        <button class="btn btn--ghost" style="background:var(--chalk-50);border-color:var(--space-900);box-shadow:var(--shadow-press);transform:translate(0,0)">Avbryt</button>
+        <button class="btn btn--ghost" style="outline:3px solid var(--planet-teal);outline-offset:3px">Avbryt</button>
+        <button class="btn btn--ghost" disabled>Avbryt</button>
+      </div>
+
+      <div class="subhead">Størrelser</div>
+      <div class="card" style="display:flex;align-items:center;gap:var(--s-4);flex-wrap:wrap;">
+        <button class="btn btn--primary btn--sm">Small</button>
+        <button class="btn btn--primary">Medium · standard</button>
+        <button class="btn btn--primary btn--lg">Large</button>
+        <button class="btn btn--accent btn--xl">XL · Scramble!</button>
+        <button class="btn btn--ghost btn--icon-only" title="Nytt sitat">↻</button>
+      </div>
+
+      <p style="margin-top:var(--s-4);color:var(--slate-500);font-size:var(--fs-14);">
+        <b style="color:var(--space-900);">Bruk:</b> primary for hovedhandling per skjerm, accent (oransje) til den ene store CTA-en (Scramble!), success til timer-start og bekreftelser, info (teal) til eksport og lenker, ghost til sekundære handlinger.
+      </p>
+    </section>
+
+    <!-- ─── TABS ────────────────────────────────────────────── -->
+    <section class="section" id="tabs">
+      <div class="section__head">
+        <div class="section__num">06 / Faner</div>
+        <h3>To stilarter, samme rolle</h3>
+        <p class="section__lede">Pille-fanene brukes til modus-velgere på tavlevisningen. Understreks-fanene brukes på lengre sider der innhold byttes ut.</p>
+      </div>
+
+      <div class="card">
+        <div class="t-eyebrow" style="margin-bottom:var(--s-3);color:var(--slate-500);">Pille-fane &middot; .tabs</div>
+        <div class="tabs" id="demo-tabs-pill">
+          <button class="tab is-active">👤 Individuelt</button>
+          <button class="tab">👥 Par</button>
+          <button class="tab">🙌 Gruppe</button>
+        </div>
+
+        <div style="height:var(--s-8)"></div>
+
+        <div class="t-eyebrow" style="margin-bottom:var(--s-3);color:var(--slate-500);">Understreks-fane &middot; .tabs--underline</div>
+        <div class="tabs tabs--underline" id="demo-tabs-underline">
+          <button class="tab is-active">Oppgavebibliotek</button>
+          <button class="tab">Klasseliste</button>
+          <button class="tab">Innstillinger</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── CARDS ───────────────────────────────────────────── -->
+    <section class="section" id="cards">
+      <div class="section__head">
+        <div class="section__num">07 / Kort</div>
+        <h3>Seks varianter, ett DNA</h3>
+        <p class="section__lede">Alle kort har den samme harde skyggen og 2-piksels kanten. Det er innholdet som varierer — ikke beholderen.</p>
+      </div>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card__eyebrow">.card &middot; standard</div>
+          <h4>Standard kort</h4>
+          <p>Hverdagskortet. Hvit flate, 2px kant, hard skygge. 80 % av alt på sidene mine bor i dette kortet.</p>
+        </div>
+
+        <div class="card card--soft">
+          <div class="card__eyebrow">.card.--soft</div>
+          <h4>Mykt kort</h4>
+          <p>Tynnere ramme, ingen skygge. For lister og innhold som ikke skal hoppe ut av siden.</p>
+        </div>
+
+        <div class="card card--ink">
+          <div class="card__eyebrow" style="color:var(--nova-yellow);">.card.--ink</div>
+          <h4>Blekk-kort</h4>
+          <p>Mørk variant for nøkkelinformasjon — som tema-kortet på tavlen, eller hero-seksjoner.</p>
+        </div>
+
+        <div class="card card--accent-top">
+          <div class="card__band" style="background:var(--moss-green);"></div>
+          <div class="card__inner">
+            <div class="card__eyebrow">.card.--accent-top</div>
+            <h4>Topp-aksent</h4>
+            <p>Fargekoder kortet uten å fylle hele bakgrunnen. Brukes til tema-grupperinger.</p>
+          </div>
+        </div>
+
+        <div class="card card--task">
+          <div class="card__band">
+            <span class="card__band-badge">Nivå 1</span>
+          </div>
+          <div class="card__divider"></div>
+          <div class="card__inner">
+            <div class="card__eyebrow">.card.--task</div>
+            <h4>Oppgavekort</h4>
+            <p>Tavlevariant. Fargebånd på toppen + tilhørende skillelinje. Brukes på Klasseromsvisning.</p>
+          </div>
+        </div>
+
+        <div class="card card--task">
+          <div class="card__band" style="background:var(--comet-orange);">
+            <span class="card__band-badge">Nivå 2</span>
+          </div>
+          <div class="card__divider" style="background:var(--comet-orange);"></div>
+          <div class="card__inner">
+            <h4 style="margin-bottom:var(--s-2);">Oppgavekort &middot; oransje</h4>
+            <p>Samme komponent, andre token. Bytt fargen for å markere mellomnivå.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── CHIPS ───────────────────────────────────────────── -->
+    <section class="section" id="chips">
+      <div class="section__head">
+        <div class="section__num">08 / Navnemerker</div>
+        <h3>Elev-chipsen</h3>
+        <p class="section__lede">Navnemerket er den minste menneskelige enheten i systemet. Brukes i scrambleren, i grupper, i klasselista, og når en elev skal trekkes tilfeldig.</p>
+      </div>
+
+      <div class="card">
+        <div class="subhead" style="margin-top:0;">Standard</div>
+        <div class="chip-cluster">
+          <span class="chip"><span class="chip__avatar">HM</span>Hermione</span>
+          <span class="chip"><span class="chip__avatar" style="background:var(--planet-teal);">RW</span>Ron</span>
+          <span class="chip"><span class="chip__avatar" style="background:var(--comet-orange);">HP</span>Harry</span>
+          <span class="chip"><span class="chip__avatar" style="background:var(--berry-pink);">LL</span>Luna</span>
+          <span class="chip"><span class="chip__avatar" style="background:var(--aurora-blue);">NL</span>Neville</span>
+        </div>
+
+        <div class="subhead">Trukket / aktivt</div>
+        <div class="chip-cluster">
+          <span class="chip chip--solid"><span class="chip__avatar">CW</span>Cho — du er trukket!</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── ROSTER ──────────────────────────────────────────── -->
+    <section class="section" id="roster">
+      <div class="section__head">
+        <div class="section__num">09 / Klasseliste</div>
+        <h3>Rad i klasselista</h3>
+        <p class="section__lede">Tett, scannbar liste. Avatar, navn, gruppe, status. Hover viser handlinger til høyre.</p>
+      </div>
+
+      <div class="roster">
+        <div class="roster__head">
+          <div></div>
+          <div>Navn</div>
+          <div>Gruppe</div>
+          <div>Status</div>
+          <div></div>
+        </div>
+        <div class="roster__row">
+          <div class="roster__avatar" style="background:var(--moss-green);">HM</div>
+          <div class="roster__name">Hermione Granger</div>
+          <div class="roster__meta">Bord 3</div>
+          <div><span class="status-pill --present">Til stede</span></div>
+          <div><button class="btn btn--ghost btn--sm">Trekk</button></div>
+        </div>
+        <div class="roster__row">
+          <div class="roster__avatar" style="background:var(--planet-teal);">RW</div>
+          <div class="roster__name">Ron Weasley</div>
+          <div class="roster__meta">Bord 3</div>
+          <div><span class="status-pill --late">Sen</span></div>
+          <div><button class="btn btn--ghost btn--sm">Trekk</button></div>
+        </div>
+        <div class="roster__row">
+          <div class="roster__avatar" style="background:var(--comet-orange);">HP</div>
+          <div class="roster__name">Harry Potter</div>
+          <div class="roster__meta">Bord 1</div>
+          <div><span class="status-pill --present">Til stede</span></div>
+          <div><button class="btn btn--ghost btn--sm">Trekk</button></div>
+        </div>
+        <div class="roster__row">
+          <div class="roster__avatar" style="background:var(--berry-pink);">LL</div>
+          <div class="roster__name">Luna Lovegood</div>
+          <div class="roster__meta">Bord 5</div>
+          <div><span class="status-pill --absent">Borte</span></div>
+          <div><button class="btn btn--ghost btn--sm" disabled>Trekk</button></div>
+        </div>
+        <div class="roster__row">
+          <div class="roster__avatar" style="background:var(--aurora-blue);">NL</div>
+          <div class="roster__name">Neville Longbottom</div>
+          <div class="roster__meta">Bord 2</div>
+          <div><span class="status-pill --present">Til stede</span></div>
+          <div><button class="btn btn--ghost btn--sm">Trekk</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── HUB MOCK ────────────────────────────────────────── -->
+    <section class="section" id="hub">
+      <div class="section__head">
+        <div class="section__num">10 / I bruk &middot; Lærerhub</div>
+        <h3>Systemet i klasserommet</h3>
+        <p class="section__lede">Slik ser tokens og komponenter ut når de settes sammen til den faktiske startsiden for læreren — hubben med alle verktøyene.</p>
+      </div>
+
+      <div class="showcase">
+        <div class="showcase__head">
+          <div class="showcase__title">Skjerm &middot; Lærerhub (forhåndsvisning)</div>
+          <div style="display:flex;gap:var(--s-2);"><span class="wbm-mini-pill --green">Live mock</span></div>
+        </div>
+
+        <div class="hub">
+          <div class="hub__top">
+            <div class="hub__brand">
+              <img src="assets/logo.png" alt="">
+              <div class="hub__brand-text">
+                <strong>God morgen, Carl August.</strong>
+                <small>Onsdag 6. mai · 9A · 4. time matematikk</small>
+              </div>
+            </div>
+            <div style="display:flex;gap:var(--s-2);">
+              <button class="btn btn--ghost btn--sm">Innstillinger</button>
+              <button class="btn btn--primary btn--sm">+ Ny økt</button>
+            </div>
+          </div>
+
+          <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));">
+
+            <a class="tool-card" href="tools/klasseromsvisning.html">
+              <div class="tool-card__icon --green">📺</div>
+              <div>
+                <div class="tool-card__title">Tavlevisning</div>
+                <div class="tool-card__desc">Stor klokke, nedteller, oppgaver i tre nivåer. Vises på storskjermen.</div>
+              </div>
+              <div class="tool-card__cta">Åpne →</div>
+            </a>
+
+            <a class="tool-card" href="tools/scramble-source.html">
+              <div class="tool-card__icon --orange">🎲</div>
+              <div>
+                <div class="tool-card__title">Klassekabal</div>
+                <div class="tool-card__desc">Tilfeldig sitteplan i par, firergrupper eller hestesko.</div>
+              </div>
+              <div class="tool-card__cta">Åpne →</div>
+            </a>
+
+            <a class="tool-card" href="#">
+              <div class="tool-card__icon --teal">🎯</div>
+              <div>
+                <div class="tool-card__title">Tilfeldig elev</div>
+                <div class="tool-card__desc">Trekk én — eller del klassen i grupper i ett klikk.</div>
+              </div>
+              <div class="tool-card__cta">Åpne →</div>
+            </a>
+
+            <a class="tool-card" href="#">
+              <div class="tool-card__icon --yellow">⏱</div>
+              <div>
+                <div class="tool-card__title">Nedteller</div>
+                <div class="tool-card__desc">Stor, lesbar nedteller for prøver og øving.</div>
+              </div>
+              <div class="tool-card__cta">Åpne →</div>
+            </a>
+
+            <a class="tool-card" href="#">
+              <div class="tool-card__icon --pink">📚</div>
+              <div>
+                <div class="tool-card__title">Oppgavebibliotek</div>
+                <div class="tool-card__desc">Brøk, prosent, geometri — klar til å sendes til tavlen.</div>
+              </div>
+              <div class="tool-card__cta">Åpne →</div>
+            </a>
+
+            <a class="tool-card" href="#">
+              <div class="tool-card__icon --blue">🌱</div>
+              <div>
+                <div class="tool-card__title">Lær om growth mindset</div>
+                <div class="tool-card__desc">Innhold for elever om hvordan hjernen vokser.</div>
+              </div>
+              <div class="tool-card__cta">Åpne →</div>
+            </a>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── DASHBOARD MOCK ──────────────────────────────────── -->
+    <section class="section" id="dashboard">
+      <div class="section__head">
+        <div class="section__num">11 / I bruk &middot; Tavlevisning</div>
+        <h3>Lesbart fra siste rad</h3>
+        <p class="section__lede">Tavlevisningen er bygget på samme tokens — bare med større type, mer kontrast, og høyere informasjonstetthet.</p>
+      </div>
+
+      <div class="showcase">
+        <div class="showcase__head">
+          <div class="showcase__title">Skjerm &middot; Klasseromsvisning (forhåndsvisning)</div>
+          <a class="btn btn--ghost btn--sm" href="tools/klasseromsvisning.html">Åpne i full størrelse →</a>
+        </div>
+
+        <div class="whiteboard-mini">
+          <div class="wbm-row --top">
+            <div class="wbm-clock"></div>
+            <div class="wbm-mini-pill" style="background:var(--chalk-50);">📚 (Opp)gaver</div>
+            <div></div>
+            <div class="wbm-timer">10:00</div>
+            <div style="display:flex;flex-direction:column;gap:3px;align-items:flex-end;">
+              <span class="wbm-mini-pill --green">👤 Individuelt</span>
+              <span class="wbm-mini-pill --pink">🔇 Stille</span>
+            </div>
+          </div>
+
+          <div class="wbm-row --mid">
+            <div class="wbm-mid-card">
+              <label>Mål</label>
+              <strong>Jeg kan gjøre om mellom brøk, desimaltall og prosent</strong>
+            </div>
+            <div class="wbm-mid-card --ink">
+              <label>Tema</label>
+              <strong>Brøk &amp; prosent</strong>
+            </div>
+            <div class="wbm-mid-card" style="font-style:italic;color:var(--slate-500);">
+              <span style="color:var(--moss-green-deep);font-weight:700;font-style:normal;">«Hjernen din vokser hver gang du øver.»</span>
+            </div>
+          </div>
+
+          <div class="wbm-row --bot">
+            <div class="wbm-task"><div class="wbm-task__header --g">Nivå 1</div><div class="wbm-task__body">Fyll inn tabellen. Brøk → desimal → prosent.</div></div>
+            <div class="wbm-task"><div class="wbm-task__header --o">Nivå 2</div><div class="wbm-task__body">Sett i rekkefølge fra minst til størst.</div></div>
+            <div class="wbm-task"><div class="wbm-task__header --b">Nivå 3</div><div class="wbm-task__body">Utvid til hundredeler. Vis mellomregning.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── TOKENS / CODE ──────────────────────────────────── -->
+    <section class="section" id="tokens">
+      <div class="section__head">
+        <div class="section__num">12 / Tokens i kode</div>
+        <h3>Kopier &amp; lim inn</h3>
+        <p class="section__lede">Bruk disse variablene som limen mellom alle nye sider. Limer du dem inn øverst i en ny HTML, snakker den allerede systemets språk.</p>
+      </div>
+
+      <div class="card">
+        <div class="t-eyebrow" style="color:var(--slate-500);">CSS Custom Properties</div>
+        <div class="codeblock"><span class="tk-com">/* === Lektor Tronrud · designtokens === */</span>
+:root {
+  <span class="tk-com">/* Brand neutrals */</span>
+  <span class="tk-prop">--space-900</span>: <span class="tk-val">#0E1A38</span>;
+  <span class="tk-prop">--slate-700</span>: <span class="tk-val">#2D3748</span>;
+  <span class="tk-prop">--slate-500</span>: <span class="tk-val">#5B6478</span>;
+  <span class="tk-prop">--paper</span>:     <span class="tk-val">#F3F4F2</span>;
+  <span class="tk-prop">--surface</span>:   <span class="tk-val">#FFFFFF</span>;
+
+  <span class="tk-com">/* Cosmos accents */</span>
+  <span class="tk-prop">--nova-yellow</span>:   <span class="tk-val">#F4C430</span>;
+  <span class="tk-prop">--comet-orange</span>:  <span class="tk-val">#F5A623</span>;
+  <span class="tk-prop">--moss-green</span>:    <span class="tk-val">#8BC34A</span>;
+  <span class="tk-prop">--planet-teal</span>:   <span class="tk-val">#22C8C8</span>;
+  <span class="tk-prop">--aurora-blue</span>:   <span class="tk-val">#00BCD4</span>;
+  <span class="tk-prop">--berry-pink</span>:    <span class="tk-val">#E91E63</span>;
+
+  <span class="tk-com">/* Type */</span>
+  <span class="tk-prop">--font-display</span>: <span class="tk-val">'Rubik', system-ui, sans-serif</span>;
+  <span class="tk-prop">--font-body</span>:    <span class="tk-val">'Atkinson Hyperlegible', system-ui, sans-serif</span>;
+
+  <span class="tk-com">/* Spacing — 4px base */</span>
+  <span class="tk-prop">--s-1</span>: <span class="tk-val">4px</span>;  <span class="tk-prop">--s-2</span>: <span class="tk-val">8px</span>;
+  <span class="tk-prop">--s-3</span>: <span class="tk-val">12px</span>; <span class="tk-prop">--s-4</span>: <span class="tk-val">16px</span>;
+  <span class="tk-prop">--s-6</span>: <span class="tk-val">24px</span>; <span class="tk-prop">--s-8</span>: <span class="tk-val">32px</span>;
+
+  <span class="tk-com">/* Radii */</span>
+  <span class="tk-prop">--r-md</span>:   <span class="tk-val">10px</span>;
+  <span class="tk-prop">--r-lg</span>:   <span class="tk-val">14px</span>;
+  <span class="tk-prop">--r-pill</span>: <span class="tk-val">9999px</span>;
+
+  <span class="tk-com">/* Signature shadows — hard, no blur */</span>
+  <span class="tk-prop">--shadow-1</span>: <span class="tk-val">2px 2px 0 rgba(14,26,56,0.20)</span>;
+  <span class="tk-prop">--shadow-2</span>: <span class="tk-val">4px 5px 0 rgba(14,26,56,0.28)</span>;
+  <span class="tk-prop">--shadow-3</span>: <span class="tk-val">6px 7px 0 rgba(14,26,56,0.32)</span>;
+}</div>
+      </div>
+    </section>
+
+    <!-- ─── FOOTER ──────────────────────────────────────────── -->
+    <footer class="footer">
+      <div class="footer__sig">★ Designsystem v1.0</div>
+      <p>Bygget for klasserommet av Carl August Tronrud.<br>Versjonen vokser sammen med verktøyene — som hjernen din.</p>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+/* ── Sidenav active link tracking ────────────────────────────── */
+(function () {
+  const links = document.querySelectorAll('.sidenav a[href^="#"]');
+  const sections = Array.from(links).map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+
+  function setActive() {
+    const y = window.scrollY + 120;
+    let activeIdx = 0;
+    sections.forEach((s, i) => { if (s.offsetTop <= y) activeIdx = i; });
+    links.forEach((l, i) => l.classList.toggle('is-active', i === activeIdx));
+  }
+  window.addEventListener('scroll', setActive, { passive: true });
+  setActive();
+})();
+
+/* ── Tab demo ────────────────────────────────────────────────── */
+['demo-tabs-pill', 'demo-tabs-underline'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('click', e => {
+    if (!e.target.classList.contains('tab')) return;
+    el.querySelectorAll('.tab').forEach(t => t.classList.remove('is-active'));
+    e.target.classList.add('is-active');
+  });
+});
+
+/* ── Click-to-copy hex on swatches ───────────────────────────── */
+document.querySelectorAll('.swatch').forEach(s => {
+  s.addEventListener('click', () => {
+    const hex = s.querySelector('.swatch__hex')?.textContent;
+    if (!hex) return;
+    navigator.clipboard?.writeText(hex);
+    const orig = s.querySelector('.swatch__name').textContent;
+    s.querySelector('.swatch__name').textContent = 'Kopiert ✓';
+    setTimeout(() => s.querySelector('.swatch__name').textContent = orig, 900);
+  });
+});
+</script>
+
+</body>
+</html>

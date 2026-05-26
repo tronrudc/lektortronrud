@@ -1,0 +1,954 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Gruppeskaper — Lektor Tronrud</title>
+<link rel="icon" type="image/png" href="../assets/logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800;900&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/tokens.css">
+<style>
+  body { background: var(--paper); min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* ── Topbar (matches scrambler) ── */
+  .topbar {
+    padding: var(--s-4) var(--s-6);
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1.5px solid var(--chalk-100);
+    background: rgba(243,244,242,0.92);
+    backdrop-filter: blur(8px);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .topbar__brand { display: flex; align-items: center; gap: var(--s-3); text-decoration: none; color: var(--space-900); }
+  .topbar__brand img { width: 32px; height: 32px; border-radius: 50%; }
+  .topbar__brand strong { font-family: var(--font-display); font-weight: 800; font-size: 0.95rem; display: block; line-height: 1.1; }
+  .topbar__brand small { display: block; font-size: 11px; color: var(--slate-500); letter-spacing: 0.1em; text-transform: uppercase; }
+  .topbar__back {
+    font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;
+    text-decoration: none; color: var(--space-900);
+    padding: 8px 16px; border-radius: var(--r-pill);
+  }
+  .topbar__back:hover { background: var(--chalk-50); }
+
+  /* ── Layout ── */
+  .layout { flex: 1; display: grid; grid-template-columns: 380px 1fr; min-height: 0; }
+  @media (max-width: 960px) { .layout { grid-template-columns: 1fr; } }
+
+  .sidebar {
+    border-right: 1.5px solid var(--chalk-100);
+    padding: var(--s-6) var(--s-6) var(--s-12);
+    background: var(--surface);
+    overflow-y: auto;
+  }
+  .sidebar h1 {
+    font-family: var(--font-display);
+    font-size: 1.6rem; font-weight: 900;
+    letter-spacing: -0.02em; line-height: 1.05;
+    margin-bottom: var(--s-2);
+  }
+  .sidebar__lede { color: var(--slate-500); font-size: 0.9rem; margin-bottom: var(--s-6); }
+
+  .field { margin-bottom: var(--s-5); }
+  .field__label {
+    display: flex; align-items: baseline; justify-content: space-between;
+    font-family: var(--font-display);
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--slate-500);
+    margin-bottom: var(--s-2);
+  }
+  .field__label .count {
+    font-family: var(--font-mono); font-size: 0.75rem;
+    color: var(--space-900); background: var(--chalk-50);
+    padding: 2px 8px; border-radius: var(--r-pill);
+    letter-spacing: 0;
+  }
+  .field__hint { font-size: 0.78rem; color: var(--slate-500); margin-top: var(--s-1); line-height: 1.45; }
+
+  textarea.input {
+    width: 100%;
+    min-height: 160px;
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-md);
+    padding: var(--s-3) var(--s-4);
+    font-family: var(--font-body);
+    font-size: 0.92rem; line-height: 1.55;
+    resize: vertical;
+    box-shadow: var(--shadow-1);
+    background: var(--surface);
+    color: var(--space-900);
+    transition: box-shadow var(--t-fast), transform var(--t-fast), color var(--t-fast);
+  }
+  textarea.input:focus { outline: none; box-shadow: var(--shadow-2); transform: translate(-1px,-1px); }
+  textarea.input.--placeholder { color: var(--slate-300); font-style: italic; }
+
+  /* Segmented group-size */
+  .seg {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: var(--s-1);
+    background: var(--chalk-50);
+    padding: 4px;
+    border-radius: var(--r-pill);
+    border: 1.5px solid var(--chalk-100);
+  }
+  .seg button {
+    font-family: var(--font-display); font-weight: 700; font-size: 0.85rem;
+    padding: 8px 0;
+    border-radius: var(--r-pill);
+    cursor: pointer; background: transparent; border: 0;
+    color: var(--slate-500);
+    transition: all var(--t-fast);
+  }
+  .seg button:hover { color: var(--space-900); }
+  .seg button.is-active {
+    background: var(--space-900); color: var(--surface);
+    box-shadow: var(--shadow-1);
+  }
+  .mode-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: var(--s-2);
+    margin-top: var(--s-3);
+  }
+  .mode-row button {
+    font-family: var(--font-display); font-weight: 700; font-size: 0.82rem;
+    padding: 10px;
+    border-radius: var(--r-md);
+    border: var(--border-w) solid var(--border-ink);
+    background: var(--surface);
+    color: var(--space-900);
+    cursor: pointer;
+    box-shadow: var(--shadow-1);
+    transition: all var(--t-fast);
+  }
+  .mode-row button:hover { transform: translate(-1px,-1px); box-shadow: var(--shadow-2); }
+  .mode-row button.is-active {
+    background: var(--planet-teal-soft);
+    border-color: var(--space-900);
+  }
+
+  /* Pair tabs (matches scrambler) */
+  .pair-tabs {
+    display: flex; gap: 4px;
+    background: var(--chalk-50);
+    border: 1.5px solid var(--chalk-100);
+    border-radius: var(--r-pill);
+    padding: 4px;
+    margin-bottom: var(--s-3);
+  }
+  .pair-tab {
+    flex: 1;
+    font-family: var(--font-display);
+    font-size: 0.78rem; font-weight: 700;
+    padding: 8px 12px;
+    border-radius: var(--r-pill);
+    background: transparent;
+    color: var(--slate-500);
+    border: 0;
+    cursor: pointer;
+    transition: all var(--t-fast);
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .pair-tab:hover { color: var(--space-900); }
+  .pair-tab.is-active {
+    background: var(--space-900); color: #fff;
+    box-shadow: var(--shadow-1);
+  }
+  .pair-tab.is-active.--learning { background: var(--moss-green-deep); }
+  .pair-tab.is-active.--forbidden { background: var(--supernova-red); }
+
+  .pairs-list {
+    display: flex; flex-direction: column; gap: 6px;
+    margin-bottom: var(--s-2);
+  }
+  .pair-row {
+    display: grid;
+    grid-template-columns: 1fr 14px 1fr 28px;
+    gap: 6px;
+    align-items: center;
+  }
+  .pair-row__sep {
+    text-align: center;
+    color: var(--slate-300);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+  .pair-row__sep.--learning { color: var(--moss-green-deep); }
+  .pair-row__sep.--forbidden { color: var(--supernova-red); }
+  .pair-row select {
+    width: 100%;
+    border: 1.5px solid var(--chalk-100);
+    border-radius: var(--r-sm);
+    padding: 6px 8px;
+    background: var(--surface);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--space-900);
+    box-shadow: var(--shadow-1);
+    cursor: pointer;
+  }
+  .pair-row select:focus {
+    outline: 2px solid var(--planet-teal);
+    outline-offset: 1px;
+  }
+  .pair-row__rm {
+    background: transparent;
+    border: 0;
+    color: var(--slate-300);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    border-radius: 4px;
+  }
+  .pair-row__rm:hover { color: var(--supernova-red); background: var(--supernova-red-soft); }
+  .pair-add {
+    width: 100%;
+    font-family: var(--font-display);
+    font-size: 0.78rem; font-weight: 700;
+    padding: 8px 12px;
+    border-radius: var(--r-sm);
+    border: 1.5px dashed var(--slate-300);
+    background: transparent;
+    color: var(--slate-500);
+    cursor: pointer;
+    transition: all var(--t-fast);
+  }
+  .pair-add:hover { border-color: var(--space-900); color: var(--space-900); background: var(--chalk-50); }
+
+  .make-wrap {
+    margin-top: var(--s-6);
+    padding-top: var(--s-5);
+    border-top: 1.5px dashed var(--chalk-100);
+    display: flex; flex-direction: column; gap: var(--s-2);
+  }
+  .make-btn {
+    width: 100%;
+    font-family: var(--font-display); font-size: 1.05rem; font-weight: 800; font-style: italic;
+    padding: 16px 24px;
+    border-radius: var(--r-pill);
+    border: var(--border-w) solid var(--border-ink);
+    background: var(--comet-orange); color: #fff;
+    box-shadow: var(--shadow-2);
+    cursor: pointer;
+    transition: transform var(--t-fast), box-shadow var(--t-fast), background var(--t-fast);
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
+    letter-spacing: 0.03em;
+  }
+  .make-btn:hover { transform: translate(-2px,-2px); box-shadow: var(--shadow-3); background: #e0941c; }
+  .make-btn:active { transform: translate(0,0); box-shadow: var(--shadow-press); }
+  .make-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .conflict-warn {
+    font-size: 0.78rem;
+    color: var(--supernova-red);
+    background: var(--supernova-red-soft);
+    border: 1.5px solid var(--supernova-red);
+    border-radius: var(--r-sm);
+    padding: 8px 12px;
+    display: none;
+  }
+  .conflict-warn.is-visible { display: block; }
+
+  .status {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--slate-500);
+    margin-top: var(--s-2);
+  }
+
+  /* ── Stage / groups ── */
+  .stage {
+    padding: var(--s-8) var(--s-6);
+    overflow-y: auto;
+  }
+  .stage__head {
+    text-align: center;
+    margin-bottom: var(--s-6);
+  }
+  .stage__head .ribbon {
+    font-family: var(--font-mono); font-size: 0.7rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--slate-500);
+  }
+  .stage__head h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 800; letter-spacing: -0.02em;
+    margin-top: var(--s-2);
+  }
+  .stage__head h2 em {
+    font-style: italic;
+    background: linear-gradient(95deg, var(--berry-pink), var(--planet-teal));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    padding-right: 0.06em;
+  }
+
+  .groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--s-4);
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .group-card {
+    background: var(--surface);
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-2);
+    padding: var(--s-5);
+    animation: cardIn 0.4s ease backwards;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .group-card__head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding-bottom: var(--s-3);
+    margin-bottom: var(--s-3);
+    border-bottom: 1.5px dashed var(--slate-200);
+  }
+  .group-card__head h3 {
+    font-family: var(--font-display);
+    font-size: 1.1rem; font-weight: 800;
+  }
+  .group-card__head small {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--slate-500);
+  }
+  .group-card ul { list-style: none; padding: 0; margin: 0; }
+  .group-card li {
+    padding: 6px 4px;
+    border-bottom: 1px dotted var(--chalk-100);
+    font-size: 0.95rem;
+    display: flex; align-items: center; gap: 6px;
+    cursor: grab;
+    user-select: none;
+    border-radius: 4px;
+    transition: background var(--t-fast), opacity var(--t-fast), transform var(--t-fast);
+  }
+  .group-card li:hover { background: var(--chalk-50); }
+  .group-card li:last-child { border-bottom: 0; }
+  .group-card li.--dragging { opacity: 0.35; cursor: grabbing; }
+  .group-card li.--pinned { background: var(--nova-yellow-soft); }
+  .group-card li.--pinned::before {
+    content: '📌';
+    font-size: 0.78rem;
+    margin-right: 2px;
+  }
+  .group-card.--drop-target {
+    background: var(--moss-green-soft);
+    border-color: var(--moss-green-deep);
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-3);
+  }
+  .group-card__hint {
+    text-align: center;
+    color: var(--slate-300);
+    font-style: italic;
+    font-size: 0.85rem;
+    padding: var(--s-4) 0;
+  }
+  .group-card li .tag {
+    margin-left: auto;
+    font-family: var(--font-display);
+    font-size: 0.62rem; font-weight: 700;
+    padding: 2px 7px;
+    border-radius: var(--r-pill);
+    letter-spacing: 0.06em;
+  }
+  .group-card li .tag.--learn {
+    background: var(--moss-green-soft);
+    color: var(--moss-green-deep);
+    border: 1px solid var(--moss-green-deep);
+  }
+  .group-card li .tag.--forbid {
+    background: var(--supernova-red-soft);
+    color: var(--supernova-red);
+    border: 1px solid var(--supernova-red);
+  }
+
+  .empty {
+    text-align: center;
+    padding: var(--s-16) var(--s-6);
+    color: var(--slate-500);
+  }
+  .empty .big {
+    font-size: 64px; margin-bottom: var(--s-4); display: block;
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="topbar__brand" href="../laererhub.html">
+    <img src="../assets/logo.png" alt="" />
+    <div>
+      <strong>Gruppeskaper</strong>
+      <small>Lærerverktøy</small>
+    </div>
+  </a>
+  <a class="topbar__back" href="../laererhub.html">← Tilbake til hub</a>
+</header>
+
+<main class="layout">
+  <aside class="sidebar">
+    <h1>Lag grupper</h1>
+    <p class="sidebar__lede">Lim inn klasselista, velg størrelse, scramble!</p>
+
+    <div id="picker-slot"></div>
+
+    <div class="field">
+      <div class="field__label">
+        <span>Elever</span>
+        <span class="count" id="name-count">0</span>
+      </div>
+      <textarea id="names-input" class="input --placeholder">Harry, Hermione, Ron, Neville, Luna, Ginny, Fred, George, Seamus, Cedric, Colin, Dean, Lavender, Katie, Angelina, Anthony, Cho, Susan, Padma, Lee, Hannah, Justin</textarea>
+      <div class="field__hint">Skill med komma eller linjeskift.</div>
+    </div>
+
+    <div class="field">
+      <div class="field__label"><span>Gruppestørrelse</span></div>
+      <div class="seg" id="size-seg">
+        <button data-size="2">2</button>
+        <button data-size="3" class="is-active">3</button>
+        <button data-size="4">4</button>
+        <button data-size="5">5</button>
+      </div>
+      <div class="mode-row" id="mode-row">
+        <button data-mode="size" class="is-active">Pers. per gruppe</button>
+        <button data-mode="count">Antall grupper</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field__label"><span>Gruppepar</span></div>
+      <div class="pair-tabs">
+        <button class="pair-tab is-active --forbidden" data-pair-tab="forbidden">Forbudte par</button>
+        <button class="pair-tab --learning" data-pair-tab="learning">Læringspar</button>
+      </div>
+      <div class="pairs-list" id="pairs-list"></div>
+      <button class="pair-add" id="pair-add">+ Legg til par</button>
+      <div class="field__hint" id="pair-hint">Forbudte par skal ikke havne i samme gruppe. Læringspar bør havne i samme gruppe.</div>
+    </div>
+
+    <div class="make-wrap">
+      <button id="make-btn" class="make-btn">★ Scramble</button>
+      <div class="conflict-warn" id="conflict-warn"></div>
+      <div class="status" id="status">0 elever</div>
+    </div>
+  </aside>
+
+  <section class="stage">
+    <div id="groups" class="groups"></div>
+    <div id="empty" class="empty" style="display:none">
+      <span class="big">👥</span>
+      <p>Lim inn klasselista og trykk <strong>Scramble</strong>.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  const STORAGE_KEY = 'lt-gruppeskaper';
+  const PLACEHOLDER_NAMES = 'Harry, Hermione, Ron, Neville, Luna, Ginny, Fred, George, Seamus, Cedric, Colin, Dean, Lavender, Katie, Angelina, Anthony, Cho, Susan, Padma, Lee, Hannah, Justin';
+
+  const $ = (id) => document.getElementById(id);
+  const namesInput = $('names-input');
+  const nameCount = $('name-count');
+  const sizeSeg = $('size-seg');
+  const modeRow = $('mode-row');
+  const makeBtn = $('make-btn');
+  const groupsEl = $('groups');
+  const emptyEl = $('empty');
+  const status = $('status');
+  const conflictWarn = $('conflict-warn');
+  const pairsList = $('pairs-list');
+  const pairAdd = $('pair-add');
+  const pairHint = $('pair-hint');
+
+  let size = 3;
+  let mode = 'size'; // 'size' or 'count'
+  let pairMode = 'forbidden';
+  let forbiddenPairs = [['', '']];
+  let learningPairs  = [['', '']];
+  let isPlaceholder = true;
+  let currentGroups = [];
+  let pinnedToGroup = new Map(); // name -> group index (number)
+
+  // ── Load saved state ──
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    if (saved.names && saved.names.trim()) {
+      namesInput.value = saved.names;
+      isPlaceholder = false;
+      namesInput.classList.remove('--placeholder');
+    }
+    if (saved.size) {
+      size = saved.size;
+      sizeSeg.querySelectorAll('button').forEach(b => b.classList.toggle('is-active', +b.dataset.size === size));
+    }
+    if (saved.mode) {
+      mode = saved.mode;
+      modeRow.querySelectorAll('button').forEach(b => b.classList.toggle('is-active', b.dataset.mode === mode));
+    }
+    if (Array.isArray(saved.forbiddenPairs) && saved.forbiddenPairs.length) forbiddenPairs = saved.forbiddenPairs;
+    if (Array.isArray(saved.learningPairs) && saved.learningPairs.length) learningPairs = saved.learningPairs;
+    if (saved.pinnedToGroup && typeof saved.pinnedToGroup === 'object') {
+      pinnedToGroup = new Map(Object.entries(saved.pinnedToGroup).map(([k, v]) => [k, Number(v)]));
+    }
+  } catch (_) {}
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      names: isPlaceholder ? '' : namesInput.value,
+      size, mode,
+      forbiddenPairs, learningPairs,
+      pinnedToGroup: Object.fromEntries(pinnedToGroup),
+    }));
+  }
+
+  // ── Parsing ──
+  function parseNames(raw) {
+    return raw.split(/[,\n;]+/).map(s => s.trim()).filter(Boolean);
+  }
+  function getNames() { return parseNames(namesInput.value); }
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  function pairKey(a, b) {
+    const A = a.toLowerCase(), B = b.toLowerCase();
+    return A < B ? A + '|' + B : B + '|' + A;
+  }
+  function buildPairSet(pairs) {
+    const set = new Set();
+    pairs.forEach(([a, b]) => { if (a && b && a !== b) set.add(pairKey(a, b)); });
+    return set;
+  }
+
+  function updateStatus() {
+    const n = getNames().length;
+    nameCount.textContent = n;
+    status.textContent = n + (n === 1 ? ' elev' : ' elever');
+  }
+
+  // ── Pair UI ──
+  function getCurrentPairs() {
+    return pairMode === 'forbidden' ? forbiddenPairs : learningPairs;
+  }
+  function renderPairsList() {
+    const students = getNames();
+    const list = getCurrentPairs();
+    pairsList.innerHTML = '';
+    list.forEach((pair, idx) => {
+      const row = document.createElement('div');
+      row.className = 'pair-row';
+      const sel1 = makePairSelect(students, pair[0]);
+      const sep = document.createElement('span');
+      sep.className = 'pair-row__sep ' + (pairMode === 'learning' ? '--learning' : '--forbidden');
+      sep.textContent = pairMode === 'learning' ? '↔' : '✕';
+      const sel2 = makePairSelect(students, pair[1]);
+      const rm = document.createElement('button');
+      rm.className = 'pair-row__rm';
+      rm.title = 'Fjern par';
+      rm.textContent = '×';
+      sel1.addEventListener('change', () => { list[idx][0] = sel1.value; save(); });
+      sel2.addEventListener('change', () => { list[idx][1] = sel2.value; save(); });
+      rm.addEventListener('click', () => {
+        list.splice(idx, 1);
+        if (list.length === 0) list.push(['', '']);
+        save();
+        renderPairsList();
+      });
+      row.append(sel1, sep, sel2, rm);
+      pairsList.appendChild(row);
+    });
+  }
+  function makePairSelect(students, current) {
+    const sel = document.createElement('select');
+    const opt0 = document.createElement('option');
+    opt0.value = ''; opt0.textContent = '— velg elev —';
+    sel.appendChild(opt0);
+    students.forEach(s => {
+      const o = document.createElement('option');
+      o.value = s; o.textContent = s;
+      if (s === current) o.selected = true;
+      sel.appendChild(o);
+    });
+    return sel;
+  }
+
+  document.querySelectorAll('.pair-tab').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.pair-tab').forEach(x => x.classList.remove('is-active'));
+      b.classList.add('is-active');
+      pairMode = b.dataset.pairTab;
+      pairHint.textContent = pairMode === 'learning'
+        ? 'Læringspar bør havne i samme gruppe.'
+        : 'Forbudte par skal ikke havne i samme gruppe.';
+      renderPairsList();
+    });
+  });
+  pairAdd.addEventListener('click', () => {
+    getCurrentPairs().push(['', '']);
+    save();
+    renderPairsList();
+  });
+
+  // ── Group building with scored search ──
+  function buildGroups(names, fset, lset) {
+    let numGroups;
+    if (mode === 'size') {
+      numGroups = Math.max(1, Math.ceil(names.length / size));
+    } else {
+      numGroups = Math.max(1, Math.min(size, names.length));
+    }
+
+    // Separate pinned names from free names. Pin index is clamped to valid range.
+    const pinnedHere = [];          // [name, groupIdx]
+    const freeNames = [];
+    names.forEach(n => {
+      if (pinnedToGroup.has(n)) {
+        let g = pinnedToGroup.get(n);
+        if (g >= numGroups) g = numGroups - 1;
+        if (g < 0) g = 0;
+        pinnedHere.push([n, g]);
+      } else {
+        freeNames.push(n);
+      }
+    });
+
+    function distribute(order) {
+      const g = [];
+      for (let i = 0; i < numGroups; i++) g.push([]);
+      // Place pinned first (locked in place)
+      pinnedHere.forEach(([n, gi]) => g[gi].push(n));
+      // Distribute remaining names into the group with fewest members each round
+      order.forEach(n => {
+        let minIdx = 0, minLen = g[0].length;
+        for (let i = 1; i < g.length; i++) {
+          if (g[i].length < minLen) { minIdx = i; minLen = g[i].length; }
+        }
+        g[minIdx].push(n);
+      });
+      return g;
+    }
+
+    function score(groups) {
+      let forb = 0, missLearn = 0;
+      const learnTargets = [];
+      lset.forEach(k => learnTargets.push(k));
+      groups.forEach(g => {
+        // forbidden pair penalty: any two members in the same group
+        for (let i = 0; i < g.length; i++)
+          for (let j = i + 1; j < g.length; j++)
+            if (fset.has(pairKey(g[i], g[j]))) forb++;
+      });
+      // learning pair penalty: pair members NOT in same group
+      const groupOf = new Map();
+      groups.forEach((g, gi) => g.forEach(n => groupOf.set(n.toLowerCase(), gi)));
+      learnTargets.forEach(k => {
+        const [a, b] = k.split('|');
+        const ga = groupOf.get(a), gb = groupOf.get(b);
+        if (ga != null && gb != null && ga !== gb) missLearn++;
+      });
+      return forb * 100 + missLearn * 50;
+    }
+
+    let best = null, bestScore = Infinity;
+    for (let t = 0; t < 600; t++) {
+      const cand = distribute(shuffle(freeNames));
+      const s = score(cand);
+      if (s < bestScore) { best = cand; bestScore = s; if (s === 0) break; }
+    }
+    // Local-swap improvement (swap two members across groups) — skip pinned names.
+    const isPinned = (n) => pinnedToGroup.has(n);
+    if (bestScore > 0 && best) {
+      const o = best.map(g => g.slice());
+      for (let pass = 0; pass < 4; pass++) {
+        let improved = false;
+        for (let g1 = 0; g1 < o.length; g1++) {
+          for (let g2 = g1 + 1; g2 < o.length; g2++) {
+            for (let i = 0; i < o[g1].length; i++) {
+              if (isPinned(o[g1][i])) continue;
+              for (let j = 0; j < o[g2].length; j++) {
+                if (isPinned(o[g2][j])) continue;
+                const before = score(o);
+                const tmp = o[g1][i]; o[g1][i] = o[g2][j]; o[g2][j] = tmp;
+                const after = score(o);
+                if (after < before) improved = true;
+                else { const t2 = o[g1][i]; o[g1][i] = o[g2][j]; o[g2][j] = t2; }
+              }
+            }
+          }
+        }
+        if (!improved) break;
+      }
+      best = o;
+      bestScore = score(o);
+    }
+
+    return { groups: best || [], score: bestScore };
+  }
+
+  function countForbidden(groups, fset) {
+    let c = 0;
+    groups.forEach(g => {
+      for (let i = 0; i < g.length; i++)
+        for (let j = i + 1; j < g.length; j++)
+          if (fset.has(pairKey(g[i], g[j]))) c++;
+    });
+    return c;
+  }
+  function countMissingLearn(groups, lset) {
+    if (!lset.size) return 0;
+    const groupOf = new Map();
+    groups.forEach((g, gi) => g.forEach(n => groupOf.set(n.toLowerCase(), gi)));
+    let miss = 0;
+    lset.forEach(k => {
+      const [a, b] = k.split('|');
+      const ga = groupOf.get(a), gb = groupOf.get(b);
+      if (ga != null && gb != null && ga !== gb) miss++;
+    });
+    return miss;
+  }
+
+  function makeGroups() {
+    const names = getNames();
+    if (names.length === 0) { return; }
+    const fset = buildPairSet(forbiddenPairs);
+    const lset = buildPairSet(learningPairs);
+    const result = buildGroups(names, fset, lset);
+    currentGroups = result.groups;
+
+    const forbHit = countForbidden(currentGroups, fset);
+    const missLearn = countMissingLearn(currentGroups, lset);
+    conflictWarn.classList.toggle('is-visible', forbHit > 0 || missLearn > 0);
+    if (forbHit > 0 && missLearn > 0) {
+      conflictWarn.textContent = `⚠️ ${forbHit} forbudte par måtte plasseres i samme gruppe. ${missLearn} læringspar er ikke i samme gruppe.`;
+    } else if (forbHit > 0) {
+      conflictWarn.textContent = `⚠️ ${forbHit} forbudte par måtte plasseres i samme gruppe.`;
+    } else if (missLearn > 0) {
+      conflictWarn.textContent = `ℹ️ ${missLearn} læringspar kunne ikke plasseres i samme gruppe.`;
+    }
+
+    render(currentGroups, fset, lset);
+  }
+
+  function escapeHTML(s) {
+    return String(s).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+  }
+
+  function render(groups, fset, lset) {
+    groupsEl.innerHTML = '';
+    emptyEl.style.display = 'none';
+
+    groups.forEach((g, i) => {
+      const card = document.createElement('div');
+      card.className = 'group-card';
+      card.style.animationDelay = (i * 60) + 'ms';
+      card.dataset.groupIdx = String(i);
+
+      const head = document.createElement('div');
+      head.className = 'group-card__head';
+      const h3 = document.createElement('h3');
+      h3.textContent = 'Gruppe ' + (i + 1);
+      const small = document.createElement('small');
+      small.textContent = g.length + ' ' + (g.length === 1 ? 'person' : 'personer');
+      head.append(h3, small);
+      card.appendChild(head);
+
+      const ul = document.createElement('ul');
+      g.forEach(n => {
+        const li = document.createElement('li');
+        li.dataset.name = n;
+        li.dataset.groupIdx = String(i);
+        li.setAttribute('draggable', 'true');
+        if (pinnedToGroup.has(n)) li.classList.add('--pinned');
+        li.title = pinnedToGroup.has(n)
+          ? 'Klikk for å låse opp · dra for å flytte'
+          : 'Klikk for å låse til denne gruppen · dra for å flytte';
+
+        const span = document.createElement('span');
+        span.textContent = n;
+        li.appendChild(span);
+
+        // tag if this name shares a learning or forbidden pair with someone else in the group
+        let tagHTML = '';
+        for (const other of g) {
+          if (other === n) continue;
+          if (fset && fset.has(pairKey(n, other))) { tagHTML = '<span class="tag --forbid">✕ par</span>'; break; }
+          if (lset && lset.has(pairKey(n, other))) { tagHTML = '<span class="tag --learn">↔ par</span>'; }
+        }
+        if (tagHTML) {
+          const tagWrap = document.createElement('span');
+          tagWrap.innerHTML = tagHTML;
+          li.appendChild(tagWrap.firstChild);
+        }
+
+        li.addEventListener('click', () => togglePin(n, i));
+        li.addEventListener('dragstart', onDragStart);
+        li.addEventListener('dragend', onDragEnd);
+        ul.appendChild(li);
+      });
+
+      if (g.length === 0) {
+        const hint = document.createElement('div');
+        hint.className = 'group-card__hint';
+        hint.textContent = 'Slipp en elev her';
+        card.appendChild(hint);
+      }
+
+      card.appendChild(ul);
+
+      // Drop-target wiring for the whole card
+      card.addEventListener('dragover', onDragOver);
+      card.addEventListener('dragleave', onDragLeave);
+      card.addEventListener('drop', onDrop);
+
+      groupsEl.appendChild(card);
+    });
+  }
+
+  // ── Lock / pin ──
+  function togglePin(name, groupIdx) {
+    if (pinnedToGroup.get(name) === groupIdx) pinnedToGroup.delete(name);
+    else pinnedToGroup.set(name, groupIdx);
+    save();
+    rerenderCurrent();
+  }
+
+  function rerenderCurrent() {
+    const fset = buildPairSet(forbiddenPairs);
+    const lset = buildPairSet(learningPairs);
+    render(currentGroups, fset, lset);
+  }
+
+  // ── Drag & drop ──
+  let dragName = null;
+  let dragFromGroup = null;
+  function onDragStart(e) {
+    dragName = this.dataset.name;
+    dragFromGroup = +this.dataset.groupIdx;
+    this.classList.add('--dragging');
+    try { e.dataTransfer.setData('text/plain', dragName); } catch (_) {}
+    e.dataTransfer.effectAllowed = 'move';
+  }
+  function onDragEnd() {
+    this.classList.remove('--dragging');
+    document.querySelectorAll('.group-card.--drop-target').forEach(x => x.classList.remove('--drop-target'));
+    dragName = null;
+    dragFromGroup = null;
+  }
+  function onDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    this.classList.add('--drop-target');
+  }
+  function onDragLeave(e) {
+    // Only clear if leaving the card entirely
+    if (!this.contains(e.relatedTarget)) this.classList.remove('--drop-target');
+  }
+  function onDrop(e) {
+    e.preventDefault();
+    this.classList.remove('--drop-target');
+    const toGroup = +this.dataset.groupIdx;
+    if (dragName == null || isNaN(toGroup) || toGroup === dragFromGroup) return;
+    // Move the name across groups
+    const from = currentGroups[dragFromGroup];
+    const idx = from.indexOf(dragName);
+    if (idx === -1) return;
+    from.splice(idx, 1);
+    currentGroups[toGroup].push(dragName);
+    // If the name was pinned to its old group, update the pin to the new group
+    if (pinnedToGroup.has(dragName)) pinnedToGroup.set(dragName, toGroup);
+    save();
+    rerenderCurrent();
+  }
+
+  // ── Wire up ──
+  sizeSeg.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    sizeSeg.querySelectorAll('button').forEach(x => x.classList.remove('is-active'));
+    b.classList.add('is-active');
+    size = +b.dataset.size;
+    save();
+  });
+  modeRow.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    modeRow.querySelectorAll('button').forEach(x => x.classList.remove('is-active'));
+    b.classList.add('is-active');
+    mode = b.dataset.mode;
+    save();
+  });
+  makeBtn.addEventListener('click', makeGroups);
+
+  // Placeholder behaviour — clear styling on first edit
+  namesInput.addEventListener('focus', () => {
+    if (isPlaceholder) namesInput.classList.remove('--placeholder');
+  });
+  namesInput.addEventListener('blur', () => {
+    if (isPlaceholder && !namesInput.value.trim()) {
+      namesInput.value = PLACEHOLDER_NAMES;
+      namesInput.classList.add('--placeholder');
+    }
+  });
+  namesInput.addEventListener('input', () => {
+    if (isPlaceholder) {
+      isPlaceholder = false;
+      namesInput.classList.remove('--placeholder');
+    }
+    // Drop any pair refs to names that no longer exist
+    const valid = new Set(getNames());
+    [forbiddenPairs, learningPairs].forEach(list => {
+      list.forEach(p => {
+        if (p[0] && !valid.has(p[0])) p[0] = '';
+        if (p[1] && !valid.has(p[1])) p[1] = '';
+      });
+    });
+    // Drop pins for names that no longer exist
+    for (const n of [...pinnedToGroup.keys()]) {
+      if (!valid.has(n)) pinnedToGroup.delete(n);
+    }
+    save();
+    updateStatus();
+    renderPairsList();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      e.preventDefault();
+      makeGroups();
+    }
+  });
+
+  // ── Initial state ──
+  updateStatus();
+  renderPairsList();
+  // Auto-generate on load so the page shows ready groups (with the HP placeholder names).
+  makeGroups();
+})();
+</script>
+
+<script src="klasselister.js"></script>
+<script src="klasselister-picker.js"></script>
+<script>
+  // Bind the shared class-list picker to gruppeskaper's textarea.
+  window.LektorKlassePicker.mount({
+    mountEl: document.getElementById('picker-slot'),
+    textarea: document.getElementById('names-input'),
+    toolName: 'gruppeskaper',
+    editHref: 'klasselister.html',
+  });
+</script>
+
+</body>
+</html>

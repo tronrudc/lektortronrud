@@ -1,0 +1,923 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Navnetrekker — Lektor Tronrud</title>
+<link rel="icon" type="image/png" href="../assets/logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800;900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/tokens.css">
+<style>
+  body {
+    background: var(--paper);
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+
+  /* ── Topbar (matches scrambler) ── */
+  .topbar {
+    padding: var(--s-4) var(--s-6);
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1.5px solid var(--chalk-100);
+    background: rgba(243,244,242,0.92);
+    backdrop-filter: blur(8px);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .topbar__brand { display: flex; align-items: center; gap: var(--s-3); text-decoration: none; color: var(--space-900); }
+  .topbar__brand img { width: 32px; height: 32px; border-radius: 50%; }
+  .topbar__brand strong { font-family: var(--font-display); font-weight: 800; font-size: 0.95rem; display: block; line-height: 1.1; }
+  .topbar__brand small { display: block; font-size: 11px; color: var(--slate-500); letter-spacing: 0.1em; text-transform: uppercase; }
+  .topbar__actions { display: flex; gap: var(--s-2); align-items: center; }
+  .topbar__back {
+    font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;
+    text-decoration: none; color: var(--space-900);
+    padding: 8px 16px; border-radius: var(--r-pill);
+  }
+  .topbar__back:hover { background: var(--chalk-50); }
+
+  /* ── Layout ── */
+  .layout { flex: 1; display: grid; grid-template-columns: 360px 1fr; min-height: 0; }
+  @media (max-width: 960px) { .layout { grid-template-columns: 1fr; } }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    border-right: 1.5px solid var(--chalk-100);
+    padding: var(--s-6) var(--s-6) var(--s-12);
+    background: var(--surface);
+    overflow-y: auto;
+  }
+  .sidebar h1 {
+    font-family: var(--font-display);
+    font-size: 1.6rem; font-weight: 900;
+    letter-spacing: -0.02em; line-height: 1.05;
+    margin-bottom: var(--s-2);
+  }
+  .sidebar h1 em {
+    font-style: italic;
+    background: linear-gradient(95deg, var(--comet-orange), var(--berry-pink));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    padding-right: 0.06em;
+  }
+  .sidebar__lede { color: var(--slate-500); font-size: 0.9rem; margin-bottom: var(--s-6); }
+
+  .field { margin-bottom: var(--s-5); }
+  .field__label {
+    display: flex; align-items: baseline; justify-content: space-between;
+    font-family: var(--font-display);
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--slate-500);
+    margin-bottom: var(--s-2);
+  }
+  .field__label .count {
+    font-family: var(--font-mono); font-size: 0.75rem;
+    color: var(--space-900); background: var(--chalk-50);
+    padding: 2px 8px; border-radius: var(--r-pill);
+    letter-spacing: 0;
+  }
+  .field__hint { font-size: 0.78rem; color: var(--slate-500); margin-top: var(--s-1); line-height: 1.45; }
+
+  textarea.input {
+    width: 100%;
+    min-height: 200px;
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-md);
+    padding: var(--s-3) var(--s-4);
+    font-family: var(--font-body);
+    font-size: 0.92rem; line-height: 1.55;
+    resize: vertical;
+    box-shadow: var(--shadow-1);
+    background: var(--surface);
+    color: var(--space-900);
+    transition: box-shadow var(--t-fast), transform var(--t-fast), color var(--t-fast);
+  }
+  textarea.input:focus { outline: none; box-shadow: var(--shadow-2); transform: translate(-1px,-1px); }
+  textarea.input.--placeholder { color: var(--slate-300); font-style: italic; }
+
+  /* Toggles */
+  .opt {
+    display: flex; align-items: flex-start; gap: var(--s-3);
+    padding: var(--s-2) 0;
+    font-size: 0.9rem;
+    color: var(--space-900);
+    cursor: pointer;
+  }
+  .opt input[type="checkbox"] {
+    width: 18px; height: 18px;
+    margin-top: 2px;
+    accent-color: var(--comet-orange);
+    cursor: pointer;
+  }
+  .opt__text { line-height: 1.3; }
+  .opt__sub { display: block; font-size: 0.78rem; color: var(--slate-500); margin-top: 2px; }
+
+  /* History chips */
+  .history { margin-top: var(--s-2); }
+  .history__list {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    max-height: 160px; overflow-y: auto;
+    min-height: 28px;
+  }
+  .history__empty {
+    font-size: 0.82rem; color: var(--slate-300); font-style: italic;
+  }
+  .chip {
+    font-family: var(--font-display);
+    font-size: 0.8rem; font-weight: 600;
+    padding: 4px 10px;
+    border-radius: var(--r-pill);
+    background: var(--chalk-50);
+    border: 1.5px solid var(--chalk-100);
+    color: var(--slate-500);
+  }
+  .chip:first-child {
+    background: var(--nova-yellow);
+    border-color: var(--space-900);
+    color: var(--space-900);
+    font-weight: 700;
+    box-shadow: var(--shadow-1);
+  }
+  .clear-btn {
+    margin-top: var(--s-3);
+    font-family: var(--font-display);
+    font-size: 0.75rem; font-weight: 700;
+    padding: 6px 14px;
+    border-radius: var(--r-pill);
+    border: 1.5px solid var(--chalk-100);
+    background: var(--surface);
+    color: var(--slate-500);
+    cursor: pointer;
+    transition: all var(--t-fast);
+  }
+  .clear-btn:hover { border-color: var(--space-900); color: var(--space-900); background: var(--chalk-50); }
+
+  .spin-cta-wrap {
+    margin-top: var(--s-6);
+    padding-top: var(--s-5);
+    border-top: 1.5px dashed var(--chalk-100);
+    display: flex; flex-direction: column; gap: var(--s-2);
+  }
+
+  /* ── Stage ── */
+  .stage {
+    position: relative;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: var(--s-6);
+    text-align: center;
+    background:
+      radial-gradient(circle at 12px 12px, var(--chalk-100) 1.4px, transparent 1.4px) 0 0 / 24px 24px,
+      var(--paper);
+  }
+
+  /* Confetti canvas */
+  .confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  /* (Removed: ribbon + placeholder badge — page is cleaner without them.) */
+
+  /* Wheel container */
+  .wheel-wrap {
+    position: relative; z-index: 2;
+    width: min(560px, 65vh);
+    aspect-ratio: 1;
+    margin: 0 auto;
+  }
+
+  /* Outer frame — navy with brand accents */
+  .wheel-frame {
+    position: absolute; inset: -14px;
+    border-radius: 50%;
+    background: var(--space-900);
+    padding: 12px;
+    box-shadow:
+      var(--shadow-3),
+      0 0 0 3px var(--space-900),
+      0 24px 50px rgba(14,26,56,0.22);
+  }
+  .wheel-frame::after {
+    content: '';
+    position: absolute; inset: 12px;
+    border-radius: 50%;
+    background: var(--paper);
+  }
+
+  /* Brand-colour studs on the frame */
+  .wheel-studs {
+    position: absolute; inset: -14px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .wheel-studs::before, .wheel-studs::after {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    background-repeat: no-repeat;
+  }
+  .wheel-studs::before {
+    background-image:
+      radial-gradient(circle at 50% 0%, var(--nova-yellow) 0 4px, transparent 5px),
+      radial-gradient(circle at 100% 50%, var(--comet-orange) 0 4px, transparent 5px),
+      radial-gradient(circle at 50% 100%, var(--planet-teal) 0 4px, transparent 5px),
+      radial-gradient(circle at 0% 50%, var(--berry-pink) 0 4px, transparent 5px);
+    animation: studPulse 2s ease-in-out infinite;
+  }
+  .wheel-studs::after {
+    background-image:
+      radial-gradient(circle at 85.4% 14.6%, var(--moss-green) 0 3.5px, transparent 4.5px),
+      radial-gradient(circle at 85.4% 85.4%, var(--aurora-blue) 0 3.5px, transparent 4.5px),
+      radial-gradient(circle at 14.6% 85.4%, var(--berry-pink) 0 3.5px, transparent 4.5px),
+      radial-gradient(circle at 14.6% 14.6%, var(--comet-orange) 0 3.5px, transparent 4.5px);
+    animation: studPulse 2s ease-in-out infinite 1s;
+  }
+  @keyframes studPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+
+  /* The actual SVG wheel */
+  .wheel {
+    position: absolute; inset: 0;
+    transition: transform 5.2s cubic-bezier(0.18, 0.84, 0.20, 1.0);
+    will-change: transform;
+  }
+  .wheel svg { width: 100%; height: 100%; display: block; transition: opacity var(--t-base); }
+  .wheel.--rest { transition: none; }
+  .wheel.--placeholder svg { opacity: 0.45; }
+
+  /* Pointer at top */
+  .pointer {
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 6;
+    width: 54px;
+    height: 64px;
+    filter: drop-shadow(2px 3px 0 rgba(14,26,56,0.32));
+  }
+  .pointer.--bouncing { animation: pointerBounce 0.08s ease-in-out infinite; }
+  @keyframes pointerBounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(2px); }
+  }
+
+  /* Center hub */
+  .hub {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 92px; height: 92px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 3px solid var(--space-900);
+    box-shadow: var(--shadow-2);
+    z-index: 4;
+    display: grid; place-items: center;
+    overflow: hidden;
+  }
+  .hub img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Winner display */
+  .winner-card {
+    position: relative; z-index: 4;
+    margin-top: var(--s-6);
+    background: var(--surface);
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-3);
+    padding: var(--s-3) var(--s-8);
+    min-width: 260px;
+    transform: scale(0);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+  }
+  .winner-card.--show {
+    transform: scale(1);
+    opacity: 1;
+  }
+  .winner-card__label {
+    font-family: var(--font-display);
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.22em;
+    color: var(--slate-500);
+    margin-bottom: 4px;
+  }
+  .winner-card__name {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    background: linear-gradient(95deg, var(--comet-orange), var(--berry-pink), var(--planet-teal));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    padding-right: 0.1em;
+  }
+
+  /* Spin button — matches scrambler "Scramble" CTA */
+  .spin-btn {
+    width: 100%;
+    font-family: var(--font-display);
+    font-size: 1.1rem; font-weight: 800; font-style: italic;
+    padding: 16px 24px;
+    border-radius: var(--r-pill);
+    background: var(--comet-orange);
+    color: #fff;
+    border: var(--border-w) solid var(--border-ink);
+    box-shadow: var(--shadow-2);
+    transition: transform var(--t-fast), box-shadow var(--t-fast), background var(--t-fast);
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
+  }
+  .spin-btn:hover:not(:disabled) { transform: translate(-2px,-2px); box-shadow: var(--shadow-3); background: #e0941c; }
+  .spin-btn:active:not(:disabled) { transform: translate(0,0); box-shadow: var(--shadow-press); }
+  .spin-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: var(--shadow-1); }
+
+  /* Restore-pool button (visible when remove-drawn has emptied the wheel) */
+  .restore-btn {
+    width: 100%;
+    font-family: var(--font-display);
+    font-size: 0.85rem; font-weight: 700;
+    padding: 10px 18px;
+    border-radius: var(--r-pill);
+    background: var(--surface);
+    color: var(--space-900);
+    border: var(--border-w) solid var(--border-ink);
+    box-shadow: var(--shadow-1);
+    cursor: pointer;
+    transition: all var(--t-fast);
+    display: none;
+  }
+  .restore-btn.--show { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2); }
+  .restore-btn:hover { background: var(--chalk-50); transform: translate(-1px,-1px); box-shadow: var(--shadow-2); }
+
+  /* Empty hint when wheel has no names */
+  .empty-hint {
+    position: relative; z-index: 3;
+    text-align: center;
+    color: var(--slate-500);
+    margin-top: var(--s-4);
+    font-style: italic;
+    font-size: 0.9rem;
+  }
+
+  /* Pill button (fullscreen) */
+  .pill-btn {
+    font-family: var(--font-display);
+    font-size: 0.8rem; font-weight: 700;
+    padding: 8px 14px;
+    border-radius: var(--r-pill);
+    border: 1.5px solid var(--chalk-100);
+    background: var(--surface);
+    color: var(--space-900);
+    cursor: pointer;
+    transition: all var(--t-fast);
+  }
+  .pill-btn:hover { background: var(--chalk-50); border-color: var(--space-900); }
+
+  @media (max-width: 960px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { border-right: 0; border-bottom: 1.5px solid var(--chalk-100); }
+    .wheel-wrap { width: 88vw; max-width: 460px; }
+    .pointer { top: -18px; width: 44px; height: 52px; }
+    .hub { width: 68px; height: 68px; font-size: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="topbar__brand" href="../laererhub.html">
+    <img src="../assets/logo.png" alt="" />
+    <div>
+      <strong>Navnetrekker</strong>
+      <small>Lærerverktøy</small>
+    </div>
+  </a>
+  <div class="topbar__actions">
+    <button class="pill-btn" id="fs-btn">⛶ Fullskjerm</button>
+    <a class="topbar__back" href="../laererhub.html">← Tilbake til hub</a>
+  </div>
+</header>
+
+<main class="layout">
+  <aside class="sidebar">
+    <h1>Trekk et navn</h1>
+    <p class="sidebar__lede">Lim inn navn og spinn i vei!</p>
+
+    <div id="picker-slot"></div>
+
+    <div class="field">
+      <div class="field__label">
+        <span>Navn</span>
+        <span class="count" id="name-count">0</span>
+      </div>
+      <textarea id="names-input" class="input --placeholder">Harry, Hermione, Ron, Neville, Luna, Ginny, Fred, George, Seamus, Cedric, Colin, Dean, Lavender, Katie, Angelina, Anthony, Cho, Susan, Padma, Lee, Hannah, Justin</textarea>
+      <div class="field__hint">Skill med komma eller linjeskift.</div>
+    </div>
+
+    <div class="field">
+      <div class="field__label"><span>Regler</span></div>
+      <label class="opt" for="remove-drawn">
+        <input type="checkbox" id="remove-drawn" />
+        <span class="opt__text">
+          Fjern trukket navn fra hjulet
+          <span class="opt__sub">Hver elev kan bare trekkes én gang.</span>
+        </span>
+      </label>
+      <label class="opt" for="no-repeats">
+        <input type="checkbox" id="no-repeats" checked />
+        <span class="opt__text">
+          Ingen får to ganger på rad
+          <span class="opt__sub">Forrige vinner kan ikke trekkes igjen.</span>
+        </span>
+      </label>
+    </div>
+
+    <div class="field">
+      <div class="field__label"><span>Sist trukket</span></div>
+      <div class="history">
+        <div class="history__list" id="history-list">
+          <span class="history__empty">Ingen trekninger ennå.</span>
+        </div>
+        <button class="clear-btn" id="reset-btn">↻ Nullstill historikk</button>
+      </div>
+    </div>
+
+    <div class="spin-cta-wrap">
+      <button class="spin-btn" id="spin-btn">★ SPINN HJULET</button>
+      <button class="restore-btn" id="restore-btn">↻ Sett tilbake alle navn</button>
+    </div>
+  </aside>
+
+  <section class="stage">
+    <canvas class="confetti" id="confetti"></canvas>
+
+
+
+    <div class="wheel-wrap" id="wheel-wrap">
+      <div class="wheel-frame"></div>
+      <div class="wheel-studs"></div>
+      <div class="wheel --rest" id="wheel">
+        <svg viewBox="-100 -100 200 200" id="wheel-svg"></svg>
+      </div>
+      <svg class="pointer" id="pointer" viewBox="0 0 60 70">
+        <path d="M30 65 L8 8 Q30 0 52 8 Z" fill="#E53935" stroke="#0E1A38" stroke-width="3" stroke-linejoin="round"/>
+        <circle cx="30" cy="14" r="3.5" fill="#fff"/>
+      </svg>
+      <div class="hub" id="hub"><img src="../assets/logo.png" alt="Lektor Tronrud" /></div>
+    </div>
+
+    <div class="winner-card" id="winner-card">
+      <div class="winner-card__name" id="winner-name">—</div>
+    </div>
+
+    <div class="empty-hint" id="empty-hint" style="display:none">Lim inn navn for å starte ✨</div>
+  </section>
+</main>
+
+<script>
+(function () {
+  const STORAGE_KEY = 'lt-navnetrekker';
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  // Default placeholder names — match Classroom Scrambler
+  const PLACEHOLDER_NAMES = 'Harry, Hermione, Ron, Neville, Luna, Ginny, Fred, George, Seamus, Cedric, Colin, Dean, Lavender, Katie, Angelina, Anthony, Cho, Susan, Padma, Lee, Hannah, Justin';
+
+  // Wheel slice palette — drawn from brand cosmos accents
+  const SLICE_COLORS = [
+    '#F4C430', // nova-yellow
+    '#E91E63', // berry-pink
+    '#22C8C8', // planet-teal
+    '#F5A623', // comet-orange
+    '#8BC34A', // moss-green
+    '#00BCD4', // aurora-blue
+    '#7C4DFF', // accent purple (cosmos)
+    '#FF7043', // warm coral
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const namesInput = $('names-input');
+  const wheel = $('wheel');
+  const svg = $('wheel-svg');
+  const pointer = $('pointer');
+  const spinBtn = $('spin-btn');
+  const restoreBtn = $('restore-btn');
+  const winnerCard = $('winner-card');
+  const winnerName = $('winner-name');
+  const emptyHint = $('empty-hint');
+  const nameCount = $('name-count');
+  const historyList = $('history-list');
+  const resetBtn = $('reset-btn');
+  const noRepeats = $('no-repeats');
+  const removeDrawn = $('remove-drawn');
+  const fsBtn = $('fs-btn');
+  const hub = $('hub');
+  const confettiCanvas = $('confetti');
+  const ctx = confettiCanvas.getContext('2d');
+
+  let history = [];
+  let removedNames = [];   // names currently removed from the spinner (only used when removeDrawn is on)
+  let currentRotation = 0;
+  let spinning = false;
+  let isPlaceholder = true; // first edit clears the HP placeholder styling
+
+  // ── Load saved state ──
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    if (saved.names && saved.names.trim()) {
+      namesInput.value = saved.names;
+      isPlaceholder = false;
+      namesInput.classList.remove('--placeholder');
+    }
+    if (Array.isArray(saved.history)) history = saved.history;
+    if (Array.isArray(saved.removedNames)) removedNames = saved.removedNames;
+    if (typeof saved.noRepeats === 'boolean') noRepeats.checked = saved.noRepeats;
+    if (typeof saved.removeDrawn === 'boolean') removeDrawn.checked = saved.removeDrawn;
+  } catch (_) {}
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      names: isPlaceholder ? '' : namesInput.value,
+      history,
+      removedNames,
+      noRepeats: noRepeats.checked,
+      removeDrawn: removeDrawn.checked,
+    }));
+  }
+
+  function getAllNames() {
+    // The textarea value, parsed.
+    return namesInput.value.split(/[,\n;]+/).map(s => s.trim()).filter(Boolean);
+  }
+
+  function getActiveNames() {
+    // Names actually on the wheel (after removals).
+    const all = getAllNames();
+    if (!removeDrawn.checked) return all;
+    const removed = new Set(removedNames);
+    return all.filter(n => !removed.has(n));
+  }
+
+  // ── Wheel rendering ──
+  function renderWheel() {
+    const names = getActiveNames();
+    const totalCount = getAllNames().length;
+    svg.innerHTML = '';
+    nameCount.textContent = totalCount;
+
+    if (names.length === 0) {
+      spinBtn.disabled = true;
+      emptyHint.style.display = 'block';
+      // Empty placeholder ring
+      const c = document.createElementNS(SVG_NS, 'circle');
+      c.setAttribute('cx', '0'); c.setAttribute('cy', '0'); c.setAttribute('r', '92');
+      c.setAttribute('fill', 'rgba(14,26,56,0.04)');
+      c.setAttribute('stroke', 'rgba(14,26,56,0.18)');
+      c.setAttribute('stroke-width', '1.5');
+      c.setAttribute('stroke-dasharray', '3 4');
+      svg.appendChild(c);
+      updateRestoreBtn();
+      renderHistory();
+      return;
+    }
+
+    spinBtn.disabled = spinning;
+    emptyHint.style.display = 'none';
+
+    const N = names.length;
+    const slice = (2 * Math.PI) / N;
+    const radius = 96;
+
+    names.forEach((name, i) => {
+      const a0 = -Math.PI / 2 + i * slice;
+      const a1 = a0 + slice;
+      const x0 = radius * Math.cos(a0), y0 = radius * Math.sin(a0);
+      const x1 = radius * Math.cos(a1), y1 = radius * Math.sin(a1);
+      const largeArc = slice > Math.PI ? 1 : 0;
+      const path = document.createElementNS(SVG_NS, 'path');
+      path.setAttribute('d', `M 0 0 L ${x0} ${y0} A ${radius} ${radius} 0 ${largeArc} 1 ${x1} ${y1} Z`);
+      path.setAttribute('fill', SLICE_COLORS[i % SLICE_COLORS.length]);
+      path.setAttribute('stroke', '#FFFFFF');
+      path.setAttribute('stroke-width', '0.8');
+      svg.appendChild(path);
+
+      // Inner divider dashes (carnival touch)
+      const dash = document.createElementNS(SVG_NS, 'line');
+      dash.setAttribute('x1', 0); dash.setAttribute('y1', 0);
+      dash.setAttribute('x2', radius * Math.cos(a0));
+      dash.setAttribute('y2', radius * Math.sin(a0));
+      dash.setAttribute('stroke', 'rgba(255,255,255,0.6)');
+      dash.setAttribute('stroke-width', 0.6);
+      dash.setAttribute('stroke-dasharray', '2 3');
+      svg.appendChild(dash);
+
+      // Text label — rotate to lie along the slice center
+      const aMid = a0 + slice / 2;
+      const tx = (radius * 0.62) * Math.cos(aMid);
+      const ty = (radius * 0.62) * Math.sin(aMid);
+      const text = document.createElementNS(SVG_NS, 'text');
+      text.setAttribute('x', tx);
+      text.setAttribute('y', ty);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'middle');
+      // Names lie along the radius (read outward from centre).
+      let deg = (aMid * 180 / Math.PI);
+      // Flip slices on the left half so the text never reads upside-down.
+      if (deg > 90 || deg < -90) deg += 180;
+      text.setAttribute('transform', `rotate(${deg} ${tx} ${ty})`);
+      text.setAttribute('fill', '#0E1A38');
+      text.setAttribute('font-family', 'Rubik, system-ui, sans-serif');
+      text.setAttribute('font-weight', '800');
+      const fs = Math.max(3.4, Math.min(8.5, 50 / N + 2.5));
+      text.setAttribute('font-size', fs);
+      text.setAttribute('letter-spacing', '0.2');
+      const maxChars = Math.max(7, Math.floor(22 - N * 0.5));
+      const label = name.length > maxChars ? name.slice(0, maxChars - 1) + '…' : name;
+      text.textContent = label;
+      svg.appendChild(text);
+    });
+
+    // Outer ring of dots
+    const dotCount = Math.max(24, N * 2);
+    for (let i = 0; i < dotCount; i++) {
+      const a = (i / dotCount) * Math.PI * 2;
+      const d = document.createElementNS(SVG_NS, 'circle');
+      d.setAttribute('cx', 98 * Math.cos(a));
+      d.setAttribute('cy', 98 * Math.sin(a));
+      d.setAttribute('r', 1.2);
+      d.setAttribute('fill', i % 2 ? '#FFFFFF' : '#FFE17A');
+      d.setAttribute('opacity', 0.95);
+      svg.appendChild(d);
+    }
+
+    // Mark the wheel as placeholder visually (fades the slices).
+    wheel.classList.toggle('--placeholder', isPlaceholder);
+
+    updateRestoreBtn();
+    renderHistory();
+  }
+
+  function updateRestoreBtn() {
+    const showRestore = removeDrawn.checked && removedNames.length > 0;
+    restoreBtn.classList.toggle('--show', showRestore);
+    if (showRestore) {
+      const remaining = getActiveNames().length;
+      restoreBtn.textContent = remaining === 0
+        ? '↻ Alle navn er trukket — start på nytt'
+        : `↻ Sett tilbake alle navn (${removedNames.length} fjernet)`;
+    }
+  }
+
+  function renderHistory() {
+    historyList.innerHTML = '';
+    if (history.length === 0) {
+      const empty = document.createElement('span');
+      empty.className = 'history__empty';
+      empty.textContent = 'Ingen trekninger ennå.';
+      historyList.appendChild(empty);
+      return;
+    }
+    history.slice(0, 30).forEach(name => {
+      const c = document.createElement('span');
+      c.className = 'chip';
+      c.textContent = name;
+      historyList.appendChild(c);
+    });
+  }
+
+  // ── Picking ──
+  function pickName() {
+    const names = getActiveNames();
+    if (names.length === 0) return null;
+    let pool = names.slice();
+    if (noRepeats.checked && history[0] && pool.length > 1) {
+      pool = pool.filter(n => n !== history[0]);
+    }
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  // ── Spin ──
+  function spin() {
+    if (spinning) return;
+    const names = getActiveNames();
+    if (names.length === 0) return;
+
+    const winner = pickName();
+    const winnerIdx = names.indexOf(winner);
+    const N = names.length;
+    const sliceAngle = 360 / N;
+    const targetCenter = winnerIdx * sliceAngle + sliceAngle / 2;
+    const baseRotation = -targetCenter + 360 * 6;
+    const jitter = (Math.random() - 0.5) * sliceAngle * 0.5;
+    const target = baseRotation + jitter;
+
+    const currentMod = ((currentRotation % 360) + 360) % 360;
+    const deltaToZero = -currentMod;
+    const finalRotation = currentRotation + deltaToZero + target;
+
+    spinning = true;
+    spinBtn.disabled = true;
+    winnerCard.classList.remove('--show');
+    pointer.classList.add('--bouncing');
+
+    wheel.classList.remove('--rest');
+    wheel.style.transform = `rotate(${finalRotation}deg)`;
+    currentRotation = finalRotation;
+
+    setTimeout(() => {
+      spinning = false;
+      pointer.classList.remove('--bouncing');
+      // Update history
+      history.unshift(winner);
+      history = history.slice(0, 40);
+      // Remove from wheel if option is on
+      if (removeDrawn.checked && !removedNames.includes(winner)) {
+        removedNames.push(winner);
+      }
+      save();
+      // Show winner
+      winnerName.textContent = winner;
+      requestAnimationFrame(() => winnerCard.classList.add('--show'));
+      fireConfetti();
+      hubPulse();
+      // Re-render wheel (now with one fewer slice if removeDrawn is on)
+      renderWheel();
+    }, 5300);
+  }
+
+  function hubPulse() {
+    hub.animate(
+      [
+        { transform: 'translate(-50%, -50%) scale(1)' },
+        { transform: 'translate(-50%, -50%) scale(1.3)' },
+        { transform: 'translate(-50%, -50%) scale(1)' },
+      ],
+      { duration: 600, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }
+    );
+  }
+
+  // ── Confetti ──
+  let confettiParticles = [];
+  let confettiRunning = false;
+
+  function resizeConfetti() {
+    confettiCanvas.width = confettiCanvas.offsetWidth * devicePixelRatio;
+    confettiCanvas.height = confettiCanvas.offsetHeight * devicePixelRatio;
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+  }
+  window.addEventListener('resize', () => {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    resizeConfetti();
+  });
+  resizeConfetti();
+
+  function fireConfetti() {
+    const w = confettiCanvas.offsetWidth;
+    const h = confettiCanvas.offsetHeight;
+    const cx = w / 2;
+    const cy = h / 2 - 20;
+    const colors = ['#F4C430', '#E91E63', '#22C8C8', '#F5A623', '#8BC34A', '#00BCD4', '#7C4DFF', '#0E1A38'];
+    for (let i = 0; i < 160; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 6 + Math.random() * 9;
+      confettiParticles.push({
+        x: cx + (Math.random() - 0.5) * 80,
+        y: cy + (Math.random() - 0.5) * 40,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 4,
+        size: 4 + Math.random() * 6,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rot: Math.random() * Math.PI * 2,
+        vrot: (Math.random() - 0.5) * 0.4,
+        life: 1,
+        shape: Math.random() < 0.5 ? 'rect' : 'circle',
+      });
+    }
+    if (!confettiRunning) {
+      confettiRunning = true;
+      requestAnimationFrame(stepConfetti);
+    }
+  }
+
+  function stepConfetti() {
+    const w = confettiCanvas.offsetWidth;
+    const h = confettiCanvas.offsetHeight;
+    ctx.clearRect(0, 0, w, h);
+    confettiParticles = confettiParticles.filter(p => p.life > 0 && p.y < h + 40);
+    for (const p of confettiParticles) {
+      p.vy += 0.25;
+      p.vx *= 0.995;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vrot;
+      p.life -= 0.005;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.max(0, p.life);
+      if (p.shape === 'rect') {
+        ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+      } else {
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+    if (confettiParticles.length > 0) {
+      requestAnimationFrame(stepConfetti);
+    } else {
+      confettiRunning = false;
+      ctx.clearRect(0, 0, w, h);
+    }
+  }
+
+  // ── Wire up ──
+  // Placeholder behaviour — match scrambler: clear styling on first edit
+  namesInput.addEventListener('focus', () => {
+    if (isPlaceholder) namesInput.classList.remove('--placeholder');
+  });
+  namesInput.addEventListener('blur', () => {
+    if (isPlaceholder && !namesInput.value.trim()) {
+      namesInput.value = PLACEHOLDER_NAMES;
+      namesInput.classList.add('--placeholder');
+    }
+  });
+  namesInput.addEventListener('input', () => {
+    if (isPlaceholder) {
+      isPlaceholder = false;
+      namesInput.classList.remove('--placeholder');
+    }
+    // Editing the name list resets the "removed" pool, since the user is curating fresh.
+    removedNames = [];
+    save();
+    renderWheel();
+  });
+
+  noRepeats.addEventListener('change', save);
+  removeDrawn.addEventListener('change', () => {
+    if (!removeDrawn.checked) removedNames = [];
+    save();
+    renderWheel();
+  });
+
+  restoreBtn.addEventListener('click', () => {
+    removedNames = [];
+    save();
+    renderWheel();
+    winnerCard.classList.remove('--show');
+  });
+
+  resetBtn.addEventListener('click', () => {
+    history = [];
+    removedNames = [];
+    save();
+    renderWheel();
+    winnerCard.classList.remove('--show');
+  });
+  spinBtn.addEventListener('click', spin);
+  fsBtn.addEventListener('click', () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && document.activeElement !== namesInput) {
+      e.preventDefault();
+      spin();
+    }
+  });
+
+  // Initial render — placeholder names appear on the wheel on page load
+  renderWheel();
+})();
+</script>
+
+<script src="klasselister.js"></script>
+<script src="klasselister-picker.js"></script>
+<script>
+  // Bind the shared class-list picker to navnetrekker's textarea.
+  window.LektorKlassePicker.mount({
+    mountEl: document.getElementById('picker-slot'),
+    textarea: document.getElementById('names-input'),
+    toolName: 'navnetrekker',
+    editHref: 'klasselister.html',
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1106 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Klasselister — Lektor Tronrud</title>
+<link rel="icon" type="image/png" href="../assets/logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800;900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/tokens.css">
+<style>
+  body { background: var(--paper); min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* ── Topbar (matches other tools) ── */
+  .topbar {
+    padding: var(--s-4) var(--s-6);
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1.5px solid var(--chalk-100);
+    background: rgba(243,244,242,0.92);
+    backdrop-filter: blur(8px);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .topbar__brand { display: flex; align-items: center; gap: var(--s-3); text-decoration: none; color: var(--space-900); }
+  .topbar__brand img { width: 32px; height: 32px; border-radius: 50%; }
+  .topbar__brand strong { font-family: var(--font-display); font-weight: 800; font-size: 0.95rem; display: block; line-height: 1.1; }
+  .topbar__brand small { display: block; font-size: 11px; color: var(--slate-500); letter-spacing: 0.1em; text-transform: uppercase; }
+  .topbar__back {
+    font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;
+    text-decoration: none; color: var(--space-900);
+    padding: 8px 16px; border-radius: var(--r-pill);
+  }
+  .topbar__back:hover { background: var(--chalk-50); }
+
+  /* ── Privacy banner (sticky just under topbar) ── */
+  .privacy {
+    background: var(--space-900);
+    color: var(--surface);
+    padding: var(--s-3) var(--s-6);
+    display: flex; align-items: center; gap: var(--s-3);
+    border-bottom: var(--border-w) solid var(--border-ink);
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+  .privacy__icon {
+    flex-shrink: 0;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--nova-yellow);
+    border: 2px solid var(--surface);
+    display: grid; place-items: center;
+    color: var(--space-900);
+    font-size: 18px;
+    box-shadow: var(--shadow-press);
+  }
+  .privacy__text { flex: 1; }
+  .privacy__text strong {
+    font-family: var(--font-display);
+    font-weight: 800; letter-spacing: -0.01em;
+    color: var(--nova-yellow);
+    margin-right: 4px;
+  }
+  .privacy__more {
+    font-family: var(--font-display);
+    font-size: 0.75rem; font-weight: 700;
+    padding: 6px 12px;
+    border-radius: var(--r-pill);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    color: var(--surface);
+    cursor: pointer;
+    transition: all var(--t-fast);
+    white-space: nowrap;
+  }
+  .privacy__more:hover { background: rgba(255,255,255,0.1); border-color: var(--nova-yellow); color: var(--nova-yellow); }
+
+  /* ── Layout ── */
+  .layout { flex: 1; display: grid; grid-template-columns: 320px 1fr; min-height: 0; }
+  @media (max-width: 960px) { .layout { grid-template-columns: 1fr; } }
+
+  /* ── Sidebar: list of class groups ── */
+  .sidebar {
+    border-right: 1.5px solid var(--chalk-100);
+    background: var(--surface);
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .sidebar__head {
+    padding: var(--s-6) var(--s-5) var(--s-4);
+    border-bottom: 1.5px dashed var(--chalk-100);
+  }
+  .sidebar__eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--slate-500);
+    margin-bottom: var(--s-2);
+    display: inline-flex; align-items: center; gap: var(--s-2);
+  }
+  .sidebar__eyebrow::before {
+    content: ''; width: 22px; height: 1px; background: var(--slate-300);
+  }
+  .sidebar h1 {
+    font-family: var(--font-display);
+    font-size: 1.5rem; font-weight: 900;
+    letter-spacing: -0.02em; line-height: 1.05;
+    margin-bottom: var(--s-2);
+  }
+  .sidebar h1 em {
+    font-style: italic;
+    background: linear-gradient(95deg, var(--planet-teal), var(--moss-green));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    padding-right: 0.06em;
+  }
+  .sidebar__lede { color: var(--slate-500); font-size: 0.86rem; line-height: 1.45; }
+
+  .sidebar__list {
+    flex: 1;
+    padding: var(--s-3);
+    display: flex; flex-direction: column; gap: var(--s-2);
+  }
+  .group-row {
+    display: grid;
+    grid-template-columns: 8px 1fr auto;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-3) var(--s-3);
+    border-radius: var(--r-md);
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    transition: all var(--t-fast);
+    text-align: left;
+    background: transparent;
+    width: 100%;
+  }
+  .group-row:hover { background: var(--chalk-50); }
+  .group-row.--active {
+    background: var(--surface);
+    border-color: var(--space-900);
+    box-shadow: var(--shadow-1);
+  }
+  .group-row__swatch {
+    width: 8px; height: 32px;
+    border-radius: 4px;
+    background: var(--swatch, var(--planet-teal));
+  }
+  .group-row__body { min-width: 0; }
+  .group-row__name {
+    font-family: var(--font-display);
+    font-size: 0.95rem; font-weight: 700;
+    color: var(--space-900);
+    line-height: 1.15;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .group-row__count {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--slate-500);
+    margin-top: 2px;
+    letter-spacing: 0.05em;
+  }
+  .group-row__count.--zero { color: var(--slate-300); font-style: italic; }
+  .group-row__badge {
+    font-family: var(--font-mono);
+    font-size: 0.65rem; font-weight: 700;
+    color: var(--space-900);
+    background: var(--nova-yellow);
+    padding: 2px 6px;
+    border-radius: var(--r-sm);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid var(--space-900);
+  }
+
+  .sidebar__newbtn {
+    margin: 0 var(--s-3) var(--s-5);
+    padding: var(--s-3) var(--s-4);
+    font-family: var(--font-display);
+    font-size: 0.88rem; font-weight: 700;
+    border-radius: var(--r-md);
+    border: 2px dashed var(--slate-300);
+    background: transparent;
+    color: var(--slate-500);
+    cursor: pointer;
+    transition: all var(--t-fast);
+    display: flex; align-items: center; justify-content: center; gap: var(--s-2);
+  }
+  .sidebar__newbtn:hover {
+    border-color: var(--space-900);
+    color: var(--space-900);
+    background: var(--chalk-50);
+    border-style: solid;
+  }
+  .sidebar__newbtn .plus {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid currentColor;
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 14px; line-height: 1;
+  }
+
+  /* ── Empty state in sidebar ── */
+  .sidebar__empty {
+    padding: var(--s-5) var(--s-4);
+    color: var(--slate-500);
+    font-size: 0.85rem;
+    font-style: italic;
+    text-align: center;
+    line-height: 1.45;
+  }
+
+  /* ── Main editor ── */
+  .editor {
+    overflow-y: auto;
+    padding: var(--s-8) var(--s-8) var(--s-12);
+    background:
+      radial-gradient(circle at 16px 16px, rgba(14,26,56,0.05) 1.2px, transparent 1.2px) 0 0 / 32px 32px,
+      var(--paper);
+  }
+  .editor__inner {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  /* Empty state (no group selected / no groups yet) */
+  .blank {
+    text-align: center;
+    padding: var(--s-12) var(--s-6);
+    max-width: 520px;
+    margin: var(--s-12) auto 0;
+  }
+  .blank__icon {
+    width: 88px; height: 88px;
+    border-radius: var(--r-xl);
+    background: var(--planet-teal-soft);
+    border: var(--border-w) solid var(--border-ink);
+    box-shadow: var(--shadow-2);
+    margin: 0 auto var(--s-5);
+    display: grid; place-items: center;
+    transform: rotate(-3deg);
+  }
+  .blank__icon svg { width: 48px; height: 48px; }
+  .blank h2 {
+    font-family: var(--font-display);
+    font-size: 2rem; font-weight: 900;
+    letter-spacing: -0.02em; line-height: 1.1;
+    margin-bottom: var(--s-3);
+  }
+  .blank h2 em {
+    font-style: italic;
+    background: linear-gradient(95deg, var(--planet-teal), var(--moss-green));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .blank p {
+    color: var(--slate-500);
+    line-height: 1.55;
+    max-width: 44ch;
+    margin: 0 auto var(--s-6);
+  }
+  .blank__cta { margin-top: var(--s-4); }
+
+  /* Editor card */
+  .ed-card {
+    background: var(--surface);
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-3);
+    padding: var(--s-8);
+    margin-bottom: var(--s-6);
+  }
+  .ed-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--s-4);
+    align-items: end;
+    margin-bottom: var(--s-6);
+    padding-bottom: var(--s-5);
+    border-bottom: 1.5px dashed var(--chalk-100);
+  }
+  .field-eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.16em;
+    color: var(--slate-500);
+    margin-bottom: var(--s-2);
+    display: block;
+  }
+  .name-input {
+    width: 100%;
+    font-family: var(--font-display);
+    font-size: 1.6rem; font-weight: 800;
+    letter-spacing: -0.02em;
+    border: none; outline: none;
+    padding: 4px 0;
+    background: transparent;
+    color: var(--space-900);
+    border-bottom: 2px dashed transparent;
+    transition: border-color var(--t-fast);
+  }
+  .name-input:hover { border-bottom-color: var(--chalk-100); }
+  .name-input:focus { border-bottom-color: var(--planet-teal); }
+
+  .swatch-row {
+    display: flex; gap: 6px;
+  }
+  .swatch {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 2px solid var(--surface);
+    box-shadow: 0 0 0 1.5px var(--chalk-100);
+    cursor: pointer;
+    transition: all var(--t-fast);
+    background: var(--c);
+  }
+  .swatch:hover { transform: scale(1.1); }
+  .swatch.--active {
+    box-shadow: 0 0 0 2.5px var(--space-900);
+    transform: scale(1.15);
+  }
+
+  /* Students field */
+  .ed-field { margin-bottom: var(--s-6); }
+  .ed-field__label {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: var(--s-3);
+  }
+  .ed-field__label .field-eyebrow { margin-bottom: 0; }
+  .ed-field__count {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--space-900);
+    background: var(--chalk-50);
+    padding: 2px 10px;
+    border-radius: var(--r-pill);
+    border: 1.5px solid var(--chalk-100);
+  }
+
+  textarea.input {
+    width: 100%;
+    min-height: 180px;
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-md);
+    padding: var(--s-3) var(--s-4);
+    font-family: var(--font-body);
+    font-size: 0.95rem; line-height: 1.6;
+    resize: vertical;
+    box-shadow: var(--shadow-1);
+    background: var(--surface);
+    color: var(--space-900);
+    transition: box-shadow var(--t-fast), transform var(--t-fast);
+  }
+  textarea.input:focus { outline: none; box-shadow: var(--shadow-2); transform: translate(-1px,-1px); }
+  .ed-field__hint {
+    font-size: 0.8rem; color: var(--slate-500);
+    margin-top: var(--s-2);
+    line-height: 1.45;
+  }
+  .ed-field__hint kbd {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--chalk-50);
+    border: 1px solid var(--chalk-100);
+    color: var(--space-900);
+  }
+
+  /* Parsed-names chip preview */
+  .chip-wrap {
+    margin-top: var(--s-4);
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: var(--s-3);
+    background: var(--chalk-50);
+    border-radius: var(--r-md);
+    border: 1.5px dashed var(--chalk-100);
+    min-height: 56px;
+    align-items: flex-start;
+    align-content: flex-start;
+  }
+  .chip-wrap.--empty {
+    align-items: center; justify-content: center;
+    color: var(--slate-300); font-style: italic; font-size: 0.85rem;
+  }
+  .name-chip {
+    font-family: var(--font-display);
+    font-size: 0.82rem; font-weight: 600;
+    padding: 5px 12px;
+    border-radius: var(--r-pill);
+    background: var(--surface);
+    border: 1.5px solid var(--space-900);
+    color: var(--space-900);
+    box-shadow: var(--shadow-press);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .name-chip.--dup {
+    background: var(--supernova-red-soft);
+    border-color: var(--supernova-red);
+    color: var(--supernova-red);
+  }
+  .name-chip__n {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--slate-500);
+    padding-right: 4px;
+    border-right: 1px solid var(--chalk-100);
+    margin-right: 2px;
+  }
+
+  .dup-warn {
+    margin-top: var(--s-3);
+    padding: var(--s-3) var(--s-4);
+    background: var(--supernova-red-soft);
+    border: 1.5px solid var(--supernova-red);
+    border-radius: var(--r-md);
+    color: var(--supernova-red);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    display: none;
+  }
+  .dup-warn.--show { display: block; }
+  .dup-warn button {
+    margin-top: var(--s-2);
+    font-family: var(--font-display);
+    font-size: 0.78rem; font-weight: 700;
+    color: var(--supernova-red);
+    background: var(--surface);
+    border: 1.5px solid var(--supernova-red);
+    padding: 5px 12px;
+    border-radius: var(--r-pill);
+    cursor: pointer;
+  }
+  .dup-warn button:hover { background: var(--supernova-red); color: var(--surface); }
+
+  /* "Used in" footer */
+  .used-in {
+    margin-top: var(--s-6);
+    padding-top: var(--s-5);
+    border-top: 1.5px dashed var(--chalk-100);
+  }
+  .used-in__head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: var(--s-3);
+  }
+  .used-in__title {
+    font-family: var(--font-display);
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.16em;
+    color: var(--slate-500);
+  }
+  .used-in__hint {
+    font-size: 0.78rem; color: var(--slate-500); font-style: italic;
+  }
+  .used-in__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: var(--s-3);
+  }
+  .use-card {
+    display: flex; align-items: center; gap: var(--s-3);
+    padding: var(--s-3) var(--s-4);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    border: 1.5px solid var(--chalk-100);
+    text-decoration: none;
+    color: var(--space-900);
+    transition: all var(--t-fast);
+  }
+  .use-card:hover {
+    border-color: var(--space-900);
+    box-shadow: var(--shadow-1);
+    transform: translate(-1px,-1px);
+  }
+  .use-card__icon {
+    width: 36px; height: 36px;
+    border-radius: var(--r-md);
+    background: var(--accent, var(--planet-teal-soft));
+    border: 1.5px solid var(--space-900);
+    display: grid; place-items: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .use-card.--orange { --accent: var(--comet-orange-soft); }
+  .use-card.--teal   { --accent: var(--planet-teal-soft); }
+  .use-card.--pink   { --accent: var(--berry-pink-soft); }
+  .use-card__body { min-width: 0; }
+  .use-card__name {
+    font-family: var(--font-display);
+    font-size: 0.85rem; font-weight: 700;
+    line-height: 1.15;
+  }
+  .use-card__sub {
+    font-size: 0.7rem; color: var(--slate-500);
+    margin-top: 1px;
+  }
+
+  /* Action toolbar */
+  .actions {
+    display: flex; flex-wrap: wrap; gap: var(--s-3);
+    margin-top: var(--s-6);
+  }
+  .actions__spacer { flex: 1; }
+  .saved-pill {
+    align-self: center;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--moss-green-deep);
+    padding: 4px 10px;
+    border-radius: var(--r-pill);
+    background: var(--moss-green-soft);
+    border: 1px solid var(--moss-green-deep);
+    opacity: 0;
+    transition: opacity var(--t-base);
+  }
+  .saved-pill.--show { opacity: 1; }
+  .btn--danger {
+    background: var(--surface);
+    color: var(--supernova-red);
+    border-color: var(--supernova-red);
+  }
+  .btn--danger:hover:not(:disabled) {
+    background: var(--supernova-red);
+    color: var(--surface);
+  }
+
+  /* Privacy modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(14,26,56,0.6);
+    backdrop-filter: blur(6px);
+    z-index: 100;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: var(--s-6);
+  }
+  .modal-overlay.--show { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-2xl);
+    box-shadow: var(--shadow-4);
+    padding: var(--s-8);
+    max-width: 540px;
+    width: 100%;
+    max-height: 86vh;
+    overflow-y: auto;
+  }
+  .modal__eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--moss-green-deep);
+    margin-bottom: var(--s-3);
+    display: inline-flex; align-items: center; gap: var(--s-2);
+  }
+  .modal__eyebrow::before {
+    content: ''; width: 22px; height: 1px; background: var(--moss-green-deep);
+  }
+  .modal h2 {
+    font-family: var(--font-display);
+    font-size: 1.6rem; font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: var(--s-4);
+  }
+  .modal p {
+    color: var(--slate-700);
+    line-height: 1.6;
+    margin-bottom: var(--s-3);
+  }
+  .modal ul {
+    list-style: none;
+    margin-bottom: var(--s-5);
+  }
+  .modal ul li {
+    padding: var(--s-3) 0;
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: var(--s-3);
+    border-bottom: 1px dashed var(--chalk-100);
+    align-items: start;
+  }
+  .modal ul li:last-child { border-bottom: 0; }
+  .modal ul li .ico {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--moss-green-soft);
+    border: 1.5px solid var(--moss-green-deep);
+    display: grid; place-items: center;
+    color: var(--moss-green-deep);
+    font-weight: 800;
+    font-size: 14px;
+    margin-top: 2px;
+  }
+  .modal ul li strong {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    color: var(--space-900);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .modal ul li span {
+    font-size: 0.86rem;
+    color: var(--slate-500);
+    line-height: 1.45;
+  }
+  .modal__close {
+    width: 100%;
+  }
+
+  /* Confirmation modal (delete) */
+  .confirm-modal h2 { margin-bottom: var(--s-3); }
+  .confirm-modal .actions { margin-top: var(--s-5); }
+
+  @media (max-width: 720px) {
+    .editor { padding: var(--s-5) var(--s-4); }
+    .ed-card { padding: var(--s-5); }
+    .ed-head { grid-template-columns: 1fr; align-items: start; }
+    .name-input { font-size: 1.3rem; }
+    .privacy { flex-wrap: wrap; }
+    .privacy__more { margin-left: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="topbar__brand" href="../laererhub.html">
+    <img src="../assets/logo.png" alt="" />
+    <div>
+      <strong>Klasselister</strong>
+      <small>Lærerverktøy</small>
+    </div>
+  </a>
+  <a class="topbar__back" href="../laererhub.html">← Tilbake til hub</a>
+</header>
+
+<div class="privacy" role="note">
+  <div class="privacy__icon" aria-hidden="true">🔒</div>
+  <div class="privacy__text">Lagres bare på din enhet. Elevnavn forlater aldri nettleseren din. Ingen server. Ingen sky. Helt sikkert.</div>
+  <button class="privacy__more" id="privacy-more">Les mer</button>
+</div>
+
+<main class="layout">
+  <aside class="sidebar">
+    <div class="sidebar__head">
+      <div class="sidebar__eyebrow">Klasser</div>
+      <h1>Dine <em>klasselister</em></h1>
+      <p class="sidebar__lede">Legg inn én gang. Bruk i alle verktøy.</p>
+    </div>
+
+    <div class="sidebar__list" id="group-list">
+      <!-- group rows injected here -->
+    </div>
+
+    <button class="sidebar__newbtn" id="new-group-btn">
+      <span class="plus">+</span>
+      <span>Ny klasseliste</span>
+    </button>
+  </aside>
+
+  <section class="editor" id="editor">
+    <!-- editor content injected based on state -->
+  </section>
+</main>
+
+<!-- Privacy modal -->
+<div class="modal-overlay" id="privacy-modal" role="dialog" aria-modal="true" aria-labelledby="pm-title">
+  <div class="modal">
+    <div class="modal__eyebrow">✓ Personvern</div>
+    <h2 id="pm-title">Alt holdes på din enhet</h2>
+    <p>Klasselister er bygget for at du skal slippe å tenke på personvern. Slik fungerer det:</p>
+    <ul>
+      <li>
+        <span class="ico">✓</span>
+        <div>
+          <strong>Lagring i nettleseren</strong>
+          <span>Klasselistene dine lagres i din egen nettleser (localStorage). Vi har ingen server som tar imot dem.</span>
+        </div>
+      </li>
+      <li>
+        <span class="ico">✓</span>
+        <div>
+          <strong>Ingen sporing, ingen analyse</strong>
+          <span>Verktøyene sender ingen data om hvilke elever du legger inn — ikke til oss, ikke til Google, ikke til noen tredjepart.</span>
+        </div>
+      </li>
+      <li>
+        <span class="ico">✓</span>
+        <div>
+          <strong>Du har full kontroll</strong>
+          <span>Sletter du nettleserdata eller bytter enhet, forsvinner listene. Bruk «Eksportér» for å ta dem med.</span>
+        </div>
+      </li>
+      <li>
+        <span class="ico">i</span>
+        <div>
+          <strong>Anbefaling</strong>
+          <span>For ekstra trygghet — bruk gjerne kun fornavn eller initialer. GDPR-vennlig praksis.</span>
+        </div>
+      </li>
+    </ul>
+    <button class="btn btn--primary modal__close" id="privacy-close">Forstått</button>
+  </div>
+</div>
+
+<!-- Delete confirmation modal -->
+<div class="modal-overlay" id="delete-modal" role="dialog" aria-modal="true">
+  <div class="modal confirm-modal">
+    <div class="modal__eyebrow" style="color: var(--supernova-red);">⚠ Bekreft</div>
+    <h2>Slett klasselisten?</h2>
+    <p id="delete-msg">Denne handlingen kan ikke angres.</p>
+    <div class="actions">
+      <button class="btn" id="delete-cancel">Avbryt</button>
+      <div class="actions__spacer"></div>
+      <button class="btn btn--danger" id="delete-confirm">Slett</button>
+    </div>
+  </div>
+</div>
+
+<script src="klasselister.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  const K = window.LektorKlasselister;
+  const $ = (id) => document.getElementById(id);
+
+  // ── DOM refs ──
+  const groupListEl = $('group-list');
+  const editorEl = $('editor');
+  const newGroupBtn = $('new-group-btn');
+  const privacyMoreBtn = $('privacy-more');
+  const privacyModal = $('privacy-modal');
+  const privacyClose = $('privacy-close');
+  const deleteModal = $('delete-modal');
+  const deleteCancel = $('delete-cancel');
+  const deleteConfirm = $('delete-confirm');
+  const deleteMsg = $('delete-msg');
+
+  // ── Color map (must align with klasselister.js PALETTE) ──
+  const COLOR_HEX = {
+    teal:   '#22C8C8',
+    orange: '#F5A623',
+    pink:   '#E91E63',
+    yellow: '#F4C430',
+    green:  '#8BC34A',
+    blue:   '#00BCD4',
+    red:    '#E53935',
+  };
+
+  // ── Tools that consume the lists (for the "Used in" footer) ──
+  const TOOLS = [
+    { id: 'scrambler', label: 'Classroom Scrambler', sub: 'Klassekart', icon: '🎲', accent: 'orange', href: 'scrambler.html' },
+    { id: 'navnetrekker', label: 'Navnetrekker', sub: 'Lykkehjulet', icon: '🎯', accent: 'teal', href: 'navnetrekker.html' },
+    { id: 'gruppeskaper', label: 'Gruppeskaper', sub: 'Smart inndeling', icon: '👥', accent: 'pink', href: 'gruppeskaper.html' },
+  ];
+
+  // ── State (cached locally to compare with store on changes) ──
+  let activeId = null;
+  let pendingDeleteId = null;
+  let saveTimer = null;
+
+  // ── Render: sidebar list ──
+  function renderSidebar() {
+    const groups = K.getGroups();
+    groupListEl.innerHTML = '';
+
+    if (groups.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'sidebar__empty';
+      empty.innerHTML = 'Ingen klasselister enda.<br>Lag din første under ↓';
+      groupListEl.appendChild(empty);
+      return;
+    }
+
+    groups.forEach((g, i) => {
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'group-row' + (g.id === activeId ? ' --active' : '');
+      row.dataset.id = g.id;
+      row.style.setProperty('--swatch', COLOR_HEX[g.color] || COLOR_HEX.teal);
+
+      const cnt = g.names.length;
+      row.innerHTML = `
+        <span class="group-row__swatch"></span>
+        <span class="group-row__body">
+          <span class="group-row__name"></span>
+          <span class="group-row__count ${cnt === 0 ? '--zero' : ''}">${cnt === 0 ? 'tom' : cnt + (cnt === 1 ? ' elev' : ' elever')}</span>
+        </span>
+        ${i === 0 ? '<span class="group-row__badge" title="Forhåndsvalgt i verktøyene">Std</span>' : ''}
+      `;
+      row.querySelector('.group-row__name').textContent = g.name || 'Uten navn';
+      row.addEventListener('click', () => selectGroup(g.id));
+      groupListEl.appendChild(row);
+    });
+  }
+
+  // ── Render: editor pane ──
+  function renderEditor() {
+    const groups = K.getGroups();
+    const group = groups.find(g => g.id === activeId) || null;
+
+    if (!group) {
+      editorEl.innerHTML = '';
+      const blank = document.createElement('div');
+      blank.className = 'blank';
+      blank.innerHTML = `
+        <div class="blank__icon">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="6" y="8" width="36" height="32" rx="3" stroke="#0E1A38" stroke-width="2.5" fill="#fff"/>
+            <line x1="11" y1="16" x2="37" y2="16" stroke="#0E1A38" stroke-width="2" stroke-linecap="round"/>
+            <line x1="11" y1="23" x2="30" y2="23" stroke="#0E1A38" stroke-width="2" stroke-linecap="round"/>
+            <line x1="11" y1="30" x2="34" y2="30" stroke="#0E1A38" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h2>Lag din første <em>klasseliste</em></h2>
+        <p>Lim inn navn én gang her, og bruk samme liste i Scrambler, Navnetrekker og Gruppeskaper. Alt holdes lokalt på enheten din.</p>
+        <button class="btn btn--primary btn--lg blank__cta" id="blank-cta">+ Ny klasseliste</button>
+      `;
+      editorEl.appendChild(blank);
+      $('blank-cta').addEventListener('click', createNew);
+      return;
+    }
+
+    // Build editor for selected group
+    editorEl.innerHTML = `
+      <div class="editor__inner">
+        <div class="ed-card">
+          <div class="ed-head">
+            <div>
+              <span class="field-eyebrow">Klassenavn</span>
+              <input type="text" id="name-input" class="name-input" maxlength="60" />
+            </div>
+            <div>
+              <span class="field-eyebrow">Farge</span>
+              <div class="swatch-row" id="swatch-row"></div>
+            </div>
+          </div>
+
+          <div class="ed-field">
+            <div class="ed-field__label">
+              <span class="field-eyebrow">Elever</span>
+              <span class="ed-field__count" id="count-pill">0 navn</span>
+            </div>
+            <textarea id="names-input" class="input" placeholder="Lim inn elevnavn — ett per linje eller skilt med komma…"></textarea>
+            <div class="ed-field__hint">Skill med komma, linjeskift, eller semikolon. <kbd>Cmd</kbd> / <kbd>Ctrl</kbd> + <kbd>V</kbd> for å lime inn fra Excel eller It's Learning.</div>
+
+            <div class="chip-wrap" id="chip-preview"></div>
+            <div class="dup-warn" id="dup-warn">
+              <strong>Duplikater funnet</strong> — to elever med samme navn kan forvirre Navnetrekkeren.
+              <br><button id="dedupe-btn" type="button">Fjern duplikater</button>
+            </div>
+          </div>
+
+          <div class="used-in">
+            <div class="used-in__head">
+              <div class="used-in__title">Brukes i</div>
+              <div class="used-in__hint">Endringer slår igjennom automatisk</div>
+            </div>
+            <div class="used-in__grid" id="used-in"></div>
+          </div>
+
+          <div class="actions">
+            <button class="btn" id="duplicate-btn">⎘ Dupliser</button>
+            <button class="btn btn--danger" id="delete-btn">Slett klasseliste</button>
+            <div class="actions__spacer"></div>
+            <span class="saved-pill" id="saved-pill">✓ Lagret lokalt</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Populate
+    const nameInput = $('name-input');
+    const namesInput = $('names-input');
+    const swatchRow = $('swatch-row');
+    const usedInEl = $('used-in');
+    nameInput.value = group.name;
+    namesInput.value = K.formatNames(group.names);
+
+    K.PALETTE.forEach(c => {
+      const sw = document.createElement('button');
+      sw.type = 'button';
+      sw.className = 'swatch' + (c === group.color ? ' --active' : '');
+      sw.style.setProperty('--c', COLOR_HEX[c]);
+      sw.title = c;
+      sw.dataset.color = c;
+      sw.addEventListener('click', () => {
+        K.update(activeId, { color: c });
+        swatchRow.querySelectorAll('.swatch').forEach(s => s.classList.remove('--active'));
+        sw.classList.add('--active');
+        flashSaved();
+      });
+      swatchRow.appendChild(sw);
+    });
+
+    TOOLS.forEach(t => {
+      const a = document.createElement('a');
+      a.className = 'use-card --' + t.accent;
+      a.href = t.href;
+      a.innerHTML = `
+        <span class="use-card__icon">${t.icon}</span>
+        <span class="use-card__body">
+          <span class="use-card__name">${t.label}</span>
+          <span class="use-card__sub">${t.sub}</span>
+        </span>
+      `;
+      usedInEl.appendChild(a);
+    });
+
+    // Wire up
+    nameInput.addEventListener('input', () => scheduleNameSave(nameInput.value));
+    nameInput.addEventListener('blur', () => {
+      if (!nameInput.value.trim()) { nameInput.value = 'Uten navn'; scheduleNameSave('Uten navn'); }
+    });
+    namesInput.addEventListener('input', () => scheduleNamesSave(namesInput.value));
+    namesInput.addEventListener('paste', (e) => {
+      // After paste handler fires, re-parse on next tick
+      setTimeout(() => scheduleNamesSave(namesInput.value), 0);
+    });
+    $('duplicate-btn').addEventListener('click', () => {
+      const copy = K.duplicate(activeId);
+      if (copy) { activeId = copy.id; renderAll(); }
+    });
+    $('delete-btn').addEventListener('click', () => askDelete(activeId));
+    $('dedupe-btn').addEventListener('click', () => {
+      const g = K.getGroup(activeId);
+      if (!g) return;
+      const seen = new Set();
+      const deduped = g.names.filter(n => {
+        const k = n.toLowerCase();
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      });
+      K.update(activeId, { names: deduped });
+      // Re-render input + chips
+      namesInput.value = K.formatNames(deduped);
+      updateChipPreview(deduped);
+      flashSaved();
+    });
+
+    updateChipPreview(group.names);
+  }
+
+  function updateChipPreview(names) {
+    const wrap = $('chip-preview');
+    const countPill = $('count-pill');
+    const dupWarn = $('dup-warn');
+    if (!wrap) return;
+
+    wrap.innerHTML = '';
+    wrap.classList.toggle('--empty', names.length === 0);
+
+    countPill.textContent = names.length + (names.length === 1 ? ' navn' : ' navn');
+
+    if (names.length === 0) {
+      wrap.textContent = 'Ingen navn enda — lim inn over ↑';
+      dupWarn.classList.remove('--show');
+      return;
+    }
+
+    const seen = new Map();
+    names.forEach((n, i) => {
+      const key = n.toLowerCase();
+      seen.set(key, (seen.get(key) || 0) + 1);
+    });
+    const hasDups = Array.from(seen.values()).some(v => v > 1);
+    dupWarn.classList.toggle('--show', hasDups);
+
+    names.forEach((n, i) => {
+      const chip = document.createElement('span');
+      const isDup = seen.get(n.toLowerCase()) > 1;
+      chip.className = 'name-chip' + (isDup ? ' --dup' : '');
+      chip.innerHTML = `<span class="name-chip__n">${i + 1}</span><span></span>`;
+      chip.querySelector('span:last-child').textContent = n;
+      wrap.appendChild(chip);
+    });
+  }
+
+  function scheduleNameSave(value) {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      K.update(activeId, { name: value.trim() || 'Uten navn' });
+      // Only re-render sidebar (don't blow away editor focus)
+      renderSidebar();
+      flashSaved();
+    }, 250);
+  }
+  function scheduleNamesSave(raw) {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      const names = K.parseNames(raw);
+      K.update(activeId, { names });
+      renderSidebar();
+      updateChipPreview(names);
+      flashSaved();
+    }, 250);
+  }
+
+  function flashSaved() {
+    const pill = $('saved-pill');
+    if (!pill) return;
+    pill.classList.add('--show');
+    clearTimeout(flashSaved._t);
+    flashSaved._t = setTimeout(() => pill.classList.remove('--show'), 1200);
+  }
+
+  // ── Actions ──
+  function selectGroup(id) {
+    activeId = id;
+    K.setSelected(id);
+    renderAll();
+  }
+
+  function createNew() {
+    const all = K.getGroups();
+    const usedColors = new Set(all.map(g => g.color));
+    const nextColor = K.PALETTE.find(c => !usedColors.has(c)) || K.PALETTE[all.length % K.PALETTE.length];
+    const g = K.create({
+      name: '',
+      color: nextColor,
+      names: [],
+    });
+    // Use a friendlier default once it's in the list
+    K.update(g.id, { name: 'Klasse ' + (all.length + 1) });
+    activeId = g.id;
+    renderAll();
+    // Focus the name field for quick editing
+    setTimeout(() => {
+      const ni = $('name-input');
+      if (ni) { ni.focus(); ni.select(); }
+    }, 60);
+  }
+
+  function askDelete(id) {
+    const g = K.getGroup(id);
+    if (!g) return;
+    pendingDeleteId = id;
+    deleteMsg.textContent = `Klasselisten «${g.name}» og alle ${g.names.length} navn vil slettes fra denne enheten. Kan ikke angres.`;
+    deleteModal.classList.add('--show');
+  }
+  function confirmDelete() {
+    if (!pendingDeleteId) return;
+    K.remove(pendingDeleteId);
+    pendingDeleteId = null;
+    deleteModal.classList.remove('--show');
+    // Pick new active
+    const rem = K.getGroups();
+    activeId = rem[0]?.id || null;
+    renderAll();
+  }
+
+  function renderAll() {
+    renderSidebar();
+    renderEditor();
+  }
+
+  // ── Wire up global ──
+  newGroupBtn.addEventListener('click', createNew);
+  privacyMoreBtn.addEventListener('click', () => privacyModal.classList.add('--show'));
+  privacyClose.addEventListener('click', () => privacyModal.classList.remove('--show'));
+  privacyModal.addEventListener('click', (e) => { if (e.target === privacyModal) privacyModal.classList.remove('--show'); });
+  deleteCancel.addEventListener('click', () => { pendingDeleteId = null; deleteModal.classList.remove('--show'); });
+  deleteConfirm.addEventListener('click', confirmDelete);
+  deleteModal.addEventListener('click', (e) => { if (e.target === deleteModal) { pendingDeleteId = null; deleteModal.classList.remove('--show'); }});
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      privacyModal.classList.remove('--show');
+      deleteModal.classList.remove('--show');
+      pendingDeleteId = null;
+    }
+  });
+
+  // Cross-tab sync
+  K.onChange(() => {
+    // Only re-render sidebar, keep editor as-is unless our active group disappeared
+    const groups = K.getGroups();
+    if (activeId && !groups.some(g => g.id === activeId)) {
+      activeId = groups[0]?.id || null;
+      renderAll();
+    } else {
+      renderSidebar();
+    }
+  });
+
+  // ── First-run seed ──
+  // If there are no groups yet, pre-create one with the HP placeholder names — this
+  // matches what every existing tool already shows on first visit, so teachers can
+  // see the system working immediately.
+  function seedIfEmpty() {
+    const groups = K.getGroups();
+    if (groups.length === 0) {
+      const seedNames = ['Harry', 'Hermione', 'Ron', 'Neville', 'Luna', 'Ginny', 'Fred', 'George',
+        'Seamus', 'Cedric', 'Colin', 'Dean', 'Lavender', 'Katie', 'Angelina', 'Anthony',
+        'Cho', 'Susan', 'Padma', 'Lee', 'Hannah', 'Justin'];
+      K.create({ name: 'Eksempelklasse', color: 'teal', names: seedNames });
+    }
+  }
+  seedIfEmpty();
+
+  // Initial state: pick selected, or first group
+  const sel = K.getSelected();
+  activeId = sel ? sel.id : (K.getGroups()[0]?.id || null);
+  renderAll();
+})();
+</script>
+</body>
+</html>

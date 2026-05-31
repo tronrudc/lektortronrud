@@ -337,6 +337,205 @@
     .arcade-stats__hint { display: none; }
   }
 
+  /* ─────────── GLIS 67 — cyan expedition variant ─────────── */
+  .arcade-card + .arcade-card { margin-top: var(--s-6); }
+  .arcade-card--glis { background: #010310; }
+  .arcade-card--glis .arcade-card__sky {
+    background:
+      radial-gradient(ellipse at 22% 28%, rgba(0, 222, 255, 0.22), transparent 55%),
+      radial-gradient(ellipse at 80% 72%, rgba(192, 96, 255, 0.14), transparent 55%),
+      linear-gradient(180deg, #010310 0%, #051026 60%, #02060f 100%);
+  }
+  .arcade-card--glis .arcade-card__badge {
+    color: var(--planet-teal);
+    border-color: rgba(34, 200, 200, 0.55);
+    background: rgba(34, 200, 200, 0.08);
+  }
+  .arcade-card--glis .arcade-card__badge .dot {
+    background: var(--planet-teal);
+    box-shadow: 0 0 10px var(--planet-teal);
+  }
+  .arcade-card--glis .arcade-card__title {
+    background: linear-gradient(180deg, #D6FBFF 0%, #22C8C8 45%, #07B3C7 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .arcade-card--glis .arcade-card__cta {
+    background: var(--planet-teal);
+    box-shadow:
+      0 0 0 4px rgba(34, 200, 200, 0.22),
+      0 0 28px rgba(34, 200, 200, 0.5),
+      6px 7px 0 rgba(0,0,0,0.45);
+  }
+  .arcade-card--glis .arcade-card__cta:hover {
+    background: #3BD9D9;
+    box-shadow:
+      0 0 0 5px rgba(34, 200, 200, 0.32),
+      0 0 42px rgba(34, 200, 200, 0.65),
+      8px 9px 0 rgba(0,0,0,0.5);
+  }
+  .arcade-card--glis .arcade-stats__label { color: var(--nova-yellow); }
+
+  /* cyan tech grid overlay (echoes the in-game grid) */
+  .glis-grid {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0.55;
+    background-image:
+      linear-gradient(rgba(0, 222, 255, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 222, 255, 0.07) 1px, transparent 1px);
+    background-size: 46px 46px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 75% at 50% 45%, #000 35%, transparent 88%);
+    mask-image: radial-gradient(ellipse 70% 75% at 50% 45%, #000 35%, transparent 88%);
+  }
+
+  /* ── Three suns dancing in stable orbit ── */
+  .glis-orbit {
+    position: relative;
+    width: 184px; height: 184px;
+    margin: 0 auto var(--s-1);
+    justify-self: center;
+  }
+  .glis-orbit__ring {
+    position: absolute; inset: 32px; border-radius: 50%;
+    border: 1px dashed rgba(0, 222, 255, 0.32);
+    box-shadow: inset 0 0 26px rgba(0, 222, 255, 0.08);
+  }
+  /* signal pings emanating from the system */
+  .glis-orbit__sig {
+    position: absolute; top: 50%; left: 50%;
+    width: 120px; height: 120px; margin: -60px 0 0 -60px;
+    border-radius: 50%; border: 1px solid rgba(0, 222, 255, 0.55);
+    opacity: 0; animation: glis-ping 3.4s ease-out infinite;
+  }
+  .glis-orbit__sig.s2 { animation-delay: 1.13s; }
+  .glis-orbit__sig.s3 { animation-delay: 2.26s; }
+  @keyframes glis-ping {
+    0%   { opacity: 0.65; transform: scale(0.32); }
+    100% { opacity: 0;    transform: scale(1.55); }
+  }
+  .glis-orbit__sys { position: absolute; inset: 0; animation: glis-spin 17s linear infinite; }
+  @keyframes glis-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+  .glis-star { position: absolute; border-radius: 50%; transform: translate(-50%, -50%); }
+  .glis-star.s1 {
+    width: 36px; height: 36px; top: 32px; left: 92px;
+    background: radial-gradient(circle, #fff 0%, #fff5cc 16%, #ffcc44 42%, #ff7700 74%, rgba(255,60,0,0.3) 90%, transparent 100%);
+    box-shadow: 0 0 26px rgba(255,180,50,0.75), 0 0 58px rgba(255,100,20,0.4);
+    animation: sun-pulse-a 2.6s ease-in-out infinite;
+  }
+  .glis-star.s2 {
+    width: 25px; height: 25px; top: 124px; left: 144px;
+    background: radial-gradient(circle, #fff5dd 0%, #ffaa33 32%, #ff5500 72%, rgba(200,40,0,0.3) 90%, transparent 100%);
+    box-shadow: 0 0 18px rgba(255,140,30,0.7), 0 0 44px rgba(255,80,0,0.3);
+    animation: sun-pulse-b 3.3s ease-in-out infinite;
+  }
+  .glis-star.s3 {
+    width: 18px; height: 18px; top: 124px; left: 40px;
+    background: radial-gradient(circle, #ffd8b0 0%, #ff9944 38%, #dd3300 82%, rgba(160,20,0,0.3) 92%, transparent 100%);
+    box-shadow: 0 0 14px rgba(210,110,30,0.65), 0 0 34px rgba(180,60,0,0.3);
+    animation: sun-pulse-c 4s ease-in-out infinite;
+  }
+  @keyframes sun-pulse-a { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.18); } }
+  @keyframes sun-pulse-b { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.22); } }
+  @keyframes sun-pulse-c { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.26); } }
+
+  /* GLIS tagline — mission sentence, not a label */
+  .glis-tagline {
+    font-family: var(--font-body) !important;
+    text-transform: none !important;
+    letter-spacing: 0.005em !important;
+    font-size: clamp(1.02rem, 1.8vw, 1.28rem) !important;
+    font-weight: 600 !important;
+    color: rgba(232, 244, 255, 0.92) !important;
+    max-width: 30ch; margin: 0 auto; justify-self: center;
+    text-shadow: 0 0 18px rgba(0, 222, 255, 0.25);
+  }
+  /* incoming prime-number transmission */
+  .glis-primes {
+    display: flex; align-items: center; gap: 10px;
+    justify-content: center; flex-wrap: wrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.18em;
+    color: rgba(34, 200, 200, 0.7);
+    margin-top: calc(var(--s-1) * -1); justify-self: center;
+  }
+  .glis-primes .lbl { color: var(--planet-teal); opacity: 0.85; white-space: nowrap; }
+  .glis-primes b {
+    font-weight: 500; color: rgba(214, 251, 255, 0.78);
+    animation: prime-flick 2.4s steps(1) infinite;
+  }
+  .glis-primes b:nth-child(2n) { animation-delay: 0.8s; }
+  .glis-primes b:nth-child(3n) { animation-delay: 1.6s; }
+  @keyframes prime-flick { 0%, 88% { opacity: 0.78; } 90%, 100% { opacity: 0.3; } }
+  @media (max-width: 640px) { .glis-primes { display: none; } }
+
+  /* ─────────── RocketRaider — dynamic warp scene ─────────── */
+  .arcade-card--rr .arcade-card__sky {
+    background:
+      radial-gradient(ellipse at 78% 36%, rgba(244, 196, 48, 0.20), transparent 52%),
+      radial-gradient(ellipse at 18% 72%, rgba(229, 57, 53, 0.14), transparent 55%),
+      linear-gradient(180deg, #050211 0%, #14091f 55%, #07040f 100%);
+  }
+  .rr-warp {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0.7;
+    background: repeating-linear-gradient(118deg,
+      transparent 0 64px,
+      rgba(255,255,255,0.07) 64px 65px,
+      transparent 65px 70px,
+      rgba(244,196,48,0.12) 70px 71px,
+      transparent 71px 140px);
+    background-size: 280px 280px;
+    animation: rr-warp 2.4s linear infinite;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent);
+  }
+  @keyframes rr-warp { from { background-position: 0 0; } to { background-position: -280px 140px; } }
+
+  .rr-rocket {
+    position: absolute; right: 20px; top: 12px;
+    width: 104px; height: 138px;
+    transform: rotate(20deg);
+    filter: drop-shadow(0 0 26px rgba(255, 150, 30, 0.5));
+    animation: rr-bob 2.6s ease-in-out infinite;
+    pointer-events: none; z-index: 1;
+  }
+  .rr-rocket svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  @keyframes rr-bob {
+    0%, 100% { transform: rotate(20deg) translateY(0); }
+    50%      { transform: rotate(20deg) translateY(-9px); }
+  }
+  .rr-rocket .rr-flame { transform-origin: center; transform-box: fill-box; animation: rr-flame 0.12s ease-in-out infinite alternate; }
+  @keyframes rr-flame {
+    from { transform: scaleY(0.72) scaleX(1.05); opacity: 0.82; }
+    to   { transform: scaleY(1.2) scaleX(0.9);   opacity: 1; }
+  }
+
+  /* floating factor tokens */
+  .rr-chip {
+    position: absolute; z-index: 1; pointer-events: none;
+    font-family: 'Orbitron', var(--font-display);
+    font-weight: 800; font-size: 0.82rem; letter-spacing: 0.04em;
+    color: #020817; padding: 4px 11px;
+    border: 1.5px solid #020817; border-radius: var(--r-pill);
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.4);
+    animation: rr-float 5s ease-in-out infinite;
+  }
+  .rr-chip.f1 { left: 8%;  top: 26%; background: var(--nova-yellow); }
+  .rr-chip.f2 { left: 20%; top: 64%; background: var(--planet-teal); animation-delay: 0.9s; }
+  .rr-chip.f3 { left: 40%; top: 20%; background: var(--comet-orange); color: #fff; animation-delay: 1.8s; }
+  .rr-chip.f4 { left: 33%; top: 78%; background: var(--berry-pink); color: #fff; animation-delay: 2.7s; }
+  @keyframes rr-float {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50%      { transform: translateY(-13px) rotate(5deg); }
+  }
+  @media (max-width: 700px) {
+    .rr-rocket { right: 8px; top: 8px; width: 80px; height: 106px; opacity: 0.9; }
+    .rr-chip.f3, .rr-chip.f4 { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .glis-orbit__sys, .glis-orbit__sig, .glis-star,
+    .rr-warp, .rr-rocket, .rr-rocket .rr-flame, .rr-chip { animation: none; }
+  }
+
   /* ─────────── Tease grid (kept, but slightly tightened) ─────────── */
   .tease {
     max-width: 1100px; margin: var(--s-16) auto var(--s-20);
@@ -363,44 +562,84 @@
   }
   .tease__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: var(--s-4);
+    grid-template-columns: repeat(auto-fill, minmax(236px, 1fr));
+    gap: var(--s-5);
   }
   .tease-card {
+    --accent: var(--planet-teal);
+    --accent-soft: var(--planet-teal-soft);
+    position: relative;
     background: var(--surface);
     border: var(--border-w) solid var(--border-ink);
     border-radius: var(--r-xl);
     box-shadow: var(--shadow-2);
-    padding: var(--s-5);
-    display: flex; flex-direction: column; gap: var(--s-3);
-    opacity: 0.92;
+    padding: var(--s-5) var(--s-5) var(--s-4) calc(var(--s-5) + 7px);
+    display: flex; flex-direction: column;
+    overflow: hidden;
     transition: transform var(--t-fast), box-shadow var(--t-fast);
   }
-  .tease-card:hover { transform: translate(-2px,-2px); box-shadow: var(--shadow-3); opacity: 1; }
-  .tease-card__icon {
-    width: 48px; height: 48px;
+  /* signature accent rail */
+  .tease-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 7px;
+    background: var(--accent);
+    border-right: var(--border-w) solid var(--border-ink);
+  }
+  .tease-card:hover { transform: translate(-3px,-3px); box-shadow: var(--shadow-3); }
+  .tease-card:hover .tease-card__status .dot { animation-duration: 0.7s; }
+
+  .tease-card__top {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: var(--s-3); margin-bottom: var(--s-4);
+  }
+  .tease-card__glyph {
+    width: 54px; height: 54px; flex: none;
     border-radius: var(--r-md);
     border: var(--border-w) solid var(--border-ink);
+    background: var(--accent);
+    box-shadow: var(--shadow-1);
     display: grid; place-items: center;
-    font-size: 24px;
   }
+  .tease-card__glyph svg { width: 28px; height: 28px; display: block; }
+
+  .tease-card__status {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.62rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.16em;
+    color: var(--space-900);
+    background: var(--accent-soft);
+    border: 1.5px solid var(--border-ink);
+    padding: 4px 9px; border-radius: var(--r-sm);
+    transform: rotate(2.5deg);
+    box-shadow: var(--shadow-press);
+  }
+  .tease-card__status .dot {
+    width: 7px; height: 7px; border-radius: 50%; flex: none;
+    background: var(--accent);
+    border: 1.5px solid var(--border-ink);
+    animation: teasePulse 1.6s ease-in-out infinite;
+  }
+  @keyframes teasePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
   .tease-card h4 {
     font-family: var(--font-display);
-    font-size: 1.1rem; font-weight: 700;
+    font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em;
+    margin-bottom: var(--s-2);
   }
   .tease-card p {
     color: var(--slate-500); font-size: 0.875rem;
     line-height: 1.5;
   }
-  .tease-card__lock {
-    align-self: flex-start;
-    font-family: var(--font-display);
-    font-size: 0.7rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.14em;
-    padding: 4px 10px; border-radius: var(--r-pill);
-    background: var(--chalk-50); color: var(--slate-500);
-    border: 1.5px solid var(--slate-200);
+  .tease-card__foot {
+    margin-top: auto; padding-top: var(--s-3);
+    border-top: 1.5px dashed var(--slate-200);
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.64rem; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--slate-500);
   }
+  .tease-card__index { font-weight: 700; color: var(--space-900); }
 
   /* ─────────── THINK: “Trenger jeg å lære matte?” ─────────── */
   .think {
@@ -549,6 +788,7 @@
     }
   }
 </style>
+  <script src="assets/cursor.js" defer></script>
 </head>
 <body>
 
@@ -586,34 +826,90 @@
   <section class="arcade" aria-labelledby="arcade-title">
     <div class="arcade__label"><span>★ SPILL NÅ ★</span></div>
 
-    <article class="arcade-card">
+    <article class="arcade-card arcade-card--glis">
       <div class="arcade-card__sky" aria-hidden="true"></div>
+      <div class="glis-grid" aria-hidden="true"></div>
       <div class="arcade-card__stars--far" aria-hidden="true"></div>
       <div class="arcade-card__stars--mid" aria-hidden="true"></div>
       <div class="arcade-card__stars" aria-hidden="true"></div>
       <div class="arcade-card__scan" aria-hidden="true"></div>
 
-      <svg class="arcade-card__rocket" viewBox="0 0 100 100" fill="none" aria-hidden="true">
-        <path d="M50 8 C62 22 68 38 68 54 L50 64 L32 54 C32 38 38 22 50 8 Z" fill="#F4C430" stroke="#020817" stroke-width="3"/>
-        <circle cx="50" cy="36" r="7" fill="#22C8C8" stroke="#020817" stroke-width="2.5"/>
-        <path d="M32 50 L20 64 L32 60 Z" fill="#F5A623" stroke="#020817" stroke-width="2.5"/>
-        <path d="M68 50 L80 64 L68 60 Z" fill="#F5A623" stroke="#020817" stroke-width="2.5"/>
-        <path d="M44 64 L50 88 L56 64 Z" fill="#E53935" stroke="#020817" stroke-width="2.5"/>
-      </svg>
+      <div class="arcade-card__inner">
+        <div class="glis-orbit" aria-hidden="true">
+          <div class="glis-orbit__ring"></div>
+          <div class="glis-orbit__sig"></div>
+          <div class="glis-orbit__sig s2"></div>
+          <div class="glis-orbit__sig s3"></div>
+          <div class="glis-orbit__sys">
+            <span class="glis-star s1"></span>
+            <span class="glis-star s2"></span>
+            <span class="glis-star s3"></span>
+          </div>
+        </div>
+
+        <span class="arcade-card__badge">📡 MATTESPILL | MULTIPLIKASJON</span>
+        <h2 class="arcade-card__title">GLIS 67</h2>
+        <p class="arcade-card__tagline glis-tagline">Vi har oppdaget romvesner!
+Vi må utforske.</p>
+
+        <div class="glis-primes" aria-hidden="true">
+          <span class="lbl">↯ PRIMTALL MOTTATT</span>
+          <b>2</b><b>3</b><b>5</b><b>7</b><b>11</b><b>13</b><b>17</b><b>19</b><b>23</b>
+        </div>
+
+        <a class="arcade-card__cta" href="games/glis67.html" target="_blank" rel="noopener">
+          <span>Start ekspedisjonen</span>
+          <span class="arrow">▶</span>
+        </a>
+      </div>
+
+      <div class="arcade-stats" aria-label="Ekspedisjonslogg">
+        <div class="arcade-stats__label">▣ Ekspedisjonslogg</div>
+        <ol class="arcade-stats__list" id="glis-log" aria-live="polite">
+          <li class="arcade-stats__empty">ROMVESNENE VENTER PÅ SVAR! ER DU KLAR?</li>
+        </ol>
+        <div class="arcade-stats__hint">LAGRES LOKALT</div>
+      </div>
+    </article>
+
+    <article class="arcade-card arcade-card--rr">
+      <div class="arcade-card__sky" aria-hidden="true"></div>
+      <div class="rr-warp" aria-hidden="true"></div>
+      <div class="arcade-card__stars--far" aria-hidden="true"></div>
+      <div class="arcade-card__stars--mid" aria-hidden="true"></div>
+      <div class="arcade-card__stars" aria-hidden="true"></div>
+      <div class="arcade-card__scan" aria-hidden="true"></div>
+
+      <span class="rr-chip f1" aria-hidden="true">×2</span>
+      <span class="rr-chip f2" aria-hidden="true">×3</span>
+      <span class="rr-chip f3" aria-hidden="true">×5</span>
+      <span class="rr-chip f4" aria-hidden="true">×7</span>
+
+      <div class="rr-rocket" aria-hidden="true">
+        <svg viewBox="0 0 100 134" fill="none">
+          <g class="rr-flame">
+            <path d="M50 90 C59 104 57 120 50 132 C43 120 41 104 50 90 Z" fill="#ff6a00"/>
+            <path d="M50 95 C56 105 55 117 50 126 C45 117 44 105 50 95 Z" fill="#ffd24d"/>
+          </g>
+          <path d="M50 8 C62 22 68 38 68 54 L50 64 L32 54 C32 38 38 22 50 8 Z" fill="#F4C430" stroke="#020817" stroke-width="3"/>
+          <circle cx="50" cy="36" r="7" fill="#22C8C8" stroke="#020817" stroke-width="2.5"/>
+          <path d="M32 50 L20 64 L32 60 Z" fill="#F5A623" stroke="#020817" stroke-width="2.5"/>
+          <path d="M68 50 L80 64 L68 60 Z" fill="#F5A623" stroke="#020817" stroke-width="2.5"/>
+          <path d="M44 64 L50 88 L56 64 Z" fill="#E53935" stroke="#020817" stroke-width="2.5"/>
+        </svg>
+      </div>
 
       <div class="arcade-card__inner">
-        <span class="arcade-card__badge">MATTESPILL</span>
+        <span class="arcade-card__badge"><span class="dot"></span>★ MATTESPILL | FAKTORER</span>
         <h2 id="arcade-title" class="arcade-card__title">
           Rocket<span class="glitch"> RAIDER</span>
         </h2>
         <p class="arcade-card__tagline">SAMLE STJERNESTØV  ·  HVA ER EN FAKTOR?</p>
 
-        <a class="arcade-card__cta" href="games/rocketraider.html">
+        <a class="arcade-card__cta" href="games/rocketraider.html" target="_blank" rel="noopener">
           <span>Spill</span>
           <span class="arrow">▶</span>
         </a>
-        <p class="arcade-card__caption">
-</p>
       </div>
 
       <div class="arcade-stats" aria-label="Din topplista">
@@ -621,7 +917,7 @@
         <ol class="arcade-stats__list" id="rr-scoreboard" aria-live="polite">
           <li class="arcade-stats__empty">Ingen poeng ennå. Bli den første!</li>
         </ol>
-        <div class="arcade-stats__hint">Lagret lokalt</div>
+        <div class="arcade-stats__hint">LAGRES LOKALT</div>
       </div>
     </article>
   </section>
@@ -636,9 +932,7 @@
           TANKEKART · INTERAKTIVT
         </div>
         <h2 id="think-title">Trenger jeg å lære <em>matte?</em></h2>
-        <p class="think-card__lede">
-          Det korte svaret er <strong>ja</strong>. Det lengre svaret er et tankekart med <strong>over 80 grunner</strong> — fra lønnsslippen din til svarte hull. Klikk deg gjennom, dra rundt, hold over et felt for et konkret eksempel.
-        </p>
+        <p class="think-card__lede">Det korte svaret er ja. Det lengre svaret er et tankekart med over 80 grunner. Har jeg glemt noe viktig?</p>
         <a class="think-card__cta" href="matte-mindmap.html">
           <span>Utforsk tankekartet</span>
           <span class="arrow">→</span>
@@ -646,62 +940,56 @@
       </div>
 
       <div class="think-card__viz" aria-hidden="true">
-        <svg viewBox="-200 -150 400 300" preserveAspectRatio="xMidYMid meet">
-          <!-- Connectors -->
+        <svg viewBox="-220 -130 440 260" preserveAspectRatio="xMidYMid meet">
+          <!-- Branches: center → category → leaves -->
           <g fill="none" stroke-linecap="round">
-            <path d="M0 0 C -40 -30 -80 -50 -120 -55" stroke="#F4C430" stroke-width="2.5"/>
-            <path d="M0 0 C -40 30 -80 50 -120 55"   stroke="#F4C430" stroke-width="2.5"/>
-            <path d="M0 0 C 40 -30 80 -50 120 -55"   stroke="#22C8C8" stroke-width="2.5"/>
-            <path d="M0 0 C 40 30 80 50 120 55"     stroke="#22C8C8" stroke-width="2.5"/>
-            <path d="M-120 -55 C -140 -75 -160 -85 -175 -95" stroke="#F5A623" stroke-width="1.5"/>
-            <path d="M-120 -55 C -150 -55 -170 -50 -180 -45" stroke="#F5A623" stroke-width="1.5"/>
-            <path d="M-120 55 C -150 65 -170 80 -180 95" stroke="#F5A623" stroke-width="1.5"/>
-            <path d="M120 -55 C 150 -75 170 -90 180 -100" stroke="#07B3C7" stroke-width="1.5"/>
-            <path d="M120 -55 C 150 -55 170 -50 180 -45" stroke="#07B3C7" stroke-width="1.5"/>
-            <path d="M120 55 C 150 65 170 80 180 95" stroke="#07B3C7" stroke-width="1.5"/>
+            <!-- Center → Personlig / Samfunn -->
+            <path d="M-34 0 L-90 0" stroke="#F4C430" stroke-width="3"/>
+            <path d="M34 0 L90 0"   stroke="#22C8C8" stroke-width="3"/>
+
+            <!-- Personlig → 3 leaves -->
+            <path d="M-152 -8 C -172 -28 -180 -50 -188 -78" stroke="#F5A623" stroke-width="1.8"/>
+            <path d="M-152 0  L -188 0"                      stroke="#F5A623" stroke-width="1.8"/>
+            <path d="M-152 8  C -172 28 -180 50 -188 78"     stroke="#F5A623" stroke-width="1.8"/>
+
+            <!-- Samfunn → 3 leaves -->
+            <path d="M152 -8 C 172 -28 180 -50 188 -78"  stroke="#07B3C7" stroke-width="1.8"/>
+            <path d="M152 0  L 188 0"                    stroke="#07B3C7" stroke-width="1.8"/>
+            <path d="M152 8  C 172 28 180 50 188 78"     stroke="#07B3C7" stroke-width="1.8"/>
           </g>
 
           <!-- Leaf dots -->
           <g>
-            <circle cx="-178" cy="-95"  r="4" fill="#FFFBEC" stroke="#F5A623" stroke-width="1.5"/>
-            <circle cx="-180" cy="-45"  r="4" fill="#FFFBEC" stroke="#F5A623" stroke-width="1.5"/>
-            <circle cx="-180" cy="95"   r="4" fill="#FFFBEC" stroke="#F5A623" stroke-width="1.5"/>
-            <circle cx="178"  cy="-100" r="4" fill="#ECFAFA" stroke="#07B3C7" stroke-width="1.5"/>
-            <circle cx="180"  cy="-45"  r="4" fill="#ECFAFA" stroke="#07B3C7" stroke-width="1.5"/>
-            <circle cx="180"  cy="95"   r="4" fill="#ECFAFA" stroke="#07B3C7" stroke-width="1.5"/>
+            <circle cx="-188" cy="-78" r="4" fill="#FFFBEC" stroke="#F5A623" stroke-width="1.5"/>
+            <circle cx="-188" cy="0"   r="4" fill="#FFFBEC" stroke="#F5A623" stroke-width="1.5"/>
+            <circle cx="-188" cy="78"  r="4" fill="#FFFBEC" stroke="#F5A623" stroke-width="1.5"/>
+            <circle cx="188"  cy="-78" r="4" fill="#ECFAFA" stroke="#07B3C7" stroke-width="1.5"/>
+            <circle cx="188"  cy="0"   r="4" fill="#ECFAFA" stroke="#07B3C7" stroke-width="1.5"/>
+            <circle cx="188"  cy="78"  r="4" fill="#ECFAFA" stroke="#07B3C7" stroke-width="1.5"/>
           </g>
 
-          <!-- Sub-pills -->
-          <g>
-            <rect x="-160" y="-66" width="82" height="22" rx="11" fill="#FFF1B8" stroke="#0E1A38" stroke-width="1.8"/>
-            <text x="-119" y="-50" font-family="Rubik" font-size="10" font-weight="700" text-anchor="middle" fill="#0E1A38">Penger</text>
-            <rect x="-160" y="44" width="82" height="22" rx="11" fill="#FFF1B8" stroke="#0E1A38" stroke-width="1.8"/>
-            <text x="-119" y="60" font-family="Rubik" font-size="10" font-weight="700" text-anchor="middle" fill="#0E1A38">Helse</text>
-            <rect x="78" y="-66" width="82" height="22" rx="11" fill="#D6F4F4" stroke="#0E1A38" stroke-width="1.8"/>
-            <text x="119" y="-50" font-family="Rubik" font-size="10" font-weight="700" text-anchor="middle" fill="#0E1A38">Vitenskap</text>
-            <rect x="78" y="44" width="82" height="22" rx="11" fill="#D6F4F4" stroke="#0E1A38" stroke-width="1.8"/>
-            <text x="119" y="60" font-family="Rubik" font-size="10" font-weight="700" text-anchor="middle" fill="#0E1A38">Klima</text>
+          <!-- Leaf labels -->
+          <g font-family="Rubik" font-size="11" font-weight="700" fill="#0E1A38">
+            <text x="-196" y="-74" text-anchor="end">Lønn &amp; skatt</text>
+            <text x="-196" y="4"   text-anchor="end">Renter</text>
+            <text x="-196" y="82"  text-anchor="end">Helse &amp; trening</text>
+            <text x="196"  y="-74" text-anchor="start">Klima</text>
+            <text x="196"  y="4"   text-anchor="start">AI &amp; teknologi</text>
+            <text x="196"  y="82"  text-anchor="start">Universet</text>
           </g>
 
-          <!-- Primary nodes -->
-          <g>
-            <rect x="-150" y="-15" width="60" height="28" rx="14" fill="#F4C430" stroke="#0E1A38" stroke-width="2"/>
-            <text x="-120" y="4" font-family="Rubik" font-size="12" font-weight="800" text-anchor="middle" fill="#0E1A38">Personlig</text>
-            <rect x="90" y="-15" width="60" height="28" rx="14" fill="#22C8C8" stroke="#0E1A38" stroke-width="2"/>
-            <text x="120" y="4" font-family="Rubik" font-size="12" font-weight="800" text-anchor="middle" fill="#0E1A38">Samfunn</text>
-          </g>
+          <!-- Personlig pill -->
+          <rect x="-152" y="-16" width="62" height="32" rx="16" fill="#F4C430" stroke="#0E1A38" stroke-width="2"/>
+          <text x="-121" y="5" font-family="Rubik" font-size="12" font-weight="800" text-anchor="middle" fill="#0E1A38">Personlig</text>
 
-          <!-- Center -->
-          <circle cx="0" cy="0" r="36" fill="none" stroke="#F4C430" stroke-width="1.5" stroke-dasharray="3 5" opacity="0.8"/>
-          <rect x="-34" y="-15" width="68" height="30" rx="15" fill="#0E1A38" stroke="#0E1A38" stroke-width="2"/>
+          <!-- Samfunn pill -->
+          <rect x="90" y="-16" width="62" height="32" rx="16" fill="#22C8C8" stroke="#0E1A38" stroke-width="2"/>
+          <text x="121" y="5" font-family="Rubik" font-size="12" font-weight="800" text-anchor="middle" fill="#0E1A38">Samfunn</text>
+
+          <!-- Center node -->
+          <rect x="-34" y="-17" width="68" height="34" rx="17" fill="#0E1A38" stroke="#0E1A38" stroke-width="2"/>
           <text x="0" y="5" font-family="Rubik" font-size="13" font-weight="900" text-anchor="middle" fill="#F4C430">Matte</text>
         </svg>
-
-        <div class="stat stat--n">
-          <span class="num">80+</span><span class="lbl">grunner</span>
-        </div>
-        <div class="stat stat--p">Personlig</div>
-        <div class="stat stat--s">Samfunn</div>
       </div>
     </article>
   </section>
@@ -709,35 +997,74 @@
   <section class="tease">
     <div class="tease__head">
       <div class="tease__eyebrow">Kommer snart</div>
-      <h3>Flere spill er på vei</h3>
+      <h3>Mer innhold er på vei!</h3>
       <p class="tease__lede">Lektor Tronrud har mye å gjøre, men han jobber i labben så mye han kan. Puslespill, mattespill, quizer og hjernetrim kommer snart.
 Alt er gratis, uten innlogging.</p>
     </div>
     <div class="tease__grid">
-      <div class="tease-card">
-        <span class="tease-card__lock">🔒 Snart</span>
-        <div class="tease-card__icon" style="background:var(--moss-green-soft);">🧩</div>
+      <article class="tease-card" style="--accent:var(--moss-green); --accent-soft:var(--moss-green-soft);">
+        <div class="tease-card__top">
+          <div class="tease-card__glyph">
+            <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <rect x="4.5" y="4.5" width="10" height="10" rx="2.5" fill="#0E1A38"/>
+              <rect x="17.5" y="4.5" width="10" height="10" rx="2.5" fill="#0E1A38"/>
+              <rect x="4.5" y="17.5" width="10" height="10" rx="2.5" fill="#0E1A38"/>
+              <rect x="17.5" y="17.5" width="10" height="10" rx="2.5" stroke="#0E1A38" stroke-width="2.5"/>
+            </svg>
+          </div>
+          <span class="tease-card__status"><i class="dot"></i> Snart</span>
+        </div>
         <h4>Webpuslespill</h4>
         <p>Logikk-gåter med ulike vanskelighetsgrader.</p>
-      </div>
-      <div class="tease-card">
-        <span class="tease-card__lock">🔒 Snart</span>
-        <div class="tease-card__icon" style="background:var(--planet-teal-soft);">🎮</div>
+        <div class="tease-card__foot"><span class="tease-card__index">Eksp. 01</span><span>Låses opp snart</span></div>
+      </article>
+      <article class="tease-card" style="--accent:var(--planet-teal); --accent-soft:var(--planet-teal-soft);">
+        <div class="tease-card__top">
+          <div class="tease-card__glyph">
+            <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <rect x="13" y="4" width="6" height="24" rx="2" fill="#0E1A38"/>
+              <rect x="4" y="13" width="24" height="6" rx="2" fill="#0E1A38"/>
+            </svg>
+          </div>
+          <span class="tease-card__status"><i class="dot"></i> Snart</span>
+        </div>
         <h4>Flere mattespill</h4>
         <p>Lær brøk, prosent og ligninger mens du spiller.</p>
-      </div>
-      <div class="tease-card">
-        <span class="tease-card__lock">🔒 Snart</span>
-        <div class="tease-card__icon" style="background:var(--nova-yellow-soft);">❓</div>
+        <div class="tease-card__foot"><span class="tease-card__index">Eksp. 02</span><span>Låses opp snart</span></div>
+      </article>
+      <article class="tease-card" style="--accent:var(--nova-yellow); --accent-soft:var(--nova-yellow-soft);">
+        <div class="tease-card__top">
+          <div class="tease-card__glyph">
+            <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <circle cx="7" cy="8" r="2.8" fill="#0E1A38"/>
+              <rect x="13" y="5.7" width="15" height="4.6" rx="2.3" fill="#0E1A38"/>
+              <circle cx="7" cy="16" r="2.8" stroke="#0E1A38" stroke-width="2.2"/>
+              <rect x="13" y="13.7" width="15" height="4.6" rx="2.3" fill="#0E1A38"/>
+              <circle cx="7" cy="24" r="2.8" stroke="#0E1A38" stroke-width="2.2"/>
+              <rect x="13" y="21.7" width="11" height="4.6" rx="2.3" fill="#0E1A38"/>
+            </svg>
+          </div>
+          <span class="tease-card__status"><i class="dot"></i> Snart</span>
+        </div>
         <h4>Quizer</h4>
         <p>Korte quizer som lar deg sjekke om du har skjønt det.</p>
-      </div>
-      <div class="tease-card">
-        <span class="tease-card__lock">🔒 Snart</span>
-        <div class="tease-card__icon" style="background:var(--berry-pink-soft);">🧠</div>
+        <div class="tease-card__foot"><span class="tease-card__index">Eksp. 03</span><span>Låses opp snart</span></div>
+      </article>
+      <article class="tease-card" style="--accent:var(--berry-pink); --accent-soft:var(--berry-pink-soft);">
+        <div class="tease-card__top">
+          <div class="tease-card__glyph">
+            <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <circle cx="16" cy="16" r="11.5" stroke="#0E1A38" stroke-width="2.5"/>
+              <circle cx="16" cy="16" r="6" stroke="#0E1A38" stroke-width="2.5"/>
+              <circle cx="16" cy="16" r="2.3" fill="#0E1A38"/>
+            </svg>
+          </div>
+          <span class="tease-card__status"><i class="dot"></i> Snart</span>
+        </div>
         <h4>Hjernetrim</h4>
         <p>Kjappe utfordringer. Bygg hjernemuskelen din litt etter litt.</p>
-      </div>
+        <div class="tease-card__foot"><span class="tease-card__index">Eksp. 04</span><span>Låses opp snart</span></div>
+      </article>
     </div>
   </section>
 
@@ -786,6 +1113,35 @@ Alt er gratis, uten innlogging.</p>
         '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
       }[c]));
     }
+  })();
+
+  // ─────── Render GLIS 67 expedition log from localStorage ───────
+  (function renderGlisLog() {
+    const list = document.getElementById('glis-log');
+    if (!list) return;
+
+    let sv = {};
+    try { sv = JSON.parse(localStorage.getItem('aud9v2') || '{}') || {}; }
+    catch (_) { sv = {}; }
+
+    const xp      = Number(sv.totalXp) || 0;
+    const streak  = Number(sv.bestStreak) || 0;
+    const stages  = Array.isArray(sv.unlocked) ? sv.unlocked.length : 0;
+    const started = xp > 0 || stages > 1 || streak > 0;
+
+    if (!started) return; // keep default "Ekspedisjonen venter" line
+
+    const items = [
+      { rank: 'XP',     name: 'Stjernestøv', score: xp.toLocaleString('nb-NO') },
+      { rank: 'ETAPPE', name: 'Låst opp',    score: stages },
+      { rank: 'STRIME', name: 'Beste',       score: streak },
+    ];
+
+    list.innerHTML = items.map(it => `<li>
+        <span class="rank">${it.rank}</span>
+        <span class="name">${it.name}</span>
+        <span class="score">${it.score}</span>
+      </li>`).join('');
   })();
 </script>
 

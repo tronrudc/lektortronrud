@@ -1,0 +1,2512 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ekspedisjon Glis 67</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#010310; --hull:#04081a; --panel:#060f20; --panel2:#091528;
+  --glass:rgba(6,12,28,0.92); --edge:rgba(0,210,255,0.22); --edge2:rgba(0,210,255,0.10);
+  --arc:#00deff; --arc-dim:rgba(0,222,255,0.11); --arc-glow:rgba(0,222,255,0.28);
+  --pulse:#44ff88; --pulse-dim:rgba(68,255,136,0.10);
+  --caution:#ffcc00; --caution-dim:rgba(255,204,0,0.11);
+  --alarm:#ff3355; --alarm-dim:rgba(255,51,85,0.11);
+  --purple:#c060ff; --purple-dim:rgba(192,96,255,0.13);
+  --magenta:#ff44cc; --magenta-dim:rgba(255,68,204,0.11);
+  --orange:#ff8800; --gold:#ffd740;
+  --ink:#e8f4ff; --ink2:#7ab0d0; --ink3:#2e5878;
+  --mono:'Share Tech Mono',monospace;
+  --sans:'Rajdhani',sans-serif;
+  --disp:'Orbitron',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:var(--void);color:var(--ink);font-family:var(--sans);overflow:hidden;user-select:none}
+
+/* ══ BAKGRUNN ══ */
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--d) ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:var(--a)}50%{opacity:.03}}
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(0,222,255,.035) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(0,222,255,.035) 1px,transparent 1px);
+  background-size:52px 52px;pointer-events:none;z-index:1}
+body::after{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse at center,transparent 42%,rgba(1,3,16,.72) 100%);
+  pointer-events:none;z-index:2}
+.bg-star-glis{position:fixed;border-radius:50%;pointer-events:none;z-index:0;
+  animation:glisPulse var(--gd) ease-in-out infinite}
+@keyframes glisPulse{0%,100%{opacity:var(--ga);transform:scale(1)}
+  50%{opacity:calc(var(--ga)*1.7);transform:scale(1.18)}}
+
+/* ══ SKJERMER ══ */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;opacity:0;pointer-events:none;
+  transition:opacity .45s;z-index:10}
+.screen.active{opacity:1;pointer-events:all}
+
+/* ══ KNAPPER ══ */
+.btn{cursor:pointer;border:none;font-weight:700;letter-spacing:2px;transition:all .18s}
+.btn-primary{font-family:var(--disp);font-size:17px;color:#000;background:var(--arc);
+  padding:18px 64px;clip-path:polygon(15px 0%,100% 0%,calc(100% - 15px) 100%,0% 100%);
+  position:relative;overflow:hidden;letter-spacing:3px}
+.btn-primary::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.22) 0%,transparent 55%)}
+.btn-primary:hover{background:#fff;transform:scale(1.04)}
+.btn-primary:active{transform:scale(.96)}
+.btn-ghost{font-family:var(--sans);font-size:17px;font-weight:600;color:var(--ink2);
+  background:transparent;border:1px solid var(--edge);padding:14px 36px;letter-spacing:1.5px}
+.btn-ghost:hover{border-color:var(--arc);color:var(--arc)}
+.btn-diplo{font-family:var(--disp);font-size:14px;color:#fff;background:var(--purple);
+  padding:13px 28px;clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
+  position:relative;overflow:hidden;letter-spacing:2px;border:none;cursor:pointer;
+  transition:all .18s;width:100%}
+.btn-diplo:hover{background:#a78bfa;transform:scale(1.02)}
+
+/* ══════════════════════════════
+   TITTELSKJERM
+══════════════════════════════ */
+#screen-title{gap:0;overflow-y:auto;padding:30px 20px}
+.ship-name{font-family:var(--disp);font-size:clamp(56px,9vw,104px);font-weight:900;
+  color:var(--arc);letter-spacing:7px;line-height:1;text-align:center;
+  text-shadow:0 0 28px rgba(0,192,240,.95),0 0 70px rgba(0,192,240,.4),0 0 140px rgba(0,192,240,.18);
+  animation:nPulse 5s ease-in-out infinite}
+@keyframes nPulse{
+  0%,100%{text-shadow:0 0 25px rgba(0,222,255,1),0 0 60px rgba(0,180,255,.7),0 0 120px rgba(180,0,255,.35),0 0 200px rgba(255,100,0,.15)}
+  50%{text-shadow:0 0 35px rgba(0,222,255,1),0 0 80px rgba(50,200,255,.8),0 0 160px rgba(200,50,255,.45),0 0 240px rgba(255,140,0,.2)}}
+.ship-class{font-family:var(--mono);font-size:clamp(11px,1.4vw,15px);letter-spacing:6px;
+  color:var(--ink2);text-align:center;margin-top:12px;margin-bottom:6px}
+.title-div{width:min(420px,80vw);height:1px;
+  background:linear-gradient(90deg,transparent,var(--arc),transparent);
+  margin:22px 0 28px;position:relative}
+.title-div::before,.title-div::after{content:'';position:absolute;top:50%;
+  transform:translateY(-50%);width:8px;height:8px;border-radius:50%;
+  background:var(--arc);box-shadow:0 0 10px var(--arc)}
+.title-div::before{left:0}.title-div::after{right:0}
+
+/* Glis 67 lore-boks */
+.glis-lore{background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.28);
+  border-radius:8px;padding:22px 28px;max-width:600px;margin-bottom:28px;text-align:left}
+.glis-lore-title{font-family:var(--mono);font-size:15px;letter-spacing:3px;
+  color:var(--purple);margin-bottom:18px;text-align:center}
+.glis-lore-text{font-size:20px;color:var(--ink2);line-height:2.05;font-weight:400}
+.glis-lore-text strong{color:var(--ink);font-weight:700}
+.glis-lore-text em{color:#c4b5fd;font-style:normal;font-weight:600}
+
+.mission-brief{font-size:22px;color:var(--ink2);text-align:center;line-height:2.2;
+  font-weight:500;max-width:600px;margin-bottom:28px}
+.mission-brief strong{color:var(--ink);font-weight:700}
+.mission-brief em{color:var(--arc);font-style:normal}
+.title-btns{display:flex;flex-direction:column;align-items:center;gap:14px;margin-bottom:20px}
+.status-strip{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;padding-bottom:8px}
+.ss-item{display:flex;align-items:center;gap:8px}
+.ss-dot{width:7px;height:7px;border-radius:50%;background:var(--pulse);
+  box-shadow:0 0 8px var(--pulse);animation:ssDot 2.5s ease-in-out infinite}
+@keyframes ssDot{0%,100%{opacity:1}50%{opacity:.2}}
+.ss-txt{font-family:var(--mono);font-size:13px;color:var(--ink3);letter-spacing:1.5px}
+
+/* ══════════════════════════════
+   TUTORIAL
+══════════════════════════════ */
+#screen-tutorial{padding:16px}
+.tut-shell{background:var(--glass);border:1px solid var(--edge);border-radius:8px;
+  width:min(780px,97vw);max-height:97vh;display:flex;flex-direction:column;
+  overflow:hidden;backdrop-filter:blur(10px);position:relative}
+.tut-shell::before,.tut-shell::after{content:'';position:absolute;
+  width:12px;height:12px;border-color:var(--arc);border-style:solid}
+.tut-shell::before{top:-1px;left:-1px;border-width:2px 0 0 2px}
+.tut-shell::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+.tut-top{background:rgba(0,192,240,.045);border-bottom:1px solid var(--edge);
+  padding:16px 26px;display:flex;align-items:center;gap:16px;flex-shrink:0}
+.tut-badge{font-family:var(--mono);font-size:13px;letter-spacing:2px;color:var(--arc);
+  background:var(--arc-dim);border:1px solid rgba(0,192,240,.22);padding:6px 14px;border-radius:3px}
+.tut-prog-track{flex:1;height:3px;background:var(--edge2);border-radius:2px;overflow:hidden}
+.tut-prog-fill{height:100%;background:var(--arc);transition:width .4s;box-shadow:0 0 6px var(--arc)}
+.tut-cnt{font-family:var(--mono);font-size:14px;color:var(--ink3);flex-shrink:0}
+.tut-body{padding:30px 32px 22px;overflow-y:auto;flex:1;min-height:0}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--edge);border-radius:2px}
+.tut-step{display:none;flex-direction:column;gap:20px;animation:fadeUp .3s ease}
+.tut-step.show{display:flex}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.tut-eye{font-family:var(--mono);font-size:12px;letter-spacing:3px;color:var(--arc)}
+.tut-h{font-size:30px;font-weight:700;color:var(--ink);line-height:1.3}
+.tut-h em{color:var(--arc);font-style:normal}
+.tut-p{font-size:20px;color:var(--ink2);line-height:2.1;font-weight:500}
+.tut-p strong{color:var(--ink);font-weight:700}
+.tut-p em{color:var(--caution);font-style:normal;font-weight:600}
+.tut-p .purple{color:#c4b5fd;font-style:normal;font-weight:600}
+
+/* Demo-boks */
+.demo-box{background:rgba(0,0,0,.3);border:1px solid var(--edge);border-radius:6px;
+  padding:22px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.demo-eq{font-family:var(--mono);font-size:clamp(28px,4.5vw,42px);color:var(--ink);
+  letter-spacing:4px;text-align:center}
+.demo-eq .op{color:var(--arc)}
+.demo-eq .mis{color:var(--caution);border-bottom:2.5px solid var(--caution);
+  padding-bottom:3px;min-width:36px;display:inline-block;text-align:center}
+.demo-cap{font-family:var(--mono);font-size:14px;color:var(--ink3);letter-spacing:1px}
+
+/* Tallfamilie-trekant SVG i tutorial */
+.tri-wrap{position:relative;width:200px;height:170px;margin:0 auto;flex-shrink:0}
+.tri-wrap svg{position:absolute;inset:0;width:100%;height:100%}
+.tri-node{position:absolute;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-family:var(--mono);font-weight:700;transition:all .4s}
+.tri-node.big{width:64px;height:64px;font-size:20px}
+.tri-node.sml{width:54px;height:54px;font-size:17px}
+.tn-top{top:0;left:50%;transform:translateX(-50%)}
+.tn-bl{bottom:0;left:0}
+.tn-br{bottom:0;right:0}
+.tn-product{border:2px solid var(--arc);color:var(--arc);background:rgba(0,192,240,.09);
+  box-shadow:0 0 18px rgba(0,192,240,.25)}
+.tn-factor{border:1.5px solid var(--ink2);color:var(--ink2);background:var(--panel2)}
+.tn-lbl{position:absolute;font-family:var(--mono);font-size:11px;color:var(--ink3);
+  text-align:center;line-height:1.3;letter-spacing:.5px}
+
+/* Tallfamilie-chips */
+.fact-strip{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.fact-chip{background:var(--panel2);border:1px solid var(--edge2);border-radius:4px;
+  padding:8px 16px;font-family:var(--mono);font-size:15px;color:var(--ink2);
+  white-space:nowrap;transition:all .3s}
+.fact-chip.hi{border-color:var(--arc);color:var(--arc);background:var(--arc-dim)}
+.fact-chip.hip{border-color:#a78bfa;color:#a78bfa;background:var(--purple-dim)}
+
+/* Tilstandskort i tutorial */
+.state-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.sc{border-radius:6px;padding:16px 14px;text-align:center;flex:1;min-width:100px;max-width:140px}
+.sc.ok{background:var(--pulse-dim);border:1.5px solid rgba(0,232,170,.3)}
+.sc.warn{background:var(--caution-dim);border:1.5px solid rgba(232,168,0,.45)}
+.sc.off{background:var(--alarm-dim);border:1.5px solid rgba(232,48,48,.38)}
+.sc-lbl{font-family:var(--mono);font-size:12px;letter-spacing:1.5px;margin-bottom:8px}
+.sc.ok .sc-lbl{color:var(--pulse)}.sc.warn .sc-lbl{color:var(--caution)}.sc.off .sc-lbl{color:var(--alarm)}
+.sc-eq{font-family:var(--mono);font-size:15px;color:var(--ink);line-height:1.6}
+.sc-eq .sq{color:var(--caution)}
+
+/* Sjekkliste */
+.check-list{display:flex;flex-direction:column;gap:10px}
+.check-item{display:flex;align-items:flex-start;gap:14px;background:rgba(0,0,0,.22);
+  border:1px solid var(--edge2);border-radius:6px;padding:16px 18px}
+.check-icon{font-size:24px;flex-shrink:0;margin-top:2px}
+.check-text{font-size:20px;color:var(--ink2);line-height:1.85}
+.check-text strong{color:var(--ink);font-weight:700}
+
+.tut-footer{border-top:1px solid var(--edge);padding:16px 26px;
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.tut-skip-btn{font-family:var(--mono);font-size:13px;letter-spacing:1.5px;
+  color:var(--ink3);background:none;border:none;cursor:pointer;transition:color .15s}
+.tut-skip-btn:hover{color:var(--ink2)}
+.tut-nav{display:flex;gap:12px;align-items:center}
+
+/* ══════════════════════════════
+   MODUL-VALG
+══════════════════════════════ */
+#screen-modules{gap:24px}
+.screen-h{font-family:var(--disp);font-size:clamp(22px,3vw,32px);font-weight:700;
+  color:var(--arc);letter-spacing:4px;text-align:center}
+.screen-sub{font-size:22px;color:var(--ink2);text-align:center;max-width:640px;line-height:1.8}
+.modules-grid{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;width:min(820px,96vw)}
+.mod-card{background:var(--glass);border:1px solid var(--edge2);border-radius:8px;
+  padding:30px 18px 24px;text-align:center;cursor:pointer;transition:all .22s;
+  flex:1;min-width:145px;max-width:175px;position:relative;overflow:hidden;backdrop-filter:blur(4px)}
+.mod-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--arc);transform:scaleX(0);transition:transform .25s}
+.mod-card:not(.locked):hover{border-color:rgba(0,192,240,.42);background:var(--panel2);transform:translateY(-5px)}
+.mod-card:not(.locked):hover::before{transform:scaleX(1)}
+.mod-card.locked{opacity:.22;cursor:not-allowed}
+.mod-icon{font-size:72px;margin-bottom:14px;line-height:1}
+.mod-num{font-family:var(--mono);font-size:12px;color:var(--ink3);letter-spacing:1.5px;margin-bottom:6px}
+.mod-name{font-size:20px;font-weight:700;color:var(--ink);letter-spacing:.5px;margin-bottom:7px;line-height:1.35}
+.mod-tables{font-family:var(--mono);font-size:13px;color:var(--ink3);margin-bottom:8px}
+.mod-stars{font-size:18px;color:var(--caution)}
+
+/* ══════════════════════════════
+   SPILLSKJERM
+══════════════════════════════ */
+#screen-game{justify-content:flex-start;padding:0}
+
+/* HUD */
+.hud{width:100%;background:rgba(4,9,20,.97);border-bottom:1px solid var(--edge);
+  display:flex;align-items:center;height:66px;flex-shrink:0;z-index:30;
+  position:relative;backdrop-filter:blur(10px)}
+.hud-brand{display:flex;align-items:center;gap:12px;padding:0 20px;
+  border-right:1px solid var(--edge);height:100%;flex-shrink:0}
+.hud-logo-ring{width:32px;height:32px;border:2px solid var(--arc);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;position:relative}
+.hud-logo-ring::after{content:'';position:absolute;inset:5px;border-radius:50%;
+  background:var(--arc);animation:lp 2.5s ease-in-out infinite}
+@keyframes lp{0%,100%{opacity:.28}50%{opacity:.95}}
+.hud-ship{font-family:var(--disp);font-size:16px;font-weight:700;color:var(--arc);letter-spacing:2px}
+.hud-sec{display:flex;align-items:center;gap:14px;padding:0 18px;
+  border-right:1px solid var(--edge2);height:100%;flex-shrink:0}
+.hud-blk{display:flex;flex-direction:column;gap:2px}
+.hud-lbl{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--ink3)}
+.hud-val{font-family:var(--mono);font-size:20px;color:var(--ink)}
+.hud-val.arc{color:var(--arc)}.hud-val.grn{color:var(--pulse)}
+.hud-val.amb{color:var(--caution)}.hud-val.red{color:var(--alarm)}
+.hp-track{width:120px;height:8px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden}
+.hp-fill{height:100%;border-radius:4px;transition:width .6s,background .5s}
+.hud-sp{flex:1}
+.streak-pill{display:none;align-items:center;gap:7px;
+  background:rgba(232,168,0,.10);border:1px solid rgba(232,168,0,.3);
+  border-radius:20px;padding:5px 16px;font-family:var(--mono);font-size:15px;
+  color:var(--caution);margin-right:10px}
+.streak-pill.show{display:flex;animation:popIn .3s ease}
+@keyframes popIn{0%{transform:scale(.5)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+
+/* SPILLKROPP */
+.game-body{flex:1;display:flex;overflow:hidden;width:100%}
+
+/* SKIP-INTERIØR */
+.ship-int{flex:1;display:flex;flex-direction:column;padding:16px;gap:12px;
+  overflow:hidden;position:relative}
+.int-bar{display:flex;align-items:center;gap:14px;flex-shrink:0}
+.mod-label{font-family:var(--mono);font-size:15px;letter-spacing:2.5px;color:var(--arc)}
+.lvl-track{display:flex;gap:6px}
+.lvl-pip{width:30px;height:5px;background:var(--edge2);border-radius:3px;transition:all .3s}
+.lvl-pip.done{background:var(--arc);box-shadow:0 0 6px var(--arc)}
+
+/* KOMPONENT-GRID */
+.comp-grid{flex:1;display:grid;grid-template-columns:repeat(3,1fr);
+  grid-template-rows:repeat(2,1fr);gap:12px;position:relative}
+#psvg{position:absolute;inset:0;pointer-events:none;z-index:0}
+
+/* KOMPONENT-KORT */
+.comp{border-radius:6px;border:1px solid var(--edge2);background:var(--glass);
+  backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:6px;cursor:default;
+  transition:border-color .4s,box-shadow .4s;
+  position:relative;overflow:hidden;z-index:1;min-height:100px;padding:14px 12px 12px}
+.comp::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .5s;pointer-events:none}
+.comp::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.comp.powered{border-color:rgba(0,232,170,.2)}
+.comp.powered::before{background:var(--pulse-dim);opacity:1}
+.comp.powered::after{background:var(--pulse)}
+.comp.warn{border-color:rgba(232,168,0,.55);cursor:pointer}
+.comp.warn::before{background:var(--caution-dim);opacity:1}
+.comp.warn::after{background:var(--caution)}
+.comp.offline{border-color:rgba(232,48,48,.28);opacity:.6;cursor:pointer}
+.comp.offline::after{background:rgba(232,48,48,.35)}
+.comp.active{border-color:var(--arc)!important;
+  box-shadow:0 0 0 1px var(--arc),0 0 28px var(--arc-glow)!important}
+.comp.active::after{background:var(--arc)!important}
+.comp.flash-ok{animation:fOk .6s ease forwards!important}
+.comp.flash-no{animation:fNo .42s ease forwards!important}
+.comp.flash-rep{animation:fRep .6s ease forwards!important}
+@keyframes fOk{0%{box-shadow:0 0 0 rgba(68,255,136,0);transform:scale(1)}15%{box-shadow:0 0 0 4px rgba(68,255,136,1),0 0 50px rgba(68,255,136,.9),0 0 100px rgba(68,255,136,.5),0 0 180px rgba(68,255,136,.2);transform:scale(1.05);border-color:var(--pulse)}45%{box-shadow:0 0 0 2px rgba(68,255,136,.5),0 0 80px rgba(68,255,136,.4);transform:scale(1.01)}100%{box-shadow:0 0 0 rgba(68,255,136,0);transform:scale(1)}}
+@keyframes fNo{0%,50%{transform:translateX(-5px)}25%,75%{transform:translateX(5px)}100%{transform:translateX(0)}}
+@keyframes fRep{0%{box-shadow:0 0 0 rgba(139,92,246,0)}35%{box-shadow:0 0 60px rgba(139,92,246,.8)}100%{box-shadow:0 0 0 rgba(139,92,246,0)}}
+.c-id{position:absolute;top:7px;left:9px;font-family:var(--mono);font-size:12px;
+  letter-spacing:1.5px;color:var(--ink3)}
+.c-dot{position:absolute;top:7px;right:9px;width:10px;height:10px;border-radius:50%}
+.comp.powered .c-dot{background:var(--pulse);box-shadow:0 0 7px var(--pulse)}
+.comp.warn .c-dot{background:var(--caution);box-shadow:0 0 8px var(--caution)}
+.comp.offline .c-dot{background:var(--alarm);box-shadow:0 0 6px var(--alarm)}
+.c-name{font-size:clamp(12px,1.4vw,15px);font-weight:700;color:var(--ink2);
+  letter-spacing:.3px;text-align:center;line-height:1.25}
+.c-eq{font-family:var(--mono);font-size:clamp(16px,2.2vw,24px);color:var(--ink);
+  text-align:center;line-height:1.4}
+.c-eq .cq{color:var(--caution);border-bottom:2px solid var(--caution)}
+.c-eq .cop{color:var(--arc)}
+.c-eq .cstab{color:var(--ink3);font-size:.8em;letter-spacing:2px}
+.c-eq .coff{color:var(--alarm);font-size:.8em;letter-spacing:1.5px}
+.c-cd{font-family:var(--mono);font-size:15px;color:var(--caution);margin-top:2px}
+.c-timer{position:absolute;bottom:0;left:0;height:3px;transition:width 1s linear;background:var(--caution)}
+.c-offline-btn{font-family:var(--mono);font-size:13px;letter-spacing:1px;
+  color:#a78bfa;background:var(--purple-dim);border:1px solid rgba(139,92,246,.32);
+  border-radius:4px;padding:8px 14px;cursor:default;margin-top:4px;
+  opacity:.6;font-style:italic}
+
+/* FEEDBACK */
+.fb-ol{position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(.85);
+  background:var(--glass);border:1px solid var(--edge);border-radius:6px;
+  padding:18px 36px;text-align:center;z-index:50;pointer-events:none;
+  opacity:0;transition:opacity .15s,transform .15s;backdrop-filter:blur(8px);max-width:85%}
+.fb-ol.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.fb-t{font-family:var(--disp);font-size:22px;font-weight:700;letter-spacing:2px;margin-bottom:6px}
+.fb-s{font-family:var(--mono);font-size:16px;color:var(--ink2)}
+.fb-ol.ok .fb-t{color:var(--pulse)}
+.fb-ol.ng .fb-t{color:var(--alarm)}
+.fb-ol.ht .fb-t{color:var(--caution)}
+.fb-ol.rep .fb-t{color:#a78bfa}
+
+/* ══════════════════════════════
+   HØYRE PANEL
+══════════════════════════════ */
+.right-panel{width:340px;flex-shrink:0;background:rgba(4,9,20,.95);
+  border-left:1px solid var(--edge);display:flex;flex-direction:column;
+  overflow:hidden;backdrop-filter:blur(10px)}
+.rp-hdr{border-bottom:1px solid var(--edge);padding:14px 18px;flex-shrink:0;
+  display:flex;align-items:center;gap:10px}
+.rp-hdr-title{font-family:var(--mono);font-size:13px;letter-spacing:2px;color:var(--ink2)}
+.rp-hdr-dot{width:6px;height:6px;border-radius:50%;background:var(--arc);
+  box-shadow:0 0 7px var(--arc);margin-left:auto;animation:lp 2s ease-in-out infinite}
+
+/* Idle */
+.idle-st{flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:16px;padding:24px}
+.idle-icon{width:72px;height:72px;border:1px solid var(--edge);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:32px;
+  color:var(--ink3);position:relative}
+.idle-ring{position:absolute;inset:-8px;border:1px solid var(--edge2);
+  border-radius:50%;animation:ir 4.5s linear infinite}
+@keyframes ir{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.idle-txt{font-family:var(--mono);font-size:14px;letter-spacing:1.5px;
+  color:var(--ink3);text-align:center;line-height:2.1}
+
+/* Aktiv gåte */
+.puzzle-area{display:none;flex-direction:column;flex:1;overflow-y:auto;min-height:0}
+
+.active-mod-strip{padding:10px 18px;border-bottom:1px solid var(--edge2);flex-shrink:0}
+.active-mod-name{font-family:var(--mono);font-size:14px;letter-spacing:1.5px;color:var(--arc)}
+
+/* Trekant-panel over ligningen */
+.tri-panel{padding:16px 18px;border-bottom:1px solid var(--edge2);
+  flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:10px}
+.tri-panel-lbl{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--ink3)}
+.tri-mini-wrap{position:relative;width:160px;height:136px;flex-shrink:0}
+.tri-mini-wrap svg{position:absolute;inset:0;width:100%;height:100%}
+.tri-mini-node{position:absolute;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-family:var(--mono);font-weight:700;transition:all .3s}
+.tri-mini-node.big{width:52px;height:52px;font-size:18px}
+.tri-mini-node.sml{width:44px;height:44px;font-size:15px}
+.tmn-top{top:0;left:50%;transform:translateX(-50%)}
+.tmn-bl{bottom:0;left:0}
+.tmn-br{bottom:0;right:0}
+.tmn-product{border:2px solid var(--arc);color:var(--arc);background:rgba(0,192,240,.1);
+  box-shadow:0 0 14px rgba(0,192,240,.22)}
+.tmn-factor{border:1.5px solid var(--ink2);color:var(--ink2);background:var(--panel2)}
+.tmn-missing{border:2px solid var(--caution);color:var(--caution);
+  background:rgba(232,168,0,.1);box-shadow:0 0 12px rgba(232,168,0,.2)}
+
+/* Ligning-display */
+.eq-display{padding:20px 18px;border-bottom:1px solid var(--edge2);
+  flex-shrink:0;background:rgba(0,0,0,.22)}
+.eq-big{font-family:var(--mono);font-size:clamp(28px,3.8vw,42px);color:var(--ink);
+  text-align:center;letter-spacing:4px;line-height:1.2}
+.eq-big .em{color:var(--caution);border-bottom:2.5px solid var(--caution);
+  padding-bottom:2px;min-width:34px;display:inline-block;text-align:center}
+.eq-big .eo{color:var(--arc)}
+.eq-plain{font-size:16px;color:var(--ink2);text-align:center;margin-top:12px;line-height:1.6}
+
+/* Hint */
+.hint-box{display:none;margin:0 18px;background:rgba(232,168,0,.07);
+  border:1px solid rgba(232,168,0,.24);border-radius:5px;padding:10px 14px;
+  font-family:var(--mono);font-size:14px;color:var(--caution);line-height:1.6;flex-shrink:0}
+.hint-box.show{display:block}
+
+/* Timer */
+.panel-timer{padding:12px 18px;flex-shrink:0;border-bottom:1px solid var(--edge2)}
+.pt-row{display:flex;justify-content:space-between;margin-bottom:6px}
+.pt-lbl{font-family:var(--mono);font-size:13px;letter-spacing:1.5px;color:var(--ink3)}
+.pt-val{font-family:var(--mono);font-size:18px;color:var(--ink)}
+.pt-track{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.pt-fill{height:100%;border-radius:3px;transition:width 1s linear,background .4s}
+
+/* Svar-boks */
+.ans-area{padding:12px 18px;flex-shrink:0;border-bottom:1px solid var(--edge2)}
+.ans-box{background:rgba(0,0,0,.35);border:2px solid var(--edge);border-radius:5px;
+  padding:14px 18px;text-align:center;transition:border-color .2s,box-shadow .2s}
+.ans-box.has{border-color:var(--arc);box-shadow:0 0 16px rgba(0,192,240,.16)}
+.ans-val{font-family:var(--mono);font-size:46px;color:var(--arc);letter-spacing:7px}
+.ans-cursor{display:inline-block;width:3px;height:42px;background:var(--arc);
+  vertical-align:middle;animation:blink 1s step-end infinite;margin-left:3px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* Numpad */
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;
+  padding:12px 18px;flex-shrink:0;border-bottom:1px solid var(--edge2)}
+.nk{background:var(--panel2);border:1px solid var(--edge2);border-radius:5px;
+  color:var(--ink);font-family:var(--mono);font-size:22px;padding:16px 0;
+  cursor:pointer;text-align:center;transition:all .12s}
+.nk:hover{background:var(--panel);border-color:var(--arc);color:var(--arc)}
+.nk:active{transform:scale(.9);background:var(--arc-dim)}
+.nk.del{color:var(--alarm)}.nk.del:hover{border-color:var(--alarm);color:var(--alarm)}
+.nk.go{background:var(--arc);color:#000;font-weight:700;font-size:15px;
+  letter-spacing:1.5px;grid-column:span 2}
+.nk.go:hover{background:#fff}
+
+/* Kolonneregning (pluss/minus over-under) */
+.col-calc{padding:8px 14px;border-bottom:1px solid var(--edge2);flex-shrink:0;
+  display:none;flex-direction:column;gap:6px}
+.col-calc.show{display:flex}
+.col-calc-lbl{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:#a78bfa}
+.col-calc-box{background:rgba(0,0,0,.35);border:1px solid rgba(139,92,246,.3);
+  border-radius:6px;padding:10px 14px;font-family:var(--mono);user-select:none}
+
+/* The grid: each column is tens or units, each row is carry/num-a/num-b/line/answer */
+.cc-grid{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.cc-row{display:flex;justify-content:flex-end;align-items:center;gap:0;min-height:28px}
+.cc-row.carry-row{min-height:24px}
+.cc-row.ans-row{min-height:36px;border-top:2px solid rgba(139,92,246,.45);margin-top:4px;padding-top:6px}
+.cc-cell{width:44px;text-align:center;font-size:22px;color:var(--ink);line-height:1;position:relative}
+.cc-cell.op-cell{width:44px;font-size:28px;color:#a78bfa;text-align:right;padding-right:4px}
+.cc-cell.ans-cell{color:var(--caution);font-size:28px}
+
+/* Carry / borrow cell — clickable */
+.cc-carry-cell{width:44px;height:24px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;border-radius:4px;transition:background .15s;position:relative}
+.cc-carry-cell:hover{background:rgba(139,92,246,.18)}
+.cc-carry-val{font-size:14px;font-weight:700;color:#a78bfa;line-height:1;
+  transition:opacity .15s}
+.cc-carry-val.empty{color:rgba(139,92,246,.25)}
+.cc-carry-hint{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);
+  font-size:10px;color:var(--ink3);white-space:nowrap;pointer-events:none;
+  font-family:var(--mono);letter-spacing:.5px}
+.col-diplo-msg{font-size:12px;color:#a78bfa;line-height:1.5;font-style:italic;text-align:center}
+
+/* Diplomatisk send-knapp (valgfri, alltid synlig) */
+.diplo-btn-wrap{padding:10px 18px;border-bottom:1px solid var(--edge2);flex-shrink:0}
+.diplo-status{font-family:var(--mono);font-size:12px;letter-spacing:1.5px;
+  color:var(--ink3);margin-bottom:8px;text-align:center}
+
+/* Faktalogg */
+.fact-log{flex:1;overflow-y:auto;min-height:0;padding:12px 18px}
+.fl-lbl{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--ink3);margin-bottom:9px}
+.fl-entry{display:grid;grid-template-columns:auto 1fr auto;align-items:center;
+  gap:10px;padding:6px 10px;background:rgba(0,0,0,.2);
+  border:1px solid var(--edge2);border-radius:4px;margin-bottom:5px;animation:slideIn .2s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.fl-op{font-family:var(--mono);font-size:13px;letter-spacing:1px;color:var(--arc)}
+.fl-op.diplo{color:#a78bfa}
+.fl-eq{font-family:var(--mono);font-size:15px;color:var(--ink2)}
+.fl-mk{font-size:18px}
+
+/* XP FLOAT */
+.xp-float{position:fixed;pointer-events:none;font-family:var(--mono);
+  font-size:22px;color:var(--arc);z-index:999;animation:xpUp 1.3s ease forwards}
+.xp-float.diplo{color:#a78bfa;font-size:26px}
+@keyframes xpUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-70px) scale(.7)}}
+
+/* ══════════════════════════════
+   RESULTAT-SKJERMER
+══════════════════════════════ */
+#screen-levelup,#screen-gameover{gap:22px}
+.result-title{font-family:var(--disp);font-size:clamp(34px,5.5vw,62px);
+  font-weight:900;text-align:center;line-height:1.1}
+#screen-levelup .result-title{color:var(--arc);text-shadow:0 0 42px rgba(0,192,240,.4)}
+#screen-gameover .result-title{color:var(--caution);text-shadow:0 0 42px rgba(232,168,0,.32)}
+.result-sub{font-size:22px;color:var(--ink2);text-align:center;max-width:560px;line-height:1.95}
+.tronrud-quote{background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.24);
+  border-radius:6px;padding:20px 28px;max-width:540px;text-align:center}
+.tronrud-words{font-size:22px;color:#c4b5fd;line-height:2.05;font-style:italic}
+.tronrud-name{font-family:var(--mono);font-size:13px;letter-spacing:2px;color:#a78bfa;margin-top:10px}
+.result-stats{display:flex;gap:22px;background:var(--glass);border:1px solid var(--edge);
+  border-radius:6px;padding:24px 36px;backdrop-filter:blur(4px)}
+.rs-cell{text-align:center}
+.rs-val{font-family:var(--mono);font-size:38px;color:var(--arc);line-height:1}
+.rs-lbl{font-family:var(--mono);font-size:12px;letter-spacing:1.5px;color:var(--ink3);margin-top:6px}
+.stars-row{font-size:40px;letter-spacing:7px}
+.result-btns{display:flex;flex-direction:column;align-items:center;gap:12px}
+.glis-signal{background:rgba(0,192,240,.07);border:1px solid rgba(0,192,240,.22);
+  border-radius:6px;padding:18px 24px;max-width:520px;text-align:center}
+.gs-title{font-family:var(--mono);font-size:13px;letter-spacing:2.5px;color:var(--arc);margin-bottom:10px}
+.gs-text{font-size:17px;color:var(--ink2);line-height:1.7}
+
+/* REKORDLOGG */
+#screen-lb{gap:24px}
+.lb-panel{background:var(--glass);border:1px solid var(--edge);border-radius:6px;
+  width:min(520px,94vw);padding:24px;backdrop-filter:blur(4px)}
+.lb-row{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--edge2)}
+.lb-rank{font-family:var(--mono);font-size:14px;color:var(--ink3);width:30px}
+.lb-icon{font-size:20px}
+.lb-name{flex:1;font-size:18px;font-weight:600;color:var(--ink)}
+.lb-xp{font-family:var(--mono);font-size:18px;color:var(--arc)}
+.lb-totals{display:flex;gap:32px}
+.lb-tot{font-family:var(--mono);font-size:16px;color:var(--ink2)}
+.lb-tot span{color:var(--arc)}
+
+/* KONFETTI */
+.conf{position:fixed;pointer-events:none;z-index:9998;width:8px;height:8px;
+  animation:confFall var(--d) ease forwards;animation-delay:var(--dl)}
+@keyframes confFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+/* ── KORTFLIPP ── */
+.comp{ overflow:visible; }
+.comp-flipper{
+  position:absolute; inset:0;
+  transform-style:preserve-3d;
+  border-radius:5px;
+}
+.comp.flipped .comp-flipper{ transform:rotateY(180deg); transition:transform .42s ease; }
+.comp-front,.comp-back{
+  position:absolute; inset:0;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  border-radius:5px;
+  display:flex; flex-direction:column;
+}
+/* comp-front layout handled by inline styles in buildCardEl */
+.comp-back{
+  transform:rotateY(180deg); background:var(--panel2); padding:14px 10px 10px;
+  align-items:center; justify-content:center; gap:8px;
+}
+
+/* Kortets bakside innhold */
+.cb-tri{ position:relative; width:170px; height:140px; flex-shrink:0; }
+.cb-tri svg{ position:absolute; inset:0; width:100%; height:100%; }
+.cb-node{
+  position:absolute; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-weight:700;
+}
+.cb-node.lg{ width:60px; height:60px; font-size:22px; }
+.cb-node.sm{ width:52px; height:52px; font-size:19px; }
+.cb-node.ntop{ top:0; left:50%; transform:translateX(-50%); }
+.cb-node.nbl{ bottom:0; left:0; }
+.cb-node.nbr{ bottom:0; right:0; }
+.cb-node.np{ border:1.5px solid var(--arc); color:var(--arc); background:rgba(0,192,240,.1); }
+.cb-node.nf{ border:1.5px solid var(--ink2); color:var(--ink2); background:var(--panel); }
+.cb-node.nm{ border:2px solid var(--caution); color:var(--caution); background:rgba(232,168,0,.1);
+  animation:cbnm .9s ease-in-out infinite; }
+@keyframes cbnm{ 0%,100%{box-shadow:0 0 4px rgba(232,168,0,.2)} 50%{box-shadow:0 0 12px rgba(232,168,0,.5)} }
+.cb-eq{ font-family:var(--mono); font-size:clamp(20px,2.8vw,30px); color:var(--ink); text-align:center; letter-spacing:2px; }
+.cb-eq .cq{ color:var(--caution); border-bottom:1.5px solid var(--caution); }
+.cb-eq .cop{ color:var(--arc); }
+.cb-ans{
+  font-family:var(--mono); font-size:clamp(30px,4.5vw,46px); color:var(--arc);
+  letter-spacing:6px; min-width:80px; text-align:center;
+  border-bottom:3px solid var(--arc); padding-bottom:4px;
+  min-height:52px; line-height:1;
+}
+.cb-cd{ font-family:var(--mono); font-size:11px; color:var(--caution); }
+.cb-hint{ font-size:10px; color:var(--caution); font-family:var(--mono); text-align:center;
+  background:rgba(232,168,0,.07); border:1px solid rgba(232,168,0,.2);
+  border-radius:3px; padding:4px 8px; max-width:90%; line-height:1.4; }
+
+/* Right panel reorganised */
+.rp-context{ flex:1; display:flex; flex-direction:column; overflow:hidden; min-height:0; }
+.shared-numpad-wrap{ flex-shrink:0; border-top:1px solid var(--edge2); }
+.module-banner{
+  padding:10px 18px; border-bottom:1px solid var(--edge2); flex-shrink:0;
+  background:rgba(0,192,240,.04);
+}
+.module-banner-name{ font-family:var(--mono); font-size:13px; color:var(--arc); letter-spacing:1px; }
+.module-banner-hint{ font-size:13px; color:var(--ink2); margin-top:3px; }
+.diplo-interrupt{
+  margin:0 18px 8px; background:rgba(232,168,0,.08);
+  border:1px solid rgba(232,168,0,.22); border-radius:4px;
+  padding:7px 12px; font-family:var(--mono); font-size:11px;
+  color:var(--caution); flex-shrink:0;
+}
+
+/* ── LÅNING VED SUBTRAKSJON ── */
+.cc-borrow-from{
+  position:relative; cursor:pointer; display:inline-flex;
+  align-items:baseline; gap:3px; width:44px; justify-content:center;
+}
+.cc-crossed{
+  color:var(--ink3); font-size:22px; position:relative; display:inline-block;
+}
+.cc-crossed::after{
+  content:'';
+  position:absolute;
+  left:-2px; top:4px; right:-2px; bottom:4px;
+  border-top:2.5px solid rgba(167,139,250,.75);
+  transform:rotate(-18deg);
+  pointer-events:none;
+}
+.cc-reduced{
+  font-size:14px; color:#a78bfa; line-height:1; align-self:flex-start;
+  margin-top:2px;
+}
+.cc-borrowable{
+  width:44px; text-align:center; font-size:22px; cursor:pointer;
+  border-radius:4px; transition:background .14s; display:inline-block;
+  border:1.5px dashed rgba(167,139,250,.28);
+}
+.cc-borrowable:hover{
+  background:rgba(167,139,250,.15); border-color:rgba(167,139,250,.6);
+}
+.cc-borrow-received{
+  font-size:14px; color:#a78bfa; font-family:var(--mono); font-weight:700;
+  text-align:center; width:44px; line-height:1;
+}
+
+/* ─── ETAPPE LEVEL PIPS ─── */
+.mod-levels{display:flex;gap:8px;justify-content:center;margin-top:12px}
+.ml-pip{
+  width:28px;height:28px;border-radius:50%;
+  border:2px solid rgba(100,140,180,.25);
+  background:rgba(20,35,55,.6);
+  display:flex;align-items:center;justify-content:center;font-size:0;
+}
+.ml-pip.ml-0{border-color:rgba(100,140,180,.2)}
+.ml-pip.ml-1{border-color:var(--caution);background:rgba(232,168,0,.18)}
+.ml-pip.ml-2{border-color:var(--arc);background:rgba(0,192,240,.18)}
+.ml-pip.ml-3{border:none;background:transparent;font-size:22px;width:32px;height:32px}
+
+/* ─── NASA CONTROL ROOM — SHIP INTERIOR ─── */
+.ship-int{
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,192,240,.04) 39px,rgba(0,192,240,.04) 40px),
+    repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(0,192,240,.04) 39px,rgba(0,192,240,.04) 40px),
+    radial-gradient(ellipse at 50% 100%,rgba(0,192,240,.04) 0%,transparent 65%),
+    var(--void);
+}
+/* Corner bracket markers on the grid area */
+.comp-grid::before,.comp-grid::after{
+  content:'';position:absolute;width:12px;height:12px;
+  border-color:rgba(0,192,240,.25);border-style:solid;pointer-events:none;z-index:2;
+}
+.comp-grid::before{top:0;left:0;border-width:2px 0 0 2px}
+.comp-grid::after {bottom:0;right:0;border-width:0 2px 2px 0}
+
+/* ─── NASA MODULE CARDS ─── */
+/* Override to remove old centering — front is a structured panel */
+.comp{
+  background:rgba(3,6,12,.92);
+  border-radius:4px;
+  padding:0;          /* remove old padding — handled internally */
+  align-items:stretch;
+  justify-content:flex-start;
+  gap:0;
+}
+/* Scan line overlay */
+.comp::before{
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.06) 3px,rgba(0,0,0,.06) 4px)!important;
+  opacity:1!important;
+  z-index:8;
+  pointer-events:none;
+  border-radius:4px;
+}
+/* State coloured top bar already handled by ::after */
+
+/* Left-edge accent bar (state colour, 3px) */
+.comp-left-bar{
+  position:absolute;top:0;left:0;bottom:0;width:3px;border-radius:4px 0 0 4px;z-index:9;
+}
+.comp.powered .comp-left-bar{background:var(--pulse)}
+.comp.warn .comp-left-bar{background:var(--caution)}
+.comp.offline .comp-left-bar{background:var(--alarm);opacity:.5}
+.comp.active .comp-left-bar{background:var(--arc)!important}
+
+/* NASA card internal zones */
+.nc-hdr{
+  display:flex;align-items:center;gap:4px;
+  padding:5px 8px 4px 10px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  flex-shrink:0;position:relative;z-index:10;
+}
+.nc-sys{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:1px;flex-shrink:0}
+.nc-name{
+  font-family:var(--mono);font-size:clamp(7px,0.9vw,10px);
+  color:var(--ink2);flex:1;text-align:center;letter-spacing:.5px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.nc-badge{
+  font-family:var(--mono);font-size:7px;letter-spacing:.5px;
+  padding:2px 5px;border-radius:2px;flex-shrink:0;font-weight:700;
+}
+.nc-badge.powered{background:rgba(0,232,170,.14);color:var(--pulse);border:1px solid rgba(0,232,170,.2)}
+.nc-badge.warn{background:rgba(232,168,0,.14);color:var(--caution);border:1px solid rgba(232,168,0,.2)}
+.nc-badge.offline{background:rgba(232,48,48,.1);color:var(--alarm);border:1px solid rgba(232,48,48,.15)}
+.nc-body{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:4px;padding:6px 8px;position:relative;z-index:10;
+}
+/* Equation in warn card — NASA big display */
+.nc-eq{
+  font-family:var(--mono);font-size:clamp(15px,2.1vw,22px);
+  color:var(--ink);text-align:center;line-height:1.3;letter-spacing:1px;
+}
+.nc-eq .cop{color:var(--arc)}
+.nc-eq .cq{color:var(--caution);border-bottom:2px solid var(--caution);padding-bottom:1px}
+.nc-trow{display:flex;align-items:center;gap:8px}
+.nc-tlbl{font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:1.5px}
+.nc-tval{font-family:var(--mono);font-size:14px;color:var(--caution);font-weight:700}
+/* Powered card data */
+.nc-ok-row{display:flex;align-items:center;gap:6px}
+.nc-ok-dot{width:7px;height:7px;border-radius:50%;background:var(--pulse);
+  box-shadow:0 0 6px var(--pulse);animation:ssDot 2.5s ease-in-out infinite}
+.nc-ok-txt{font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:1.5px}
+/* Offline card */
+.nc-off-txt{font-family:var(--mono);font-size:10px;color:var(--alarm);letter-spacing:2px}
+/* Blinking warn indicator */
+.nc-warn-blink{
+  width:7px;height:7px;border-radius:50%;background:var(--caution);
+  box-shadow:0 0 8px var(--caution);flex-shrink:0;
+  animation:ncWB .6s ease-in-out infinite;
+}
+@keyframes ncWB{0%,100%{opacity:1}50%{opacity:.15}}
+
+/* ─── NASA POWER LINES ─── */
+/* drawLines now uses path elements — CSS just sets svg style */
+#psvg path{stroke-dasharray:6,4}
+
+/* ─── NASA HUD enhancements ─── */
+.hud{
+  border-bottom:1px solid rgba(0,192,240,.25);
+  box-shadow:0 2px 20px rgba(0,192,240,.06);
+}
+/* Thin scanning line under HUD */
+.hud::after{
+  content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,192,240,.4),transparent);
+}
+
+/* ─── INT-BAR styling ─── */
+.int-bar{
+  border-bottom:1px solid rgba(0,192,240,.08);
+  padding-bottom:10px;
+}
+.mission-clock{
+  font-family:var(--mono);font-size:10px;letter-spacing:2px;
+  color:var(--ink3);margin-left:auto;
+}
+
+/* ════════════════════════════════════════════
+   SPACE ARCADE MAKEOVER — VISUAL LAYER
+════════════════════════════════════════════ */
+
+/* ── COLOURED STARS ── */
+.star.star-bright{
+  box-shadow:0 0 4px 2px rgba(255,255,255,.55);
+}
+
+/* ── NEBULA CANVAS ── */
+.nebula-canvas{
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse 150% 100% at 10% 20%, rgba(140,0,200,.22) 0%, transparent 55%),
+    radial-gradient(ellipse 100% 80%  at 90% 80%, rgba(210,55,10,.18)  0%, transparent 50%),
+    radial-gradient(ellipse 90%  70%  at 60% 10%, rgba(0,90,210,.16)   0%, transparent 50%),
+    radial-gradient(ellipse 80%  50%  at 85% 5%,  rgba(220,80,0,.14)   0%, transparent 45%),
+    radial-gradient(ellipse 70%  90%  at 5%  85%, rgba(100,0,150,.20)  0%, transparent 50%),
+    radial-gradient(ellipse 60%  40%  at 40% 60%, rgba(180,0,120,.08)  0%, transparent 55%),
+    #010310;
+  animation:nebulaDrift 25s ease-in-out infinite;
+}
+@keyframes nebulaDrift{
+  0%,100%{opacity:1}
+  33%{filter:hue-rotate(8deg) brightness(1.06)}
+  66%{filter:hue-rotate(-6deg) brightness(.96)}
+}
+/* Galaxy spiral layer */
+.nebula-canvas::before{
+  content:'';
+  position:absolute; top:5%; left:15%; width:70%; height:70%;
+  background:radial-gradient(ellipse at center,
+    rgba(160,80,255,.06) 0%, rgba(80,40,180,.08) 25%,
+    rgba(40,10,100,.05) 50%, transparent 70%);
+  border-radius:50%; transform:rotate(-35deg) scaleX(1.7);
+  animation:galaxyRotate 90s linear infinite;
+}
+@keyframes galaxyRotate{
+  from{transform:rotate(-35deg) scaleX(1.7)}
+  to  {transform:rotate(325deg) scaleX(1.7)}
+}
+/* Bright nebula cores */
+.nebula-canvas::after{
+  content:'';
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 30% 20% at 12% 22%, rgba(160,60,255,.15) 0%, transparent 100%),
+    radial-gradient(ellipse 25% 18% at 88% 78%, rgba(255,100,30,.13)  0%, transparent 100%);
+}
+
+/* ── GLIS 67 THREE SUNS ── */
+.glis-sun-haze{
+  position:fixed; bottom:0; right:0; z-index:0; pointer-events:none;
+  width:600px; height:500px;
+  background:radial-gradient(ellipse at bottom right,
+    rgba(255,130,30,.13) 0%, rgba(200,70,10,.08) 35%, transparent 68%);
+}
+.glis-suns{
+  position:fixed; bottom:-35px; right:50px;
+  z-index:0; pointer-events:none;
+  width:300px; height:220px;
+}
+.glis-sun{position:absolute; border-radius:50%}
+/* Sun 1 — main, warm yellow-white */
+.gs1{
+  width:110px; height:110px; bottom:0; right:5px;
+  background:radial-gradient(circle, #fff 0%, #fff5cc 15%, #ffcc44 40%, #ff7700 72%, rgba(255,60,0,.3) 88%, transparent 100%);
+  box-shadow:0 0 60px rgba(255,180,50,.7), 0 0 130px rgba(255,100,20,.4), 0 0 250px rgba(255,80,10,.15);
+  animation:sunP1 7s ease-in-out infinite;
+}
+/* Sun 2 — medium, orange */
+.gs2{
+  width:65px; height:65px; bottom:28px; right:130px;
+  background:radial-gradient(circle, #fff5dd 0%, #ffaa33 30%, #ff5500 70%, rgba(200,40,0,.3) 88%, transparent 100%);
+  box-shadow:0 0 35px rgba(255,140,30,.65), 0 0 90px rgba(255,80,0,.3);
+  animation:sunP2 10s ease-in-out infinite;
+}
+/* Sun 3 — small, reddish */
+.gs3{
+  width:44px; height:44px; bottom:68px; right:205px;
+  background:radial-gradient(circle, #ffd8b0 0%, #ff9944 35%, #dd3300 78%, rgba(160,20,0,.3) 92%, transparent 100%);
+  box-shadow:0 0 22px rgba(210,110,30,.6), 0 0 60px rgba(180,60,0,.3);
+  animation:sunP3 13s ease-in-out infinite;
+}
+@keyframes sunP1{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.04);filter:brightness(1.14)}}
+@keyframes sunP2{0%,100%{transform:scale(1)}50%{transform:scale(1.07);filter:brightness(1.18)}}
+@keyframes sunP3{0%,100%{transform:scale(1)}50%{transform:scale(1.10);filter:brightness(1.22)}}
+
+/* ── SHOOTING STARS ── */
+@keyframes shootFly{
+  0%  {opacity:0; transform:rotate(var(--ang,20deg)) translate(0,0)}
+  10% {opacity:1}
+  90% {opacity:.8}
+  100%{opacity:0; transform:rotate(var(--ang,20deg)) translate(var(--dx),var(--dy))}
+}
+.shoot-star{
+  position:fixed; z-index:1; pointer-events:none;
+  height:2px; border-radius:2px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),rgba(180,230,255,.5),transparent);
+  animation:shootFly var(--dur,.9s) ease-in forwards;
+  transform-origin:right center;
+}
+
+/* ── HUD — NEON RAINBOW STRIPE ── */
+.hud::before{
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:3px; z-index:50;
+  background:linear-gradient(90deg,#cc44ff,#0099ff,#00deff,#44ff88,#ffcc00,#ff8800,#ff44cc,#cc44ff);
+  background-size:300% 100%;
+  animation:hudRainbow 5s linear infinite;
+}
+@keyframes hudRainbow{from{background-position:0%}to{background-position:300%}}
+
+/* Glowing HUD values */
+.hud-val.arc{text-shadow:0 0 14px rgba(0,222,255,.8),0 0 28px rgba(0,180,255,.4)}
+.hud-val.grn{text-shadow:0 0 12px rgba(68,255,136,.8),0 0 25px rgba(0,220,100,.35)}
+.hud-val.amb{text-shadow:0 0 12px rgba(255,204,0,.75),0 0 24px rgba(255,160,0,.35)}
+.hud-val.red{text-shadow:0 0 12px rgba(255,51,85,.75),0 0 24px rgba(255,0,50,.35)}
+
+/* ── MODULE CARDS — VIBRANT STATES ── */
+.comp.warn{border-color:rgba(255,200,0,.75)!important}
+.comp.powered::before{
+  background:radial-gradient(ellipse at center, rgba(68,255,136,.12), transparent 70%)!important;
+  opacity:1!important;
+}
+.comp.warn::before{
+  background:radial-gradient(ellipse at center, rgba(255,190,0,.14), transparent 70%)!important;
+  opacity:1!important;
+}
+/* Glowing left bars */
+.comp.powered .comp-left-bar{
+  background:linear-gradient(to bottom, #44ff88, rgba(68,255,136,.25));
+  box-shadow:0 0 12px rgba(68,255,136,.6), 2px 0 20px rgba(68,255,136,.2);
+}
+.comp.warn .comp-left-bar{
+  background:linear-gradient(to bottom, #ffcc00, rgba(255,200,0,.25));
+  box-shadow:0 0 14px rgba(255,210,0,.7), 2px 0 22px rgba(255,180,0,.25);
+  animation:warnBarPulse .9s ease-in-out infinite;
+}
+.comp.offline .comp-left-bar{
+  background:linear-gradient(to bottom, #ff3355, rgba(255,50,80,.2));
+  box-shadow:0 0 10px rgba(255,50,80,.5);
+}
+.comp.active .comp-left-bar{
+  background:linear-gradient(to bottom, #00deff, rgba(0,222,255,.25));
+  box-shadow:0 0 16px rgba(0,222,255,.8), 2px 0 28px rgba(0,200,255,.3)!important;
+}
+@keyframes warnBarPulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* Warn equation glow */
+.comp.warn .nc-eq{text-shadow:0 0 18px rgba(255,210,0,.5)}
+.comp.warn .nc-eq .cq{text-shadow:0 0 22px rgba(255,195,0,.8)}
+.comp.warn .nc-tval{text-shadow:0 0 10px rgba(255,195,0,.6)}
+
+/* Active card — electric cyan */
+.comp.active{
+  border-color:#00deff!important;
+  box-shadow:0 0 0 2px #00deff, 0 0 30px rgba(0,222,255,.55), 0 0 70px rgba(0,200,255,.2)!important;
+}
+
+/* ── CARD BACK — VIBRANT TRIANGLE ── */
+.cb-node.np{
+  border-color:#00deff!important; color:#00deff!important;
+  box-shadow:0 0 22px rgba(0,222,255,.5), 0 0 50px rgba(0,200,255,.2)!important;
+}
+.cb-node.nm{
+  border-color:#ffcc00!important; color:#ffcc00!important;
+  box-shadow:0 0 20px rgba(255,204,0,.6), 0 0 45px rgba(255,180,0,.25)!important;
+}
+.cb-eq .cop{color:#00deff!important; text-shadow:0 0 10px rgba(0,222,255,.6)}
+.cb-eq .cq{border-bottom-color:#ffcc00!important; text-shadow:0 0 12px rgba(255,204,0,.6)}
+.cb-ans{color:#00deff!important; text-shadow:0 0 20px rgba(0,222,255,.6)!important}
+
+/* ── BUTTONS — NEON ── */
+.btn-primary{
+  background:linear-gradient(135deg,#00ccff,#0077ff)!important;
+  box-shadow:0 0 22px rgba(0,180,255,.45), 0 4px 20px rgba(0,0,0,.4)!important;
+}
+.btn-primary:hover{
+  background:linear-gradient(135deg,#44ddff,#2299ff)!important;
+  box-shadow:0 0 38px rgba(0,210,255,.65)!important;
+}
+
+/* ── FACT CHIPS — COLOURFUL ── */
+.fact-chip.hi{
+  background:rgba(0,180,255,.12)!important; border-color:rgba(0,220,255,.5)!important;
+  color:#66eeff!important; text-shadow:0 0 8px rgba(0,220,255,.45)!important;
+}
+
+/* ── STREAK PILL — GOLD GLOW ── */
+.streak-pill.show{
+  background:linear-gradient(135deg,rgba(255,180,0,.16),rgba(255,100,0,.10))!important;
+  border-color:rgba(255,200,0,.55)!important;
+  box-shadow:0 0 18px rgba(255,180,0,.3)!important;
+  text-shadow:0 0 10px rgba(255,200,0,.6);
+}
+
+/* ── MODULE SELECT — NEON HOVER + SUN TINT ── */
+.mod-card:not(.locked):hover{
+  border-color:rgba(0,220,255,.55)!important;
+  box-shadow:0 0 28px rgba(0,200,255,.22), 0 8px 30px rgba(0,0,0,.4), 0 -3px 0 #00deff!important;
+}
+#screen-modules::before{
+  content:'';
+  position:absolute; bottom:0; right:0;
+  width:500px; height:400px;
+  background:radial-gradient(ellipse at bottom right,rgba(255,130,30,.09) 0%,transparent 65%);
+  pointer-events:none;
+}
+
+/* ── TITLE SCREEN ENHANCEMENTS ── */
+.lore-pill-text em{color:#c4b5fd!important}
+.glis-lore{
+  border-color:rgba(192,96,255,.38)!important;
+  box-shadow:0 0 30px rgba(150,50,220,.12), inset 0 0 30px rgba(130,40,200,.05)!important;
+}
+.title-div{
+  background:linear-gradient(90deg,transparent,#cc44ff 20%,#00deff 50%,#44ff88 80%,transparent)!important;
+}
+.title-div::before,.title-div::after{
+  background:linear-gradient(to right,#cc44ff,#00deff)!important;
+  box-shadow:0 0 14px rgba(0,220,255,.8), 0 0 30px rgba(180,50,255,.4)!important;
+}
+
+/* ── LEVELUP/GAMEOVER — GLOW TITLES ── */
+#screen-levelup .result-title{
+  text-shadow:0 0 40px rgba(0,222,255,.5), 0 0 90px rgba(100,100,255,.25)!important;
+}
+#screen-gameover .result-title{
+  color:#ff8800!important;
+  text-shadow:0 0 40px rgba(255,136,0,.5), 0 0 90px rgba(255,60,0,.25)!important;
+}
+/* "GAME OVER" gets special red treatment via JS */
+
+/* ── CONFETTI — MORE COLOURS ── */
+/* already set by JS, keeping override for flair */
+
+/* ── XP FLOAT — NEON ── */
+.xp-float{text-shadow:0 0 12px rgba(0,222,255,.8)!important}
+.xp-float.diplo{text-shadow:0 0 12px rgba(192,96,255,.8)!important}
+
+/* ── IDLE RING — RAINBOW ── */
+@keyframes rainbowRing{
+  0%{border-color:#cc44ff}25%{border-color:#00deff}
+  50%{border-color:#44ff88}75%{border-color:#ffcc00}100%{border-color:#cc44ff}
+}
+.idle-ring{animation:ir 4s linear infinite, rainbowRing 3s linear infinite!important}
+
+/* ── HUD BRAND PULSE ── */
+.hud-logo-ring{
+  border-color:#00deff!important;
+  box-shadow:0 0 12px rgba(0,222,255,.5), 0 0 30px rgba(0,200,255,.25)!important;
+}
+
+/* ── LEVEL PIPS — GLOWING ── */
+.ml-pip.ml-1{box-shadow:0 0 10px rgba(255,200,0,.5)}
+.ml-pip.ml-2{box-shadow:0 0 12px rgba(0,200,255,.55)}
+.ml-pip.ml-3{filter:drop-shadow(0 0 8px rgba(68,255,136,.7))}
+
+/* ── POWER LINES — BRIGHTER ── */
+/* drawLines uses rgba colors — the SVG paths get these via JS */
+
+/* ── COMPACT GRID BRACKETS — VIBRANT ── */
+.comp-grid::before,.comp-grid::after{
+  border-color:rgba(0,220,255,.4)!important;
+}
+
+/* ── SCAN LINE PER CARD — MORE VIVID ── */
+.comp::before{
+  background:repeating-linear-gradient(
+    0deg,transparent,transparent 3px,rgba(0,0,0,.08) 3px,rgba(0,0,0,.08) 4px)!important;
+}
+
+/* ── VANSKELIGHETSGRAD ── */
+.difficulty-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center}
+.diff-label{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--ink3)}
+.diff-btn{
+  font-family:var(--mono);font-size:12px;letter-spacing:2px;
+  background:transparent;border:1px solid var(--edge2);color:var(--ink3);
+  padding:9px 22px;cursor:pointer;border-radius:3px;transition:all .18s;
+}
+.diff-btn:hover{border-color:var(--arc);color:var(--arc)}
+.diff-btn.active{border-color:var(--arc);color:var(--arc);background:rgba(0,222,255,.1);box-shadow:0 0 12px rgba(0,200,255,.22)}
+.diff-btn[data-diff="easy"].active{border-color:var(--pulse);color:var(--pulse);background:rgba(68,255,136,.1);box-shadow:0 0 12px rgba(68,255,136,.22)}
+.diff-btn[data-diff="hard"].active{border-color:var(--alarm);color:var(--alarm);background:rgba(255,51,85,.1);box-shadow:0 0 12px rgba(255,51,85,.22)}
+
+/* ── CLICKABLE ANSWER DIGITS ── */
+.ans-cell.can-del{cursor:pointer;transition:color .12s,border-bottom .12s}
+.ans-cell.can-del:hover{color:var(--purple)!important;border-bottom:2px solid var(--purple)!important}
+.ans-cell.is-next{border-bottom:2px solid #a78bfa}
+
+/* ── ORBITAL LOGO ── */
+.orbital-logo{position:relative;width:36px;height:36px;flex-shrink:0}
+.orb-sys{position:absolute;inset:0;animation:sysRot 9s linear infinite}
+.orb{position:absolute;border-radius:50%;transform:translate(-50%,-50%);animation:orbUp 9s linear infinite}
+.orb1{width:12px;height:12px;top:18px;left:27px;
+  background:radial-gradient(circle,#fff 0%,#ffdd66 35%,#ff8800 85%);
+  box-shadow:0 0 9px rgba(255,200,50,.9);
+  animation:orbUp 9s linear infinite,orbP1 2.3s ease-in-out infinite}
+.orb2{width:8px;height:8px;top:28px;left:9px;
+  background:radial-gradient(circle,#ffe8bb 0%,#ff9922 45%,#ff4400 88%);
+  box-shadow:0 0 6px rgba(255,145,30,.75);
+  animation:orbUp 9s linear infinite,orbP2 3.1s ease-in-out infinite}
+.orb3{width:5px;height:5px;top:8px;left:9px;
+  background:radial-gradient(circle,#ffd0aa 0%,#ff7733 50%,#dd2200 90%);
+  box-shadow:0 0 5px rgba(200,100,30,.65);
+  animation:orbUp 9s linear infinite,orbP3 4.0s ease-in-out infinite}
+@keyframes sysRot{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes orbUp{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(-360deg)}}
+@keyframes orbP1{0%,100%{box-shadow:0 0 9px rgba(255,200,50,.9)}50%{box-shadow:0 0 16px rgba(255,210,60,1),0 0 30px rgba(255,160,20,.4)}}
+@keyframes orbP2{0%,100%{box-shadow:0 0 6px rgba(255,145,30,.75)}50%{box-shadow:0 0 12px rgba(255,160,40,.95)}}
+@keyframes orbP3{0%,100%{box-shadow:0 0 5px rgba(200,100,30,.65)}50%{box-shadow:0 0 10px rgba(215,115,40,.88)}}
+
+/* ══ ALLE STØRRELSESFORBEDRINGER ══ */
+
+/* Pause overlay */
+#pause-overlay{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(1,3,16,.88);backdrop-filter:blur(8px);
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+}
+#pause-overlay.show{display:flex}
+.pause-box{
+  background:rgba(6,12,28,.95);border:1px solid var(--edge);
+  border-radius:8px;padding:48px 56px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  max-width:500px;
+  box-shadow:0 0 60px rgba(0,200,255,.12);
+}
+.pause-icon{font-size:52px;line-height:1}
+.pause-title{
+  font-family:var(--disp);font-size:40px;font-weight:900;
+  color:var(--arc);letter-spacing:6px;
+  text-shadow:0 0 30px rgba(0,222,255,.5);
+}
+.pause-sub{font-size:17px;color:var(--ink2);line-height:1.8;max-width:360px}
+
+/* Module card front — equation MUCH bigger */
+.comp.warn .nc-eq{
+  font-size:clamp(30px,4.2vw,52px)!important;
+  line-height:1.25!important;
+  letter-spacing:2px!important;
+}
+.comp.warn .nc-tval{font-size:22px!important;letter-spacing:1px}
+.comp.warn .nc-tlbl{font-size:12px!important}
+.comp.warn .nc-warn-blink{width:10px!important;height:10px!important}
+/* nc-body fill for warn — centre the equation */
+.comp.warn .nc-body{gap:10px!important;padding:10px 10px!important}
+
+/* Module names + header — bigger and more visible */
+.nc-hdr{padding:8px 12px 7px 14px!important}
+.nc-sys{font-size:11px!important;color:var(--ink2)!important;letter-spacing:1.5px!important}
+.nc-name{
+  font-size:clamp(13px,1.6vw,18px)!important;
+  color:var(--ink)!important;font-weight:600!important;letter-spacing:.8px!important;
+}
+.nc-badge{font-size:11px!important;padding:3px 8px!important;border-radius:3px!important}
+
+/* OK readout on powered cards */
+.nc-ok-txt{font-size:15px!important;letter-spacing:2px!important}
+.nc-ok-dot{width:9px!important;height:9px!important}
+
+/* Card BACK — more air between triangle and equation */
+.comp-back{
+  gap:16px!important;
+  padding:18px 14px 14px!important;
+}
+/* Triangle bigger */
+.cb-tri{width:180px!important;height:148px!important}
+.cb-node.lg{width:64px!important;height:64px!important;font-size:24px!important}
+.cb-node.sm{width:54px!important;height:54px!important;font-size:20px!important}
+/* Equation on back — bigger */
+.cb-eq{font-size:clamp(24px,3.4vw,40px)!important;letter-spacing:3px!important}
+/* Answer field — bigger */
+.cb-ans{
+  font-size:clamp(36px,5.2vw,56px)!important;
+  letter-spacing:7px!important;
+  min-width:90px!important;
+  border-bottom-width:4px!important;
+}
+.cb-cd{font-size:14px!important}
+
+/* Glis 67 column calculation — bigger numbers */
+.cc-cell{font-size:28px!important}
+.cc-cell.op-cell{font-size:28px!important}
+.cc-row{min-height:36px!important}
+.cc-row.ans-row{min-height:44px!important}
+.cc-carry-val{font-size:16px!important}
+.cc-borrow-received{font-size:18px!important}
+.cc-crossed{font-size:28px!important}
+.cc-reduced{font-size:18px!important}
+.cc-borrowable{font-size:28px!important}
+.col-calc-box{padding:14px 18px!important}
+.ans-cell{font-size:28px!important;min-height:42px!important}
+/* Diplo button — taller for two lines */
+.btn-diplo{padding:16px 28px!important;line-height:1.55!important}
+</style>
+</head>
+<body>
+<!-- NEBULA BACKGROUND -->
+<div class="nebula-canvas" aria-hidden="true"></div>
+<!-- GLIS 67 TRIPLE SUN SYSTEM -->
+<div class="glis-sun-haze" aria-hidden="true"></div>
+<div class="glis-suns" aria-hidden="true">
+  <div class="glis-sun gs1"></div>
+  <div class="glis-sun gs2"></div>
+  <div class="glis-sun gs3"></div>
+</div>
+<div id="stars"></div>
+
+<!-- ══════════════════════════════
+     TITTELSKJERM
+══════════════════════════════ -->
+<div class="screen active" id="screen-title">
+  <div class="ship-name">EKSPEDISJON<br>GLIS 67</div>
+  <div class="title-div"></div>
+
+  <div class="mission-brief">
+    <em>For første gang i historien har vi bevis at det finnes<br>intelligent liv utenfor solsystemet vårt!</em><br>
+    Du er øverste kommandør for <strong>Ekspedisjon GLIS 67</strong>.<br>
+    Hold stø kurs mot <em>Glis 67</em> og sørg for at romskipet er operativt.
+  </div>
+
+  <div class="title-btns">
+    <button class="btn btn-primary" onclick="goTutorial()">START OPPDRAG</button>
+    <button class="btn btn-ghost" onclick="showLB()">REKORDLOGG</button>
+  </div>
+
+  <div class="status-strip">
+    
+    <div class="ss-item"><div class="ss-dot" style="animation-delay:.9s"></div><span class="ss-txt">KURS: SKORPIONEN</span></div>
+    <div class="ss-item"><div class="ss-dot" style="animation-delay:1.8s"></div><span class="ss-txt">AVSTAND: 22 LYSÅR</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     TUTORIAL
+══════════════════════════════ -->
+<div class="screen" id="screen-tutorial">
+  <div class="tut-shell">
+    <div class="tut-top">
+      <div class="tut-badge">MISSIONSBRIFING</div>
+      <div class="tut-prog-track"><div class="tut-prog-fill" id="tut-prog" style="width:0%"></div></div>
+      <div class="tut-cnt" id="tut-cnt">1 / 6</div>
+    </div>
+    <div class="tut-body">
+
+      <!-- STEG 0: Signal -->
+      <div class="tut-step show" id="ts0">
+        <div class="tut-eye">📡 VI HAR MOTTATT ET SIGNAL</div>
+        <div class="tut-h">Signalet som endret alt!</div>
+        <div class="tut-p">
+          For tre år siden oppdaget Dr. Tronrud og teamet hans et signal fra verdensrommet.
+          En klar, matematisk sekvens, sendt av noen som ville at vi skulle forstå den.
+        </div>
+        <div class="tut-p">
+          Signalet kom fra <strong>Gliese 667C</strong>, 22 lysår unna i stjernebildet Skorpionen.
+          Tre stjerner som danser rundt hverandre. Norske 7. klassinger døpte det <strong>Glis 67</strong>
+          i en viral TikTok-trend, og navnet ble værende.
+        </div>
+        <div class="tut-p">
+          I bane rundt Glis 67 kretser tre <strong>"Super-Jorder"</strong> — planeter som ligner
+          på jorda, men bare <em>myyye større!</em> Det ser ut til å være liv på minst én av dem.
+          Og de har kontaktet oss.
+        </div>
+      </div>
+
+      <!-- STEG 1: Oppdraget -->
+      <div class="tut-step show" id="ts1">
+        <div class="tut-eye">OPPDRAGET DITT</div>
+        <div class="tut-h">Kaptein. De venter på oss.</div>
+        <div class="tut-p">
+          Dette er det vi vet:<br><br>
+          De tre planetene rundt Glis 67 ligger perfekt til rundt solene sine til å ha
+          flytende vann. Dette trengs for å utvikle liv slik vi kjenner det. Vi har mottatt
+          radiosignaler som åpenbart er sendt av intelligente vesener, en perfekt rekke med primtall.
+          <br><br>
+          Du er kommandøren som skal få oss til Glis 67. Men Audacious-9 er et komplisert skip,
+          og verdensrommet er nådeløst. Modulene mister kontakt ofte, og det er din
+          jobb å holde dem i live.
+        </div>
+        <div class="state-row">
+          <div class="sc ok"><div class="sc-lbl">OPERATIV</div><div class="sc-eq">Alt er bra</div></div>
+          <div class="sc warn"><div class="sc-lbl">ADVARSEL</div><div class="sc-eq">Reparer med matte!</div></div>
+          <div class="sc off"><div class="sc-lbl">OFFLINE</div><div class="sc-eq">Ødelagt</div></div>
+        </div>
+      </div>
+
+      <!-- STEG 2: Ligningen -->
+      <div class="tut-step" id="ts2">
+        <div class="tut-eye">REGNESTYKKET</div>
+        <div class="tut-h">Étt regnestykke. Én ukjent.</div>
+        <div class="tut-p">
+          Du kan reparere en sviktende modul ved å løse regnestykker.
+          Trykk på modulen og finn tallet som mangler.
+          Du har god tid. Du vil ikke stresse i verdensrommet.
+        </div>
+        <div class="demo-box">
+          <div class="demo-eq">3 <span class="op">·</span> 4 = <span class="mis">?</span></div>
+          <div class="demo-cap">Hva er 3 ganger 4?</div>
+        </div>
+        <div class="demo-box">
+          <div class="demo-eq">12 <span class="op">:</span> 4 = <span class="mis">?</span></div>
+          <div class="demo-cap">Hvor mange firere får plass i 12?</div>
+        </div>
+      </div>
+
+      <!-- STEG 3: Trekant-hemmeligheten -->
+      <div class="tut-step" id="ts3">
+        <div class="tut-eye">TALLFAMILIENS HEMMELIGHET</div>
+        <div class="tut-h">Gange og deling er samme sak, bare motsatt.</div>
+        <div class="tut-p">
+          La meg fortelle deg en hemmelighet.<br><br>
+          Disse trekantene er litt magiske. Hvis du kan gange, så kan du dele. Alltid.
+        </div>
+        <div class="tri-wrap">
+          <svg viewBox="0 0 200 170">
+            <line x1="100" y1="32" x2="27" y2="138" stroke="rgba(0,192,240,0.25)" stroke-width="1.5"/>
+            <line x1="100" y1="32" x2="173" y2="138" stroke="rgba(0,192,240,0.25)" stroke-width="1.5"/>
+            <line x1="27" y1="138" x2="173" y2="138" stroke="rgba(0,192,240,0.25)" stroke-width="1.5"/>
+          </svg>
+          <div class="tri-node big tn-top tn-product">12</div>
+          <div class="tri-node sml tn-bl tn-factor">3</div>
+          <div class="tri-node sml tn-br tn-factor">4</div>
+        </div>
+        <div class="fact-strip">
+          <div class="fact-chip hi">3 · 4 = 12</div>
+          <div class="fact-chip hi">4 · 3 = 12</div>
+          <div class="fact-chip hi">12 : 3 = 4</div>
+          <div class="fact-chip hi">12 : 4 = 3</div>
+        </div>
+        <div class="tut-p">
+          Se på trekanten. Produktet (svaret) står alltid øverst.
+          De to faktorene står alltid nederst. Dette er alt du trenger å huske.
+        </div>
+      </div>
+
+      <!-- STEG 4: Kolonne-regning til Glis 67 -->
+      <div class="tut-step" id="ts4">
+        <div class="tut-eye">DIPLOMATISK SENDING</div>
+        <div class="tut-h">Matematikk er det eneste språket vi har til felles med romvesenene.</div>
+        <div class="tut-p">
+          Hvis du får tid, send gjerne meldinger tilbake til Glis 67.
+          Dr. Tronrud tror det kan virke:
+        </div>
+        <div class="demo-box">
+          <div class="demo-cap" style="font-size:17px;color:var(--ink2);font-style:italic;line-height:1.8">
+            «Matematikk er det eneste språket vi har til felles, så det er med tall vi må begynne
+            å kommunisere. Vi sender regnestykker mot Glis 67 som et fredelig vink.
+            Kanskje forstår de at vi er venner.»
+          </div>
+          <div class="demo-cap" style="color:#a78bfa;margin-top:6px">DR. TRONRUD, VITENSKAPSOFFISER</div>
+        </div>
+        <div class="tut-p">
+          Dette er helt valgfritt, og gjør det bare om du får tid. Det gir ekstra poeng.
+        </div>
+        <div style="display:flex;gap:18px;flex-wrap:wrap;justify-content:center">
+          <!-- ADDISJON: 47 + 38 = 85 -->
+          <div class="demo-box" style="flex:1;min-width:160px;max-width:220px">
+            <div class="demo-cap" style="margin-bottom:10px">Pluss med tierovergang</div>
+            <div style="font-family:var(--mono);font-size:26px;color:var(--ink);line-height:2.1;padding:0 16px;width:100%;text-align:right">
+              <div style="font-size:16px;color:#a78bfa;min-height:24px;display:flex;justify-content:flex-end">
+                <span style="display:inline-block;width:1.6ch;text-align:center"> </span>
+                <span style="display:inline-block;width:1.6ch;text-align:center">1</span>
+                <span style="display:inline-block;width:1.6ch;text-align:center"> </span>
+              </div>
+              <div>47</div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="color:#a78bfa;font-size:26px">+</span>
+                <span style="flex:1;text-align:right">38</span>
+              </div>
+              <div style="border-top:2px solid rgba(139,92,246,.42);margin-top:3px;padding-top:7px;color:var(--caution)">85</div>
+            </div>
+          </div>
+          <!-- SUBTRAKSJON: 43 - 7 = 36 med låning -->
+          <div class="demo-box" style="flex:1;min-width:160px;max-width:220px">
+            <div class="demo-cap" style="margin-bottom:10px">Minus med låning</div>
+            <div style="font-family:var(--mono);font-size:26px;color:var(--ink);line-height:2.1;padding:0 16px;width:100%;text-align:right">
+              <div style="font-size:16px;color:#a78bfa;min-height:24px;display:flex;justify-content:flex-end">
+                <span style="display:inline-block;width:1.6ch;text-align:center"> </span>
+                <span style="display:inline-block;width:1.6ch;text-align:center">10</span>
+              </div>
+              <div style="display:flex;justify-content:flex-end;align-items:baseline;gap:3px">
+                <span style="position:relative;display:inline-block;color:var(--ink3)">4<span style="position:absolute;top:5px;left:-2px;right:-2px;height:2.5px;background:#a78bfa;transform:rotate(-18deg)"></span></span>
+                <span>3</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="color:#a78bfa;font-size:26px">−</span>
+                <span style="flex:1;text-align:right">7</span>
+              </div>
+              <div style="border-top:2px solid rgba(139,92,246,.42);margin-top:3px;padding-top:7px;color:var(--caution)">36</div>
+            </div>
+          </div>
+        </div>
+        <div class="tut-p" style="font-size:17px">
+          Klikk på et tall i øverste raden for å låne en tier.<br>Det dukker da opp en lilla "10" over nabosifferet.
+        </div>
+      </div>
+
+      <!-- STEG 5: Oppsummering -->
+      <div class="tut-step" id="ts5">
+        <div class="tut-eye">KLAR FOR AVGANG</div>
+        <div class="tut-h">Du er klar, Kommandør.</div>
+        <div class="tut-p">
+          Modulene er stabile nå, men det varer ikke evig.
+          Løs regnestykker for å reparere blinkende moduler.
+        </div>
+        <div class="check-list">
+          <div class="check-item">
+            <div class="check-icon" style="font-style:normal;font-family:var(--mono);font-size:20px;color:var(--arc)">1.</div>
+            <div class="check-text"><strong>Klikk på en blinkende modul</strong> for å se regnestykket</div>
+          </div>
+          <div class="check-item">
+            <div class="check-icon" style="font-style:normal;font-family:var(--mono);font-size:20px;color:var(--arc)">2.</div>
+            <div class="check-text"><strong>Bruk trekanten.</strong> Den viser deg hele tallfamilien</div>
+          </div>
+          <div class="check-item">
+            <div class="check-icon" style="font-style:normal;font-family:var(--mono);font-size:20px;color:var(--arc)">3.</div>
+            <div class="check-text"><strong>Send mattestykker til Glis 67</strong> mens du venter. Det gir ekstra poeng</div>
+          </div>
+          <div class="check-item">
+            <div class="check-icon" style="font-style:normal;font-family:var(--mono);font-size:20px;color:var(--arc)">4.</div>
+            <div class="check-text"><strong>Vannmelonlageret</strong> er ifølge Dr. Tronrud vitenskapelig kritisk for mannskapets moral</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="tut-footer">
+      <button class="tut-skip-btn" onclick="skipTut()">HOPP OVER</button>
+      <div class="tut-nav">
+        <button class="btn btn-ghost" id="tut-back" onclick="tutBack()" style="display:none;padding:10px 20px;font-size:14px">TILBAKE</button>
+        <button class="btn btn-primary" id="tut-next" onclick="tutNext()" style="padding:14px 32px;font-size:14px">NESTE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     MODUL-VALG
+══════════════════════════════ -->
+<div class="screen" id="screen-modules">
+  <div class="screen-h">VELG ETAPPE</div>
+  <div class="screen-sub">Velg en etappe av reisen mot Glis 67.<br>Løs 10 regnestykker for å komme videre.</div>
+  <div class="difficulty-row">
+    <span class="diff-label">VANSKELIGHET:</span>
+    <button class="diff-btn" data-diff="easy"   onclick="setDifficulty('easy')">LETT</button>
+    <button class="diff-btn active" data-diff="medium" onclick="setDifficulty('medium')">MIDDELS</button>
+    <button class="diff-btn" data-diff="hard"   onclick="setDifficulty('hard')">VANSKELIG</button>
+  </div>
+  <div class="modules-grid" id="modules-grid"></div>
+  <button class="btn btn-ghost" onclick="showScreen('screen-title')" style="margin-top:8px">TILBAKE</button>
+</div>
+
+<!-- ══════════════════════════════
+     SPILLSKJERM
+══════════════════════════════ -->
+<div class="screen" id="screen-game">
+  <div class="hud">
+    <div class="hud-brand">
+      <div class="orbital-logo" aria-label="Glis 67 tre-stjernesystem">
+        <div class="orb-sys">
+          <div class="orb orb1"></div>
+          <div class="orb orb2"></div>
+          <div class="orb orb3"></div>
+        </div>
+      </div>
+      <div class="hud-ship">GLIS 67</div>
+    </div>
+    <div class="hud-sec">
+      <div class="hud-blk">
+        <div class="hud-lbl">INTEGRITET</div>
+        <div class="hud-val grn" id="h-hp">100%</div>
+      </div>
+      <div class="hp-track"><div class="hp-fill" id="hp-fill" style="width:100%;background:var(--pulse)"></div></div>
+    </div>
+    <div class="hud-sec">
+      <div class="hud-blk"><div class="hud-lbl">POENG</div><div class="hud-val arc" id="h-xp">0</div></div>
+    </div>
+    <div class="hud-sec">
+      <div class="hud-blk"><div class="hud-lbl">MODUL</div><div class="hud-val" id="h-wing">1</div></div>
+    </div>
+    <div class="hud-sec">
+      <div class="hud-blk">
+        <div class="hud-lbl">LØST</div>
+        <div style="display:flex;align-items:baseline;gap:4px">
+          <div class="hud-val grn" id="h-solved">0</div>
+          <div class="hud-val" style="color:var(--ink3)">/10</div>
+        </div>
+      </div>
+    </div>
+    <div class="hud-sp"></div>
+    <div class="streak-pill" id="streak-pill">⭐ <span id="s-cnt">0</span> PÅ RAD</div>
+    <div class="hud-sec" style="border-left:1px solid var(--edge2);border-right:none">
+      <button id="pause-btn" class="btn btn-ghost" style="padding:7px 16px;font-size:13px;letter-spacing:1px" onclick="togglePause()">PAUSE</button>
+      <button class="btn btn-ghost" style="padding:7px 16px;font-size:13px;letter-spacing:1px" onclick="quitToModules()">FORLAT</button>
+    </div>
+  </div>
+
+  <div class="game-body">
+    <div class="ship-int">
+      <div class="int-bar">
+        <span class="mod-label" id="s-lbl">MODUL 1</span>
+        <div class="lvl-track" id="lvl-dots"></div>
+
+      </div>
+      <svg id="psvg" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;pointer-events:none;z-index:0"></svg>
+      <div class="comp-grid" id="comp-grid"></div>
+      <div class="fb-ol" id="fb">
+        <div class="fb-t" id="fb-t">PERFEKT!</div>
+        <div class="fb-s" id="fb-s"></div>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="rp-hdr">
+        <div class="rp-hdr-title">DIAGNOSTIKK</div>
+        <div class="rp-hdr-dot"></div>
+      </div>
+
+      <!-- CONTEXT AREA — wechselt basert på tilstand -->
+      <div class="rp-context">
+
+        <!-- IDLE: ingen modul aktiv, ingen diplo -->
+        <div class="idle-st" id="idle-st">
+          <div class="idle-icon" style="width:90px;height:90px;font-size:44px"><div class="idle-ring"></div>🛸</div>
+          
+          <div style="margin-top:16px;width:100%;display:flex;flex-direction:column;gap:8px">
+            <div style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.22);border-radius:6px;padding:12px 14px;font-size:14px;color:#c4b5fd;line-height:1.7;text-align:center">
+              📡 <strong style="color:#a78bfa">Send et signal mens du venter!</strong><br>
+              Vi svarer på Glis 67 sitt signal med mattestykker. Løs ett og send det ut i verdensrommet.
+            </div>
+            <button class="btn-diplo" onclick="openDiplo()">SEND TIL GLIS 67<br><span style="font-size:.78em;letter-spacing:1px;opacity:.9">+50 XP PER STYKKE</span></button>
+          </div>
+        </div>
+
+        <!-- MODUL AKTIV (ikke diplo) -->
+        <div class="module-banner" id="module-banner" style="display:none">
+          <div class="module-banner-name" id="module-banner-name">REPARERER:</div>
+          <div class="module-banner-hint">Svaret vises på modulkortet. Bruk talltastaturet.</div>
+        </div>
+
+        <!-- DIPLO AREA -->
+        <div class="puzzle-area" id="diplo-area" style="display:none;flex:1;overflow-y:auto;min-height:0">
+          <div class="active-mod-strip">
+            <div class="active-mod-name" style="color:#a78bfa">📡 SENDER SIGNAL MOT GLIS 67</div>
+          </div>
+          <div style="padding:6px 14px;border-bottom:1px solid var(--edge2);flex-shrink:0;background:rgba(139,92,246,.05)">
+            <div style="font-size:13px;color:#c4b5fd;line-height:1.6">
+              Matematikk er det eneste språket vi har til felles. Vi sender mattestykker for å vise at vi er venner.
+            </div>
+          </div>
+          <!-- Modul-avbrudd banner (vis om G.active != null under diplo) -->
+          <div class="diplo-interrupt" id="diplo-interrupt" style="display:none">
+            ⚡ REPARERER MODUL — GLIS 67 VENTER
+          </div>
+          <div class="col-calc show" id="col-calc">
+            <div class="col-calc-lbl">REGNESTYKKE</div>
+            <div class="col-calc-box" id="col-calc-box"></div>
+            <div class="col-diplo-msg" id="col-diplo-msg"></div>
+          </div>
+          <div class="hint-box" id="diplo-hint-box"></div>
+        </div>
+
+        <!-- HINT BOX for muldiv (feil svar) -->
+        <div class="hint-box" id="hint-box" style="flex-shrink:0"></div>
+
+        <!-- LOGG (alltid synlig, vokser til bunn) -->
+        <div class="fact-log" id="fact-log-wrap">
+          <div class="fl-lbl" style="font-size:13px;letter-spacing:1.5px;color:var(--ink2)">LØST DENNE RUNDEN</div>
+          <div id="fl-entries"></div>
+          <div class="fl-lbl" style="margin-top:10px;font-size:13px;letter-spacing:1.5px;color:#a78bfa">SIGNALER TIL GLIS 67</div>
+          <div id="diplo-fl-entries"></div>
+        </div>
+
+      </div><!-- /rp-context -->
+
+      <!-- DELT TALLTASTATUR — alltid nederst når noe er aktivt -->
+      <div class="shared-numpad-wrap" id="shared-numpad-wrap" style="display:none">
+        <div class="numpad" style="padding:10px 14px">
+          <button class="nk" onclick="nkR('7')">7</button>
+          <button class="nk" onclick="nkR('8')">8</button>
+          <button class="nk" onclick="nkR('9')">9</button>
+          <button class="nk" onclick="nkR('4')">4</button>
+          <button class="nk" onclick="nkR('5')">5</button>
+          <button class="nk" onclick="nkR('6')">6</button>
+          <button class="nk" onclick="nkR('1')">1</button>
+          <button class="nk" onclick="nkR('2')">2</button>
+          <button class="nk" onclick="nkR('3')">3</button>
+          <button class="nk del" onclick="nkR('del')">&#9003;</button>
+          <button class="nk" onclick="nkR('0')">0</button>
+          <button class="nk go" id="go-btn" onclick="goR()">BEKREFT</button>
+        </div>
+        <div id="avbryt-wrap" style="display:none;padding:0 14px 10px">
+          <button class="btn btn-ghost" style="width:100%;font-size:13px;padding:9px" onclick="closeDiplo()">AVBRYT SENDING</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     LEVEL UP
+══════════════════════════════ -->
+<div class="screen" id="screen-levelup">
+  <div class="result-title" id="lu-t">NIVÅ FULLFØRT!</div>
+  <div class="result-sub" id="lu-s">Modulen er stabilisert.</div>
+  <div class="glis-signal" id="lu-glis" style="display:none">
+    <div class="gs-title">📡 INNKOMMENDE SIGNAL FRA GLIS 67</div>
+    <div class="gs-text" id="lu-glis-txt"></div>
+  </div>
+  <div class="result-stats">
+    <div class="rs-cell"><div class="rs-val" id="lu-xp">0</div><div class="rs-lbl">POENG</div></div>
+    <div class="rs-cell"><div class="rs-val" id="lu-sol">0</div><div class="rs-lbl">LØST</div></div>
+    <div class="rs-cell"><div class="rs-val" id="lu-str">0</div><div class="rs-lbl">BESTE REKKE</div></div>
+    <div class="rs-cell"><div class="rs-val" id="lu-diplo">0</div><div class="rs-lbl">SENDINGER</div></div>
+  </div>
+  <div class="stars-row" id="lu-stars">⭐⭐⭐</div>
+  <div class="result-btns">
+    <button class="btn btn-primary" id="lu-next" onclick="nextLevel()">NESTE NIVÅ</button>
+    <button class="btn btn-ghost" onclick="quitToModules()">MODULVALG</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     GAME OVER
+══════════════════════════════ -->
+<div class="screen" id="screen-gameover">
+  <div class="result-title" id="go-title">SKIPET ER STILLE</div>
+  <div class="result-sub" id="go-sub">Audacious-9 seiler stille gjennom verdensrommet. Men mannskapet er trygt, og Glis 67 venter fortsatt på oss.</div>
+  <div class="tronrud-quote" id="go-quote">
+    <div class="tronrud-words">«Alle store bragder starter med feiltakelser. Din suksess er herved nærmere.»</div>
+    <div class="tronrud-name">DR. TRONRUD, VITENSKAPSOFFISER</div>
+  </div>
+  <div class="result-stats">
+    <div class="rs-cell"><div class="rs-val" id="go-xp">0</div><div class="rs-lbl">POENG</div></div>
+    <div class="rs-cell"><div class="rs-val" id="go-sol">0</div><div class="rs-lbl">LØST</div></div>
+  </div>
+  <div class="result-btns">
+    <button class="btn btn-primary" onclick="retryLevel()">PRØV IGJEN</button>
+    <button class="btn btn-ghost" onclick="quitToModules()">VELG ETAPPE</button>
+  </div>
+</div>
+
+<!-- REKORDLOGG -->
+<div class="screen" id="screen-lb">
+  <div class="screen-h">REKORDLOGG</div>
+  <div class="lb-panel">
+    <div class="fl-lbl" style="margin-bottom:14px">BESTE POENG PER MODUL</div>
+    <div id="lb-rows"></div>
+  </div>
+  <div class="lb-totals">
+    <div class="lb-tot">TOTALPOENG <span id="lb-txp">0</span></div>
+    <div class="lb-tot">BESTE REKKE <span id="lb-bs">0</span></div>
+  </div>
+  <button class="btn btn-ghost" style="margin-top:18px" onclick="showScreen('screen-title')">TILBAKE</button>
+</div>
+
+<script>
+// STJERNEFELT OG ROMEFFEKTER
+(()=>{
+  const c=document.getElementById('stars');
+  const starColors=['#ffffff','#ffffff','#ffffff','#aaddff','#ccaaff','#ffddaa','#ffaaaa','#aaffdd'];
+  for(let i=0;i<200;i++){
+    const st=document.createElement('div');
+    const col=starColors[Math.floor(Math.random()*starColors.length)];
+    const sz=Math.random()*2.2+.3;
+    const bright=Math.random()<0.06;
+    st.className='star'+(bright?' star-bright':'');
+    st.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--a:${(Math.random()*.7+.08).toFixed(2)};--d:${(Math.random()*7+2).toFixed(1)}s;animation-delay:${(Math.random()*7).toFixed(1)}s;background:${col}`;
+    c.appendChild(st);
+  }
+  // Glis 67 tre bakgrunnsstjerner (kept for compatibility)
+  [[82,12,'#ffcc66',18,.18,7],[87,18,'#ff9944',12,.14,9],[91,8,'#ffddaa',10,.12,11]].forEach(([x,y,col,sz,a,d])=>{
+    const g=document.createElement('div');g.className='bg-star-glis';
+    g.style.cssText=`width:${sz}px;height:${sz}px;left:${x}%;top:${y}%;background:${col};box-shadow:0 0 ${sz*3}px ${col};--ga:${a};--gd:${d}s`;
+    document.body.appendChild(g);
+  });
+
+  // Skytende stjerner
+  function spawnShootingStar(){
+    const el=document.createElement('div');
+    el.className='shoot-star';
+    const len=80+Math.random()*140;
+    const angle=15+Math.random()*25;
+    const startX=Math.random()*80;
+    const startY=Math.random()*50;
+    const dur=(0.6+Math.random()*0.7).toFixed(2);
+    const dx=Math.cos(angle*Math.PI/180)*window.innerWidth*0.5;
+    const dy=Math.sin(angle*Math.PI/180)*window.innerWidth*0.3;
+    el.style.cssText=`width:${len}px;top:${startY}%;left:${startX}%;transform:rotate(${angle}deg);--dx:${dx}px;--dy:${dy}px;--dur:${dur}s`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),1800);
+  }
+  setInterval(()=>{if(Math.random()<0.45)spawnShootingStar();},2800);
+  setTimeout(()=>spawnShootingStar(),800);
+  setTimeout(()=>spawnShootingStar(),2200);
+})();
+
+// KONFIG
+const MODULES=[
+  {name:'Oppskytning',            short:'Oppskytning',   icon:'🚀', hint:'×2 ×3 ×5',        tables:[2,3,5],               maxF:10},
+  {name:'Bane rundt Jorden',      short:'Jordbane',      icon:'🌍', hint:'×4 ×6 ×7',        tables:[4,6,7],               maxF:10},
+  {name:'Slynge rundt Jupiter',   short:'Jupiter',       icon:'🪐', hint:'×8 ×9 ×11',       tables:[8,9,11],              maxF:12},
+  {name:'Det Dype Verdensrommet', short:'Verdensrommet', icon:'🌌', hint:'×6 ×7 ×8 ×12',    tables:[12,6,7,8],            maxF:12},
+  {name:'Glis 67',                short:'Glis 67',       icon:'⭐', hint:'Blandede tabeller',tables:[2,3,4,5,6,7,8,9,12], maxF:12},
+];
+const LEVELS=3, REACTORS=6, TARGET=10;
+const COMPONENTS=[
+  {name:'Oksygentank',    short:'OKSYGENTANK', icon:'🫧'},
+  {name:'Mannskapskapsel', short:'MANNSKAPSKAPSEL', icon:'🧑‍🚀'},
+  {name:'RL-10 Motor',     short:'RL-10 MOTOR',     icon:'🔧'},
+  {name:'Vannmelonlager',  short:'VANNMELONLAGER',   icon:'🍉'},
+  {name:'Solseil',         short:'SOLSEIL',          icon:'🛸'},
+  {name:'Antenne',         short:'ANTENNE',          icon:'📡'},
+];
+let WARN_S=40, DEG_FIRST=10000, DEG_INT=16000;
+const DIFF_SETTINGS={
+  easy:  {warnS:80, degFirst:14000, degInt:22000},
+  medium:{warnS:40, degFirst:10000, degInt:16000},
+  hard:  {warnS:30, degFirst:7000,  degInt:12000},
+};
+let CURRENT_DIFF='medium';
+const HP_LOSS=15, XP1=30, XP2=15, XP_DIPLO=50;
+
+const GLIS_REPLIES=[
+  'Signalet er mottatt. Vi sender det tilbake.',
+  'Vi kjenner igjen disse tallene.',
+  'Svaret er bekreftet. Kontakt etablert over 22 lysår.',
+  'Signal mottatt.',
+  'Kontrollrommet brøt ut i applaus!',
+  'Mennesker er ikke alene i universet! Vi har venner!',
+  'Dr. Tronrud er glad for at du svarte.',
+  'Vi har ventet lenge. Vi er ikke alene lenger.',
+  'Kult!',
+  'Svaret er ikke det vi trodde det skulle være. Fascinerende.',
+];
+const DIPLO_MSGS=[
+  'Signalet er kryptert og sendt av gårde.',
+  'Dr. Tronrud: «Dette er den viktigste plussingen i menneskehetens historie!»',
+  '22 lysår unna ... Kanskje de svarer om 44 år.',
+  'Vi vet ikke om de har fingre. Men de kan tydeligvis telle.',
+  'Matematikk er et universalt språk! Alle kan bruke det.',
+  'Dr. Tronrud gned seg i hendene da han fikk vite at du sendte dette.',
+  'VANNMELONENE! PASS PÅ VANNMELONENE!',
+];
+
+// LAGRING
+let sv=JSON.parse(localStorage.getItem('aud9v2')||'{}');
+if(!sv.unlocked)sv.unlocked=[0];
+if(!sv.modStars)sv.modStars={};
+if(!sv.modXp)sv.modXp={};
+if(!sv.totalXp)sv.totalXp=0;
+if(!sv.bestStreak)sv.bestStreak=0;
+const save=()=>localStorage.setItem('aud9v2',JSON.stringify(sv));
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// TUTORIAL
+let TS=0; const TN=6;
+function goTutorial(){TS=0;renderTut();showScreen('screen-tutorial');}
+function renderTut(){
+  document.querySelectorAll('.tut-step').forEach((el,i)=>el.classList.toggle('show',i===TS));
+  document.getElementById('tut-prog').style.width=((TS/(TN-1))*100)+'%';
+  document.getElementById('tut-cnt').textContent=`${TS+1} / ${TN}`;
+  document.getElementById('tut-back').style.display=TS>0?'block':'none';
+  document.getElementById('tut-next').textContent=TS===TN-1?'START OPPDRAG':'NESTE';
+}
+function tutNext(){if(TS>=TN-1){skipTut();return;}TS++;renderTut();}
+function tutBack(){if(TS>0){TS--;renderTut();}}
+function skipTut(){showModules();}
+
+// MODULVALG
+function setDifficulty(diff){
+  CURRENT_DIFF=diff;
+  const d=DIFF_SETTINGS[diff];
+  WARN_S=d.warnS; DEG_FIRST=d.degFirst; DEG_INT=d.degInt;
+  document.querySelectorAll('.diff-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.diff===diff);
+  });
+}
+function togglePause(){
+  if(!G.levelRunning)return;
+  G.paused=!G.paused;
+  document.getElementById('pause-overlay').classList.toggle('show',G.paused);
+  const btn=document.getElementById('pause-btn');
+  if(btn)btn.textContent=G.paused?'FORTSETT':'PAUSE';
+}
+// ESC key for pause
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&G.levelRunning)togglePause();},true);
+function showModules(){stopLevel();buildModules();showScreen('screen-modules');}
+function quitToModules(){stopLevel();showModules();}
+function buildModules(){
+  const g=document.getElementById('modules-grid');g.innerHTML='';
+  MODULES.forEach((m,i)=>{
+    const u=sv.unlocked.includes(i);
+    const stars=(sv.modStars[i]||[0,0,0]).reduce((a,b)=>a+b,0);
+    const d=document.createElement('div');d.className='mod-card'+(u?'':' locked');
+    const levelStars=sv.modStars[i]||[0,0,0];
+    const pips=levelStars.map(ls=>ls>=3?`<div class="ml-pip ml-3">✅</div>`:`<div class="ml-pip ml-${Math.min(ls,2)}"></div>`).join('');
+    d.innerHTML=`<div class="mod-icon">${m.icon}</div><div class="mod-num">ETAPPE ${i+1}</div><div class="mod-name">${m.name}</div><div class="mod-tables">${m.hint}</div><div class="mod-levels">${pips}</div>`;
+    if(u)d.onclick=()=>startModule(i);
+    g.appendChild(d);
+  });
+}
+
+// REKORDLOGG
+function showLB(){
+  document.getElementById('lb-txp').textContent=sv.totalXp;
+  document.getElementById('lb-bs').textContent=sv.bestStreak;
+  const c=document.getElementById('lb-rows');c.innerHTML='';
+  const entries=MODULES.map((m,i)=>({...m,xp:sv.modXp[i]||0,i})).filter(e=>e.xp>0).sort((a,b)=>b.xp-a.xp);
+  if(!entries.length){c.innerHTML='<div style="color:var(--ink3);font-size:15px;padding:10px 0;font-family:var(--mono)">Ingen fullførte oppdrag ennå.</div>';return;}
+  entries.forEach((e,r)=>c.innerHTML+=`<div class="lb-row"><span class="lb-rank">#${r+1}</span><span class="lb-icon">${e.icon}</span><span class="lb-name">${e.name}</span><span class="lb-xp">${e.xp}</span></div>`);
+  showScreen('screen-lb');
+}
+
+// SPILLTILSTAND
+let G={};
+function startModule(wi){G.wing=wi;G.level=1;startLevel();}
+function retryLevel(){startLevel();}
+function startLevel(){
+  G.hp=100;G.xp=0;G.solved=0;G.streak=0;G.bestStreak=0;
+  G.active=null;G.answer='';G.levelRunning=true;G.paused=false;G.wrongMap={};G.diploSent=0;
+  G.diploQ=null;G.diploAnswer='';G.diploDigits={};
+  G.metSeconds=0;
+  clearTimers();buildHUD();buildComps();
+  showScreen('screen-game');
+  requestAnimationFrame(()=>{renderComps();drawLines();updateRightPanelState();});
+  scheduleDeg();
+}
+function stopLevel(){G.levelRunning=false;clearTimers();}
+function clearTimers(){clearInterval(G.tickInt);clearTimeout(G.degTO);clearInterval(G.degInt);}
+
+// HUD
+function buildHUD(){
+  const m=MODULES[G.wing];
+  document.getElementById('h-wing').textContent=G.wing+1;
+  document.getElementById('s-lbl').textContent=`ETAPPE ${G.wing+1}: ${m.short}`;
+  const dc=document.getElementById('lvl-dots');dc.innerHTML='';
+  for(let i=1;i<=LEVELS;i++){
+    const d=document.createElement('div');d.className='lvl-pip'+(i<G.level?' done':'');dc.appendChild(d);
+  }
+  updateHUD();
+}
+function updateHUD(){
+  document.getElementById('h-hp').textContent=G.hp+'%';
+  document.getElementById('h-xp').textContent=G.xp;
+  document.getElementById('h-solved').textContent=G.solved;
+  const f=document.getElementById('hp-fill');
+  f.style.width=G.hp+'%';
+  f.style.background=G.hp>60?'var(--pulse)':G.hp>30?'var(--caution)':'var(--alarm)';
+  document.getElementById('h-hp').className='hud-val '+(G.hp>60?'grn':G.hp>30?'amb':'red');
+  const sp=document.getElementById('streak-pill');
+  if(G.streak>=3){sp.classList.add('show');document.getElementById('s-cnt').textContent=G.streak;}
+  else sp.classList.remove('show');
+}
+
+// SPØRSMÅL
+function makeQ(wi){
+  const m=MODULES[wi],ts=m.tables;
+  // Difficulty-based table weighting
+  const ws=ts.map(t=>{
+    let w=1+(G.wrongMap[t]||0)*3;
+    if(CURRENT_DIFF==='easy')    w*=(t<=4?2.8:t<=6?1.2:0.55);
+    else if(CURRENT_DIFF==='hard') w*=(t>=7?2.6:t>=5?1.4:0.65);
+    return Math.max(w,.08);
+  });
+  const tot=ws.reduce((a,b)=>a+b,0);
+  let r=Math.random()*tot,t=ts[0];
+  for(let i=0;i<ts.length;i++){r-=ws[i];if(r<=0){t=ts[i];break;}}
+  // Difficulty-based factor ceiling
+  const maxF=CURRENT_DIFF==='easy'?Math.min(m.maxF,6):
+             CURRENT_DIFF==='hard'?m.maxF:
+             Math.min(m.maxF,9);
+  const f=Math.floor(Math.random()*maxF)+1, p=t*f;
+  const miss=Math.floor(Math.random()*3);
+  return{table:t,factor:f,product:p,missing:miss,attempts:0};
+}
+function qAns(q){return q.missing===0?q.product:q.missing===1?q.table:q.factor;}
+function qEqHTML(q){
+  if(q.missing===0)return `${q.table} <span class="eo">·</span> ${q.factor} = <span class="em">?</span>`;
+  if(q.missing===1)return `${q.product} <span class="eo">:</span> ${q.factor} = <span class="em">?</span>`;
+  return `${q.product} <span class="eo">:</span> ${q.table} = <span class="em">?</span>`;
+}
+function qHint(q){
+  if(q.missing===0)return `Hva er ${q.table} ganger ${q.factor}?`;
+  if(q.missing===1)return `Hvor mange ganger går ${q.factor} inn i ${q.product}?`;
+  return `Hvor mange ganger går ${q.table} inn i ${q.product}?`;
+}
+function qFamily(q){return `${q.table}·${q.factor}=${q.product} og ${q.product}:${q.factor}=${q.table} og ${q.product}:${q.table}=${q.factor}`;}
+
+// Oppdater trekant i panelet
+function updateTriangle(q){
+  const top=document.getElementById('tmn-top');
+  const bl=document.getElementById('tmn-bl');
+  const br=document.getElementById('tmn-br');
+  [top,bl,br].forEach(n=>{n.className=n.className.replace(/\btmn-product\b|\btmn-factor\b|\btmn-missing\b/g,'').trim();});
+  top.textContent=q.missing===0?'?':q.product;
+  bl.textContent=q.missing===1?'?':q.table;
+  br.textContent=q.missing===2?'?':q.factor;
+  top.classList.add(q.missing===0?'tmn-missing':'tmn-product');
+  bl.classList.add(q.missing===1?'tmn-missing':'tmn-factor');
+  br.classList.add(q.missing===2?'tmn-missing':'tmn-factor');
+}
+
+// BYGG KOMPONENTER
+function buildComps(){
+  G.reactors=[];
+  for(let i=0;i<REACTORS;i++)
+    G.reactors.push({id:i,status:'powered',q:makeQ(G.wing),secsInState:0});
+  document.getElementById('fl-entries').innerHTML='';
+  document.getElementById('diplo-fl-entries').innerHTML='';
+}
+
+// RENDER COMPONENTS
+function buildFrontHTML(r, m){
+  if(r.status==='powered'){
+    return `<div class="nc-ok-row"><div class="nc-ok-dot"></div><span class="nc-ok-txt">NOMINELL</span></div>`;
+  }
+  if(r.status==='offline'){
+    return `<div class="nc-off-txt">⚠ OFFLINE</div>`;
+  }
+  // warn
+  const sLeft=Math.max(0,WARN_S-r.secsInState);
+  const pct=Math.max(0,(sLeft/WARN_S)*100);
+  const eq=qEqHTML(r.q).replace(/class="eo"/g,'class="cop"').replace(/class="em"/g,'class="cq"');
+  return `
+    <div class="nc-eq">${eq}</div>
+    <div class="nc-trow">
+      <div class="nc-warn-blink"></div>
+      <span class="nc-tlbl">TID</span>
+      <span class="nc-tval" id="nc-t-${r.id}">${sLeft}s</span>
+    </div>
+    <div class="c-timer" style="width:${pct}%;position:absolute;bottom:0;left:0;height:3px;background:var(--caution);z-index:10" id="nc-tmr-${r.id}"></div>`;
+}
+
+function buildBackHTML(r){
+  const q=r.q;
+  const topVal=q.missing===0?'?':q.product;
+  const blVal=q.missing===1?'?':q.table;
+  const brVal=q.missing===2?'?':q.factor;
+  const topCls=q.missing===0?'nm':'np';
+  const blCls=q.missing===1?'nm':'nf';
+  const brCls=q.missing===2?'nm':'nf';
+  const eq=qEqHTML(q).replace(/class="eo"/g,'class="cop"').replace(/class="em"/g,'class="cq"');
+  const sLeft=Math.max(0,WARN_S-r.secsInState);
+  const pct=Math.max(0,(sLeft/WARN_S)*100);
+  const ans=G.answer||'';
+  return `<div class="cb-tri">
+    <svg viewBox="0 0 180 148"><line x1="90" y1="32" x2="20" y2="124" stroke="rgba(0,192,240,0.32)" stroke-width="2.5"/>
+    <line x1="90" y1="32" x2="160" y2="124" stroke="rgba(0,192,240,0.32)" stroke-width="2.5"/>
+    <line x1="20" y1="124" x2="160" y2="124" stroke="rgba(0,192,240,0.32)" stroke-width="2.5"/></svg>
+    <div class="cb-node lg ntop ${topCls}">${topVal}</div>
+    <div class="cb-node sm nbl ${blCls}">${blVal}</div>
+    <div class="cb-node sm nbr ${brCls}">${brVal}</div></div>
+  <div class="cb-eq">${eq}</div>
+  <div class="cb-ans" id="cb-ans-${r.id}">${ans||'_'}</div>
+  <div class="cb-cd" id="cb-cd-${r.id}">${sLeft}s</div>
+  <div class="c-timer cb-timer" id="cb-tmr-${r.id}" style="position:absolute;bottom:0;left:0;height:3px;background:var(--caution);width:${pct}%"></div>`;
+}
+
+function buildCardEl(r, m){
+  const el=document.createElement('div');
+  el.id='r'+r.id;
+  el.className='comp '+r.status;
+  const statusLabel={powered:'NOMINELL',warn:'ADVARSEL',offline:'OFFLINE'}[r.status];
+  const front=buildFrontHTML(r,m);
+  const back=r.status==='warn'?buildBackHTML(r):'';
+  const comp=COMPONENTS[r.id]||{name:'SYS',short:'SYS',icon:'⚙'};
+  const nameShort=comp.name.toUpperCase();
+  el.innerHTML=`
+    <div class="comp-left-bar"></div>
+    <div class="comp-flipper">
+      <div class="comp-front" style="display:flex;flex-direction:column;position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:4px">
+        <div class="nc-hdr">
+          <span class="nc-sys">R-0${r.id+1}</span>
+          <span class="nc-name">${comp.icon} ${nameShort}</span>
+          <span class="nc-badge ${r.status}">${statusLabel}</span>
+        </div>
+        <div class="nc-body">${front}</div>
+      </div>
+      ${back?`<div class="comp-back">${back}</div>`:''}
+    </div>`;
+  if(r.status==='warn') el.onclick=()=>selectComp(r.id);
+  return el;
+}
+
+function renderComps(){
+  const grid=document.getElementById('comp-grid');
+  const m=MODULES[G.wing];
+  G.reactors.forEach((r,i)=>{
+    let el=document.getElementById('r'+i);
+
+    // Active flipped card: only update in-place, don't rebuild
+    if(r.id===G.active && el && el.classList.contains('flipped')){
+      const sLeft=Math.max(0,WARN_S-r.secsInState);
+      const pct=Math.max(0,(sLeft/WARN_S)*100);
+      const cdEl=document.getElementById('cb-cd-'+i);
+      const tmrEl=document.getElementById('cb-tmr-'+i);
+      if(cdEl) cdEl.textContent=sLeft+'s';
+      if(tmrEl) tmrEl.style.width=pct+'%';
+      // Also update front timer (visible through flipper)
+      const ncT=document.getElementById('nc-t-'+i);
+      const ncTmr=document.getElementById('nc-tmr-'+i);
+      if(ncT) ncT.textContent=sLeft+'s';
+      if(ncTmr) ncTmr.style.width=pct+'%';
+      // If module went offline while we were solving it
+      if(r.status==='offline'){
+        el.classList.remove('flipped');
+        G.active=null; G.answer='';
+        updateRightPanelState();
+      }
+      return;
+    }
+
+    const newEl=buildCardEl(r,m);
+    if(el) grid.replaceChild(newEl,el);
+    else grid.appendChild(newEl);
+  });
+}
+
+// POWERLINJER
+function drawLines(){
+  const svg=document.getElementById('psvg');svg.innerHTML='';
+  const grid=document.getElementById('comp-grid');
+  if(!grid||!grid.children.length)return;
+  const base=document.querySelector('.ship-int').getBoundingClientRect();
+  const cx=el=>{const r=el.getBoundingClientRect();return{x:r.left-base.left+r.width/2,y:r.top-base.top+r.height/2};};
+  const els=[...grid.querySelectorAll('.comp')];
+  [[0,1],[1,2],[3,4],[4,5],[0,3],[1,4],[2,5]].forEach(([a,b])=>{
+    if(!els[a]||!els[b])return;
+    const ca=cx(els[a]),cb=cx(els[b]);
+    const ok=G.reactors[a].status!=='offline'&&G.reactors[b].status!=='offline';
+    // Right-angle trace: go horizontal to midpoint, then vertical
+    const midX=(ca.x+cb.x)/2;
+    const midY=(ca.y+cb.y)/2;
+    // For horizontal neighbours (same row), go straight. For vertical, use L.
+    const isHoriz=Math.abs(ca.y-cb.y)<Math.abs(ca.x-cb.x);
+    const d=isHoriz
+      ?`M${ca.x},${ca.y} L${cb.x},${cb.y}`
+      :`M${ca.x},${ca.y} L${ca.x},${midY} L${cb.x},${midY} L${cb.x},${cb.y}`;
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d',d);
+    path.setAttribute('fill','none');
+    path.setAttribute('stroke',ok?'rgba(0,222,255,0.28)':'rgba(255,51,85,0.14)');
+    path.setAttribute('stroke-width','1');
+    path.setAttribute('stroke-dasharray','5,5');
+    // Small dot at each end
+    [ca,cb].forEach(pt=>{
+      const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      dot.setAttribute('cx',pt.x);dot.setAttribute('cy',pt.y);dot.setAttribute('r','2.5');
+      dot.setAttribute('fill',ok?'rgba(0,222,255,0.40)':'rgba(255,51,85,0.22)');
+      svg.appendChild(dot);
+    });
+    svg.appendChild(path);
+  });
+}
+
+// DEGRADERING
+function scheduleDeg(){
+  G.degTO=setTimeout(()=>{
+    degOne();
+    G.degInt=setInterval(()=>{if(G.levelRunning)degOne();},DEG_INT);
+    G.tickInt=setInterval(tick,1000);
+  },DEG_FIRST);
+}
+function degOne(){
+  if(!G.levelRunning||G.paused)return;
+  const pw=G.reactors.filter(r=>r.status==='powered');
+  if(!pw.length)return;
+  const r=pw[Math.floor(Math.random()*pw.length)];
+  r.status='warn';r.secsInState=0;renderComps();drawLines();
+}
+function tick(){
+  if(!G.levelRunning||G.paused)return;
+  G.metSeconds=(G.metSeconds||0)+1;
+  G.reactors.forEach(r=>{
+    if(r.status==='warn'){
+      r.secsInState++;
+      if(r.secsInState>=WARN_S){
+        r.status='offline';
+        G.hp=Math.max(0,G.hp-HP_LOSS);
+        if(G.active===r.id)closePanel();
+        if(G.reactors.every(rx=>rx.status==='offline')){stopLevel();renderComps();drawLines();showGameOver('all');return;}
+        updateHUD();
+        // All modules offline = game over
+        if(G.reactors.every(rx=>rx.status==='offline')){
+          stopLevel();renderComps();drawLines();showGameOver('all');return;
+        }
+        if(G.hp<=0){stopLevel();renderComps();drawLines();showGameOver('hp');return;}
+      }
+    }
+  });
+  renderComps();drawLines();updatePanelTimer();
+}
+
+// VELG MODUL — handled by selectComp below via updateRightPanelState
+
+// RIGHT PANEL STATE MANAGEMENT
+function updateRightPanelState(){
+  const hasModule=G.active!==null;
+  const hasDiplo=!!G.diploQ;
+  const idle=!hasModule&&!hasDiplo;
+  document.getElementById('idle-st').style.display=idle?'flex':'none';
+  document.getElementById('module-banner').style.display=hasModule&&!hasDiplo?'block':'none';
+  document.getElementById('diplo-area').style.display=hasDiplo?'flex':'none';
+  document.getElementById('shared-numpad-wrap').style.display=(hasModule||hasDiplo)?'block':'none';
+  document.getElementById('avbryt-wrap').style.display=hasDiplo?'block':'none';
+  const fl=document.getElementById('fact-log-wrap');if(fl)fl.style.display=hasDiplo?'none':'block';
+  document.getElementById('diplo-interrupt').style.display=(hasModule&&hasDiplo)?'block':'none';
+  document.getElementById('hint-box').classList.remove('show');
+  const goBtn=document.getElementById('go-btn');
+  if(hasModule){
+    goBtn.textContent='BEKREFT';
+    goBtn.style.background='var(--arc)';goBtn.style.color='#000';
+    document.getElementById('module-banner-name').textContent='REPARERER: '+MODULES[G.wing].name;
+  } else if(hasDiplo){
+    goBtn.textContent='SEND 📡';
+    goBtn.style.background='var(--purple)';goBtn.style.color='#fff';
+  }
+}
+
+// Shared numpad routing
+function nkR(v){if(G.active!==null)nk(v);else if(G.diploQ)dnk(v);}
+function goR(){if(G.active!==null)submitAns();else if(G.diploQ)submitDiplo();}
+
+// SELECT: flip the card, show puzzle on its back
+function selectComp(id){
+  if(!G.levelRunning)return;
+  const r=G.reactors[id];
+  if(r.status!=='warn')return;
+  G.active=id;G.answer='';
+  const m=MODULES[G.wing];
+  let el=document.getElementById('r'+id);
+  if(el){
+    const newEl=buildCardEl(r,m);
+    el.parentNode.replaceChild(newEl,el);
+    requestAnimationFrame(()=>{
+      const fresh=document.getElementById('r'+id);
+      if(fresh){fresh.classList.add('flipped');fresh.onclick=()=>closePanel();}
+    });
+  }
+  updateRightPanelState();
+}
+
+// CLOSE / unflip the active card
+function closePanel(){
+  const prev=G.active;
+  G.active=null;G.answer='';
+  if(prev!==null){
+    const el=document.getElementById('r'+prev);
+    if(el){
+      el.classList.remove('flipped');
+      setTimeout(()=>{
+        const r=G.reactors[prev];if(!r)return;
+        const existing=document.getElementById('r'+prev);
+        if(existing){const newEl=buildCardEl(r,MODULES[G.wing]);existing.parentNode.replaceChild(newEl,existing);}
+      },440);
+    }
+  }
+  updateRightPanelState();
+}
+
+function openPanel(r){}
+function updatePanelTimer(){}
+
+// INPUT
+function nk(v){
+  if(G.active===null||!G.levelRunning)return;
+  if(v==='del')G.answer=G.answer.slice(0,-1);
+  else{if(G.answer.length>=4)return;G.answer+=v;}
+  updateAns();
+}
+function updateAns(){
+  // Update answer on the card back
+  const el=document.getElementById('cb-ans-'+G.active);
+  if(el)el.textContent=G.answer||'_';
+}
+document.addEventListener('keydown',e=>{
+  if(!G.levelRunning||G.paused)return;
+  if(e.key>='0'&&e.key<='9')nkR(e.key);
+  if(e.key==='Backspace')nkR('del');
+  if(e.key==='Enter')goR();
+});
+
+// SUBMIT MULT/DIV
+function submitAns(){
+  if(!G.answer||G.active===null||!G.levelRunning)return;
+  const r=G.reactors[G.active];
+  r.q.attempts++;
+  if(parseInt(G.answer)===qAns(r.q))onCorrect(r);
+  else onWrong(r);
+}
+function onCorrect(r){
+  const first=r.q.attempts===1;
+  const earned=first?XP1:XP2;
+  G.xp+=earned;G.solved++;G.streak++;
+  if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+  sv.totalXp=(sv.totalXp||0)+earned;sv.modXp[G.wing]=(sv.modXp[G.wing]||0)+earned;
+  if(G.bestStreak>sv.bestStreak)sv.bestStreak=G.bestStreak;
+  const el=document.getElementById('r'+r.id);
+  el&&el.classList.add('flash-ok');setTimeout(()=>el&&el.classList.remove('flash-ok'),600);
+  xpFloat(earned,el,false);
+  showFB('ok',first?'WOHO!!':'KULT!',`+${earned} XP${first?' — første forsøk!':' — bra jobbet!'}`);
+  addLog(r.q,first,'muldiv');
+  r.status='powered';r.secsInState=0;r.q=makeQ(G.wing);r.q.attempts=0;
+  closePanel();updateHUD();renderComps();drawLines();save();G.answer='';
+  if(G.solved>=TARGET){stopLevel();showLevelUp();}
+}
+function onWrong(r){
+  G.streak=0;G.wrongMap[r.q.table]=(G.wrongMap[r.q.table]||0)+1;updateHUD();
+  const el=document.getElementById('r'+r.id);
+  el&&el.classList.add('flash-no');setTimeout(()=>el&&el.classList.remove('flash-no'),450);
+  if(r.q.attempts>=2){
+    // Show hint on card back
+    const back=el?el.querySelector('.comp-back'):null;
+    if(back){
+      let hintEl=back.querySelector('.cb-hint');
+      if(!hintEl){hintEl=document.createElement('div');hintEl.className='cb-hint';back.appendChild(hintEl);}
+      hintEl.textContent=`Tallfamilien: ${qFamily(r.q)}`;
+    }
+  } else {
+    showFB('ng','NESTEN!','Tenk på trekanten. Hvilke tre tall henger sammen?');
+  }
+  G.answer='';updateAns();
+}
+
+// DIPLOMATISK PLUSS/MINUS
+// carries[i] = 0 or 1, indexed right-to-left per column
+// For a 2-digit number, carries[0]=units carry, carries[1]=tens carry
+function makeDiploQ(){
+  const diff=CURRENT_DIFF;
+  const isAdd=Math.random()<0.5;
+  // Carry/borrow probability by difficulty
+  const needComplex=diff==='hard'||(diff==='medium'&&Math.random()<0.65);
+
+  if(isAdd){
+    let a,b,ok=false;
+    for(let i=0;i<60;i++){
+      a=Math.floor(Math.random()*79)+11;
+      b=Math.floor(Math.random()*79)+11;
+      const hasCarry=(a%10)+(b%10)>=10;
+      if(hasCarry===needComplex){ok=true;break;}
+    }
+    if(!ok){a=needComplex?47:23;b=needComplex?38:14;}
+    return{op:'+',a,b,ans:a+b,attempts:0};
+  } else {
+    let a,b,ok=false;
+    for(let i=0;i<60;i++){
+      a=Math.floor(Math.random()*70)+20;
+      b=Math.floor(Math.random()*55)+5;
+      const hasBorrow=b<a&&(a%10)<(b%10);
+      if(hasBorrow===needComplex&&b<a){ok=true;break;}
+    }
+    if(!ok){a=needComplex?43:45;b=needComplex?7:12;}
+    return{op:'-',a,b,ans:a-b,attempts:0};
+  }
+}
+
+// State for interactive carries: array of 0/1 per column position, right-to-left
+// For 2-digit problems, indices 0=units col, 1=tens col, 2=hundreds col
+let G_carries=[0,0,0];
+
+function renderColCalc(){
+  const q=G.diploQ;
+  if(!q)return;
+  const box=document.getElementById('col-calc-box');
+  const digA=numToDigits(q.a);
+  const digB=numToDigits(q.b);
+  const cols=Math.max(digA.length,digB.length)+1;
+  while(digA.length<cols)digA.push(0);
+  while(digB.length<cols)digB.push(0);
+  const isAdd=q.op==='+';
+  const isSub=q.op==='-';
+
+  // ROW 0: Annotation row
+  // For addition: clickable carry toggles
+  // For subtraction: shows "10" where borrow is received (col to the right of borrowed col)
+  let annotRow='<div class="cc-row carry-row"><div style="width:44px"></div>';
+  for(let c=cols-1;c>=0;c--){
+    if(isAdd){
+      const val=G_carries[c];
+      annotRow+=`<div class="cc-carry-cell" onclick="toggleCarry(${c})" title="Tier">
+        <span class="cc-carry-val${val===0?' empty':''}">${val===0?'·':val}</span></div>`;
+    } else {
+      // Column c received a borrow if the column to its left (c+1) has G_carries[c+1]=1
+      const received=c<cols-1&&G_carries[c+1]===1;
+      if(received){
+        annotRow+=`<div class="cc-carry-cell" style="cursor:default">
+          <span class="cc-borrow-received">10</span></div>`;
+      } else {
+        annotRow+=`<div class="cc-carry-cell" style="cursor:default">
+          <span class="cc-carry-val empty">·</span></div>`;
+      }
+    }
+  }
+  annotRow+='</div>';
+
+  // ROW 1: Number A
+  let rowA='<div class="cc-row"><div style="width:44px"></div>';
+  for(let c=cols-1;c>=0;c--){
+    const d=digA[c];
+    const isLeading=d===0&&c>=numDigits(q.a);
+    if(isLeading){
+      rowA+=`<div class="cc-cell"> </div>`;
+    } else if(isSub&&c>0&&d>0){
+      // Tens column: only clickable if borrow is actually needed
+      // For tens (c=1): borrow needed if digA[0] < digB[0]
+      // For hundreds (c=2): borrow needed if (digA[1]-(G_carries[1]||0)) < digB[1]
+      const needsBorrow=c===1?(digA[0]<digB[0]):(c===2?((digA[1]-(G_carries[1]||0))<digB[1]):false);
+      if(G_carries[c]===1){
+        // Borrowing: show diagonal cross through digit only (no reduced digit — student calculates)
+        rowA+=`<div class="cc-cell"><span class="cc-borrow-from">
+          <span class="cc-crossed">${d}</span>
+        </span></div>`;
+      } else if(needsBorrow){
+        rowA+=`<div class="cc-cell"><span class="cc-borrowable" onclick="toggleCarry(${c})" title="Klikk for å låne en tier">${d}</span></div>`;
+      } else {
+        rowA+=`<div class="cc-cell">${d}</div>`;
+      }
+    } else {
+      rowA+=`<div class="cc-cell">${d}</div>`;
+    }
+  }
+  rowA+='</div>';
+
+  // ROW 2: Operator + Number B
+  let rowB=`<div class="cc-row"><div class="cc-cell op-cell">${isAdd?'+':'−'}</div>`;
+  for(let c=cols-1;c>=0;c--){
+    const d=digB[c];
+    rowB+=`<div class="cc-cell">${d===0&&c>=numDigits(q.b)?'':d}</div>`;
+  }
+  rowB+='</div>';
+
+  // ROW 3: Answer — column-indexed object G.diploDigits (clickable to delete)
+  // Find next empty column for cursor indicator
+  let nextEmpty=-1;
+  for(let c=0;c<cols;c++){if(G.diploDigits[c]===undefined){nextEmpty=c;break;}}
+  let rowAns='<div class="cc-row ans-row"><div style="width:44px"></div>';
+  for(let c=cols-1;c>=0;c--){
+    const ch=G.diploDigits[c]||'';
+    const isCursor=c===nextEmpty;
+    const cls='cc-cell ans-cell'+(ch?' can-del':'')+(isCursor?' is-next':'');
+    const click=ch?`onclick="deleteDiploDigit(${c})" title="Klikk for å slette dette sifferet"`:'';
+    rowAns+=`<div class="${cls}" ${click}>${ch||'_'}</div>`;
+  }
+  rowAns+='</div>';
+
+  box.innerHTML=annotRow+rowA+rowB+rowAns;
+}
+
+function numToDigits(n){
+  // Returns array of digits, index 0 = units, 1 = tens, etc.
+  const s=String(n);
+  const arr=[];
+  for(let i=s.length-1;i>=0;i--)arr.push(parseInt(s[i]));
+  return arr;
+}
+function numDigits(n){return String(n).length;}
+
+function toggleCarry(col){
+  if(!G.diploQ||!G.levelRunning)return;
+  G_carries[col]=G_carries[col]?0:1;
+  renderColCalc();
+}
+
+function openDiplo(){
+  if(!G.levelRunning)return;
+  G.diploQ=makeDiploQ();G.diploAnswer='';G.diploDigits={};
+  G_carries=[0,0,0];
+  document.getElementById('col-diplo-msg').textContent=DIPLO_MSGS[Math.floor(Math.random()*DIPLO_MSGS.length)];
+  document.getElementById('diplo-hint-box').classList.remove('show');
+  renderColCalc();
+  updateRightPanelState();
+}
+function closeDiplo(){
+  G.diploQ=null;G.diploAnswer='';G.diploDigits={};
+  updateRightPanelState();
+}
+function closeDiploSilent(){
+  if(G.diploQ){G.diploQ=null;G.diploAnswer='';G.diploDigits={};updateRightPanelState();}
+}
+function dnk(v){
+  if(!G.diploQ||!G.levelRunning)return;
+  const maxCols=Math.max(String(G.diploQ.a).length,String(G.diploQ.b).length)+1;
+  if(v==='del'){
+    // Remove highest filled column (most recently entered)
+    const filled=Object.keys(G.diploDigits).map(Number).sort((a,b)=>b-a);
+    if(filled.length>0) delete G.diploDigits[filled[0]];
+  } else {
+    // Fill next empty column from right (0=units)
+    for(let c=0;c<maxCols;c++){
+      if(G.diploDigits[c]===undefined){G.diploDigits[c]=v;break;}
+    }
+  }
+  renderColCalc();
+}
+function deleteDiploDigit(c){
+  if(!G.diploQ||!G.levelRunning)return;
+  delete G.diploDigits[c];
+  renderColCalc();
+}
+function updateDiploAns(){
+  renderColCalc();
+}
+function submitDiplo(){
+  if(!G.diploQ||!G.levelRunning)return;
+  const filledCols=Object.keys(G.diploDigits);
+  if(filledCols.length===0)return;
+  const q=G.diploQ;q.attempts++;
+  // Reconstruct number: highest column = most significant digit
+  const maxC=Math.max(...filledCols.map(Number));
+  let numStr='';
+  for(let c=maxC;c>=0;c--) numStr+=(G.diploDigits[c]||'0');
+  const diploNum=parseInt(numStr)||0;
+  if(diploNum===q.ans){
+    // Riktig
+    const earned=XP_DIPLO;
+    G.xp+=earned;G.diploSent++;G.streak++;G.solved++;
+    if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+    sv.totalXp=(sv.totalXp||0)+earned;sv.modXp[G.wing]=(sv.modXp[G.wing]||0)+earned;
+    if(G.bestStreak>sv.bestStreak)sv.bestStreak=G.bestStreak;
+    xpFloat(earned,null,false,'diplo');
+    const reply=GLIS_REPLIES[Math.floor(Math.random()*GLIS_REPLIES.length)];
+    showFB('rep','SENDT! 📡',reply);
+    addDiploLog(q);
+    closeDiplo();updateHUD();save();
+    if(G.solved>=TARGET){stopLevel();showLevelUp();}
+  } else {
+    const hb=document.getElementById('diplo-hint-box');
+    if(q.attempts>=2){
+      hb.textContent=`Tips: ${q.a} ${q.op==='+'?'+':'minus'} ${q.b} = ${q.ans}. Regn det steg for steg.`;
+      hb.classList.add('show');
+    } else {
+      showFB('ng','NESTEN!','Prøv igjen. Se på tiere og enere.');
+    }
+    G.diploAnswer='';G.diploDigits={};updateDiploAns();
+  }
+}
+
+// FEEDBACK
+let fbT;
+function showFB(type,t,s){
+  const fb=document.getElementById('fb');fb.className='fb-ol '+type;
+  document.getElementById('fb-t').textContent=t;document.getElementById('fb-s').textContent=s;
+  void fb.offsetWidth;fb.classList.add('show');
+  clearTimeout(fbT);fbT=setTimeout(()=>fb.classList.remove('show'),2200);
+}
+
+// XP FLOAT
+function xpFloat(xp,el,bonus,mode){
+  const f=document.createElement('div');
+  f.className='xp-float'+(mode==='diplo'?' diplo':'');
+  f.textContent='+'+xp+' XP';
+  if(el){const r=el.getBoundingClientRect();f.style.left=(r.left+r.width/2-22)+'px';f.style.top=(r.top-12)+'px';}
+  else{f.style.left='50%';f.style.top='38%';}
+  document.body.appendChild(f);setTimeout(()=>f.remove(),1400);
+}
+
+// LOGG
+function addLog(q,first,mode){
+  const c=document.getElementById('fl-entries');
+  const d=document.createElement('div');d.className='fl-entry';
+  d.innerHTML=`<span class="fl-op">${q.missing===0?'MULT':'DIV'}</span><span class="fl-eq">${q.table}·${q.factor}=${q.product}</span><span class="fl-mk">${first?'✅':'🔄'}</span>`;
+  c.insertBefore(d,c.firstChild);if(c.children.length>12)c.lastChild.remove();
+}
+function addDiploLog(q){
+  const c=document.getElementById('diplo-fl-entries');
+  const d=document.createElement('div');d.className='fl-entry';
+  d.innerHTML=`<span class="fl-op diplo">📡</span><span class="fl-eq">${q.a}${q.op==='+'?'+':'−'}${q.b}=${q.ans}</span><span class="fl-mk">✅</span>`;
+  c.insertBefore(d,c.firstChild);if(c.children.length>10)c.lastChild.remove();
+}
+
+// LEVEL UP / GAME OVER
+function showLevelUp(){
+  const done=G.level>=LEVELS;
+  const stars=G.hp>80?3:G.hp>50?2:1;
+  const ws=sv.modStars[G.wing]||[0,0,0];
+  ws[G.level-1]=Math.max(ws[G.level-1],stars);sv.modStars[G.wing]=ws;
+  if(done&&!sv.unlocked.includes(G.wing+1)&&G.wing+1<MODULES.length)sv.unlocked.push(G.wing+1);
+  save();
+  document.getElementById('lu-t').textContent=done?'MODUL FIKSET!':'NIVÅ FULLFØRT!';
+  document.getElementById('lu-s').textContent=done?
+    `${MODULES[G.wing].name} er stabilisert. Er du klar for å bli det mest kjente mennesket i historien?`:
+    `Nivå ${G.level} er nådd. Audacious-9 holder stø kurs.`;
+  document.getElementById('lu-xp').textContent='+'+G.xp;
+  document.getElementById('lu-sol').textContent=G.solved;
+  document.getElementById('lu-str').textContent=G.bestStreak;
+  document.getElementById('lu-diplo').textContent=G.diploSent;
+  document.getElementById('lu-stars').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);
+  document.getElementById('lu-next').textContent=done?
+    (G.wing+1<MODULES.length?'NESTE MODUL':'OPPDRAGET FULLFØRT!'):
+    `NIVÅ ${G.level+1}`;
+  const glisEl=document.getElementById('lu-glis');
+  if(G.diploSent>0){
+    glisEl.style.display='block';
+    document.getElementById('lu-glis-txt').textContent=GLIS_REPLIES[Math.floor(Math.random()*GLIS_REPLIES.length)];
+  } else {
+    glisEl.style.display='none';
+  }
+  showScreen('screen-levelup');confetti();
+}
+function nextLevel(){
+  if(G.level>=LEVELS){
+    if(G.wing+1<MODULES.length){G.wing++;G.level=1;}
+    else{showModules();return;}
+  } else {G.level++;}
+  startLevel();
+}
+function showGameOver(mode){
+  if(mode==='all'){
+    document.getElementById('go-title').textContent='GAME OVER';
+    document.getElementById('go-sub').innerHTML='Menneskeheten har mislyktes i å snakke med romvesener.<br>Vi prøver igjen, alltid!';
+    document.getElementById('go-quote').style.display='none';
+  } else {
+    document.getElementById('go-title').textContent='SKIPET ER STILLE';
+    document.getElementById('go-sub').innerHTML='Audacious-9 seiler stille gjennom verdensrommet.<br>Mannskapet er trygt, og Glis 67 venter fortsatt på oss.';
+    document.getElementById('go-quote').style.display='block';
+  }
+  document.getElementById('go-xp').textContent=G.xp;
+  document.getElementById('go-sol').textContent=G.solved;
+  showScreen('screen-gameover');
+}
+
+// KONFETTI
+function confetti(){
+  const cols=['#00c0f0','#e8a800','#00e8aa','#ff80ab','#8b5cf6'];
+  for(let i=0;i<55;i++){
+    const c=document.createElement('div');c.className='conf';
+    c.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};--d:${(Math.random()*1.4+.7).toFixed(1)}s;--dl:${(Math.random()*.5).toFixed(2)}s`;
+    document.body.appendChild(c);setTimeout(()=>c.remove(),2600);
+  }
+}
+window.addEventListener('resize',()=>{if(G&&G.levelRunning)drawLines();});
+</script>
+<!-- PAUSE OVERLAY -->
+<div id="pause-overlay">
+  <div class="pause-box">
+    <div class="pause-icon">⏸</div>
+    <div class="pause-title">PAUSE</div>
+    <div class="pause-sub">Oppdraget er midlertidig stoppet.<br>Trykk ESC eller klikk nedenfor for å fortsette.</div>
+    <button class="btn btn-primary" onclick="togglePause()" style="font-size:16px;padding:16px 52px;margin-top:8px">FORTSETT OPPDRAGET</button>
+    <button class="btn btn-ghost" onclick="quitToModules()" style="margin-top:6px">AVSLUTT OG GÅ TIL ETAPPE</button>
+  </div>
+</div>
+</body>
+</html>

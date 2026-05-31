@@ -277,7 +277,174 @@
     .personal__avatar { width: 80px; height: 80px; }
     .personal__panel p { font-size: 1.05rem; }
   }
+
+  /* ─────────── RELATED feed ─────────── */
+  .related {
+    max-width: 1200px;
+    margin: 0 auto var(--s-20);
+    padding: 0 var(--s-6);
+  }
+  .related__head { margin-bottom: var(--s-6); display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: var(--s-4); }
+  .related__label {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.7rem; letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--slate-500);
+  }
+  .related h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+    font-weight: 800; letter-spacing: -0.02em;
+  }
+  .related__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s-6);
+  }
+  .rel-card {
+    background: var(--surface);
+    color: var(--space-900);
+    border: var(--border-w) solid var(--border-ink);
+    border-radius: var(--r-2xl);
+    box-shadow: var(--shadow-2);
+    text-decoration: none;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    overflow: hidden;
+    transition: transform var(--t-base), box-shadow var(--t-base);
+  }
+  .rel-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: var(--shadow-3);
+  }
+  .rel-card__copy {
+    padding: var(--s-6);
+    display: flex; flex-direction: column;
+  }
+  .rel-card__tag {
+    display: inline-block; align-self: flex-start;
+    font-family: var(--font-display);
+    font-size: 0.65rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    padding: 5px 12px; border-radius: var(--r-pill);
+    background: var(--nova-yellow); color: var(--space-900);
+    margin-bottom: var(--s-3);
+  }
+  .rel-card--video   .rel-card__tag { background: var(--berry-pink, #E53A65); color: #fff; }
+  .rel-card--article .rel-card__tag { background: var(--planet-teal); color: var(--space-900); }
+  .rel-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 800; line-height: 1.1; letter-spacing: -0.02em;
+    margin-bottom: var(--s-3);
+  }
+  .rel-card h3 em {
+    font-style: italic;
+    background: linear-gradient(95deg, var(--nova-yellow), var(--planet-teal));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    padding-right: 0.08em;
+  }
+  .rel-card p {
+    color: var(--slate-500);
+    font-size: 0.92rem; line-height: 1.5;
+    margin-bottom: var(--s-4);
+  }
+  .rel-card__cta {
+    margin-top: auto;
+    font-family: var(--font-display);
+    font-weight: 700; color: var(--space-900);
+    font-size: 0.92rem;
+    text-decoration: none;
+  }
+
+  /* Mind-map preview viz */
+  .rel-card__viz {
+    position: relative; height: 180px;
+    background:
+      radial-gradient(circle at 30% 40%, rgba(244, 196, 48, 0.10), transparent 50%),
+      radial-gradient(circle at 70% 60%, rgba(34, 200, 200, 0.10), transparent 50%),
+      var(--chalk-50);
+    border-top: var(--border-w) solid var(--border-ink);
+  }
+  .rel-card__viz svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  /* Article spark art */
+  .rel-card__art {
+    position: relative; height: 180px;
+    background: var(--space-900);
+    border-top: var(--border-w) solid var(--border-ink);
+    display: grid; place-items: center;
+    overflow: hidden;
+  }
+  .rel-card__art::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.6;
+    background-image:
+      radial-gradient(1.4px 1.4px at 18% 24%, #fff, transparent),
+      radial-gradient(1px 1px at 36% 72%, #fff, transparent),
+      radial-gradient(1.6px 1.6px at 60% 16%, #fff, transparent),
+      radial-gradient(1px 1px at 80% 60%, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 90% 32%, #fff, transparent),
+      radial-gradient(1px 1px at 24% 88%, #fff, transparent);
+  }
+  .rel-card__art .glow {
+    position: absolute; inset: 0;
+    background: radial-gradient(closest-side, rgba(244,196,48,0.55), transparent 65%);
+    filter: blur(14px);
+  }
+  .rel-card__art .spark {
+    position: relative; z-index: 1;
+    font-size: 88px; line-height: 1;
+    filter: drop-shadow(0 0 22px rgba(244,196,48,0.7));
+    animation: rel-spark 3s ease-in-out infinite;
+  }
+  @keyframes rel-spark {
+    0%, 100% { transform: scale(1) rotate(-5deg); }
+    50%      { transform: scale(1.1) rotate(5deg); }
+  }
+
+  /* Video facade */
+  .rel-card__video {
+    position: relative; height: 180px;
+    border-top: var(--border-w) solid var(--border-ink);
+    background: #000; overflow: hidden;
+  }
+  .rel-card__video iframe {
+    position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
+  }
+  .yt-facade {
+    position: absolute; inset: 0; cursor: pointer;
+    background-size: cover; background-position: center;
+    display: grid; place-items: center;
+    transition: transform var(--t-base);
+  }
+  .yt-facade::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,0.45) 100%);
+  }
+  .yt-facade:hover { transform: scale(1.02); }
+  .yt-facade__play {
+    position: relative; z-index: 1;
+    width: 64px; height: 46px; border-radius: 12px;
+    background: rgba(20,20,20,0.85);
+    display: grid; place-items: center;
+    transition: background var(--t-base), transform var(--t-base);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  }
+  .yt-facade:hover .yt-facade__play { background: #ff0033; transform: scale(1.08); }
+  .yt-facade__play::before {
+    content: ''; width: 0; height: 0;
+    border-left: 16px solid #fff;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    margin-left: 4px;
+  }
+
+  @media (max-width: 980px) {
+    .related__grid { grid-template-columns: 1fr; }
+  }
 </style>
+  <script src="assets/cursor.js" defer></script>
 </head>
 <body>
 
@@ -404,6 +571,101 @@
     </div>
   </section>
 
+  <!-- Related feed -->
+  <section class="related" aria-labelledby="related-title">
+    <div class="related__head">
+      <div>
+        <span class="related__label">★ Utforsk mer</span>
+        <h2 id="related-title">Andre nysgjerrigheter fra labben</h2>
+      </div>
+    </div>
+
+    <div class="related__grid">
+
+      <!-- Mind map -->
+      <a class="rel-card rel-card--mindmap" href="matte-mindmap.html">
+        <div class="rel-card__copy">
+          <span class="rel-card__tag">Tankekart · Interaktivt</span>
+          <h3>Trenger jeg å lære <em>matte?</em></h3>
+          <p>Over 80 grunner — fra lønnsslippen til svarte hull. Bruk det med klassen.</p>
+          <span class="rel-card__cta">Utforsk tankekartet →</span>
+        </div>
+        <div class="rel-card__viz" aria-hidden="true">
+          <svg viewBox="-220 -130 440 260" preserveAspectRatio="xMidYMid meet">
+            <g fill="none" stroke-linecap="round">
+              <path d="M-34 0 L-90 0" stroke="#F4C430" stroke-width="3"/>
+              <path d="M34 0 L90 0"   stroke="#22C8C8" stroke-width="3"/>
+              <path d="M-152 -8 C -172 -28 -180 -50 -188 -78" stroke="#F5A623" stroke-width="1.8"/>
+              <path d="M-152 0  L -188 0"                      stroke="#F5A623" stroke-width="1.8"/>
+              <path d="M-152 8  C -172 28 -180 50 -188 78"     stroke="#F5A623" stroke-width="1.8"/>
+              <path d="M152 -8 C 172 -28 180 -50 188 -78"  stroke="#07B3C7" stroke-width="1.8"/>
+              <path d="M152 0  L 188 0"                    stroke="#07B3C7" stroke-width="1.8"/>
+              <path d="M152 8  C 172 28 180 50 188 78"     stroke="#07B3C7" stroke-width="1.8"/>
+            </g>
+            <g>
+              <circle cx="-188" cy="-78" r="4" fill="#FFFBEC" stroke="#F5A623" stroke-width="1.5"/>
+              <circle cx="-188" cy="0"   r="4" fill="#FFFBEC" stroke="#F5A623" stroke-width="1.5"/>
+              <circle cx="-188" cy="78"  r="4" fill="#FFFBEC" stroke="#F5A623" stroke-width="1.5"/>
+              <circle cx="188"  cy="-78" r="4" fill="#ECFAFA" stroke="#07B3C7" stroke-width="1.5"/>
+              <circle cx="188"  cy="0"   r="4" fill="#ECFAFA" stroke="#07B3C7" stroke-width="1.5"/>
+              <circle cx="188"  cy="78"  r="4" fill="#ECFAFA" stroke="#07B3C7" stroke-width="1.5"/>
+            </g>
+            <g font-family="Rubik" font-size="11" font-weight="700" fill="#0E1A38">
+              <text x="-196" y="-74" text-anchor="end">Lønn &amp; skatt</text>
+              <text x="-196" y="4"   text-anchor="end">Renter</text>
+              <text x="-196" y="82"  text-anchor="end">Helse &amp; trening</text>
+              <text x="196"  y="-74" text-anchor="start">Klima</text>
+              <text x="196"  y="4"   text-anchor="start">AI &amp; teknologi</text>
+              <text x="196"  y="82"  text-anchor="start">Universet</text>
+            </g>
+            <rect x="-152" y="-16" width="62" height="32" rx="16" fill="#F4C430" stroke="#0E1A38" stroke-width="2"/>
+            <text x="-121" y="5" font-family="Rubik" font-size="12" font-weight="800" text-anchor="middle" fill="#0E1A38">Personlig</text>
+            <rect x="90" y="-16" width="62" height="32" rx="16" fill="#22C8C8" stroke="#0E1A38" stroke-width="2"/>
+            <text x="121" y="5" font-family="Rubik" font-size="12" font-weight="800" text-anchor="middle" fill="#0E1A38">Samfunn</text>
+            <rect x="-34" y="-17" width="68" height="34" rx="17" fill="#0E1A38" stroke="#0E1A38" stroke-width="2"/>
+            <text x="0" y="5" font-family="Rubik" font-size="13" font-weight="900" text-anchor="middle" fill="#F4C430">Matte</text>
+          </svg>
+        </div>
+      </a>
+
+      <!-- Video: Artemis II -->
+      <article class="rel-card rel-card--video">
+        <div class="rel-card__copy">
+          <span class="rel-card__tag">🎬 Kortfilm</span>
+          <h3>Fire mennesker <em>rundt Månen</em></h3>
+          <p>Rakettvitenskap, sorg og kjeks bak månen — historien om Artemis II.</p>
+          <a class="rel-card__cta" href="https://youtu.be/IUN-vw_4oKI" target="_blank" rel="noopener">Se på YouTube →</a>
+        </div>
+        <div class="rel-card__video">
+          <div
+            class="yt-facade"
+            role="button"
+            tabindex="0"
+            aria-label="Spill av video: Fire mennesker rundt Månen"
+            data-video-id="IUN-vw_4oKI"
+            style="background-image: url('https://i.ytimg.com/vi/IUN-vw_4oKI/hqdefault.jpg');">
+            <div class="yt-facade__play" aria-hidden="true"></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Article: Gnistrende hjerne -->
+      <a class="rel-card rel-card--article" href="gnistrende-hjerne.html">
+        <div class="rel-card__copy">
+          <span class="rel-card__tag">✨ Artikkel</span>
+          <h3>Hjernen <em>gnistrer</em> når vi gjør feil</h3>
+          <p>Tre fakta fra hjerneforskningen som forandret hvordan jeg tænker på feiling — og hvordan vi snakker med elever.</p>
+          <span class="rel-card__cta">Les artikkelen →</span>
+        </div>
+        <div class="rel-card__art" aria-hidden="true">
+          <div class="glow"></div>
+          <span class="spark">⚡</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
 </main>
 
 <footer class="sitefoot">
@@ -413,6 +675,23 @@
 
 <script>
   document.getElementById('greeting').textContent = 'Hei, kjære lærer';
+
+  // YouTube facade — clicking thumbnail loads the actual iframe (autoplay)
+  document.querySelectorAll('.yt-facade').forEach(function (facade) {
+    function activate() {
+      var id = facade.dataset.videoId;
+      var iframe = document.createElement('iframe');
+      iframe.src = 'https://www.youtube.com/embed/' + id + '?autoplay=1&rel=0';
+      iframe.title = 'Lektor Tronrud — kortfilm';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.allowFullscreen = true;
+      facade.replaceWith(iframe);
+    }
+    facade.addEventListener('click', activate);
+    facade.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
+    });
+  });
 </script>
 
 </body>
